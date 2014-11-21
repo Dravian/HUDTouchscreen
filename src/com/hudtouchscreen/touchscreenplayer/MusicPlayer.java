@@ -25,6 +25,7 @@ import com.touchscreen.touchscreenplayer.R;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
@@ -85,7 +86,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	private double finalTime = 0;
 	private Handler updateTime = new Handler();;
 	private SeekBar seekbar;
-	public boolean newTrack;
+	private boolean newTrack;
+	private static boolean startingNewActivity;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -128,12 +130,13 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		random = new Random();
 		this.type = type;
 		newTrack = false;
+		startingNewActivity = false;
 
 		startTimeField = (TextView) findViewById(R.id.startTime);
 		endTimeField = (TextView) findViewById(R.id.endTime);
 		seekbar = (SeekBar) findViewById(R.id.seekBar1);
 		seekbar.setOnSeekBarChangeListener(this);
-		
+
 		addTracks(getTracks());
 
 		loadTrack();
@@ -172,21 +175,24 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 	@Override
 	public void onPause() {
+
 		super.onPause();
-		wakeLock.release();
-		if (track != null) {
-			if (track.isPlaying()) {
-				track.pause();
-				isTuning = false;
-				btnPlay.setBackgroundResource(R.drawable.play);
-			}
-			if (isFinishing()) {
-				track.dispose();
-				finish();
-			}
-		} else {
-			if (isFinishing()) {
-				finish();
+		if (!startingNewActivity) {
+			wakeLock.release();
+			if (track != null) {
+				if (track.isPlaying()) {
+					track.pause();
+					isTuning = false;
+					btnPlay.setBackgroundResource(R.drawable.play);
+				}
+				if (isFinishing()) {
+					track.dispose();
+					finish();
+				}
+			} else {
+				if (isFinishing()) {
+					finish();
+				}
 			}
 		}
 	}
@@ -336,7 +342,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 						btnPlay.setBackgroundResource(R.drawable.play);
 						track.pause();
 						updateTime.removeCallbacks(UpdateSongTime);
-						
+
 					} else {
 						isTuning = true;
 						btnPlay.setBackgroundResource(R.drawable.pause);
@@ -356,6 +362,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			case R.id.btnShuffle:
 				synchronized (this) {
 					Button btnShuffle = (Button) findViewById(R.id.btnShuffle);
+					// switchToList();
 
 					if (shuffle) {
 						shuffle = false;
@@ -366,6 +373,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 					}
 
 					broadcast(new ShuffleMessage(shuffle));
+
 				}
 				return;
 			case R.id.btnLooping:
@@ -438,13 +446,13 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		if (isTuning && track != null) {
 
 			track.play();
-			
+
 			setTime();
 			updateTime.postDelayed(UpdateSongTime, 100);
 		}
-		
+
 	}
-	
+
 	private void setTime() {
 		finalTime = track.getFinalTime();
 		startTime = track.getStartTime();
@@ -467,8 +475,33 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
 								.toMinutes((long) startTime))));
 		seekbar.setProgress((int) startTime);
-		
-		broadcast(new TimeMessage(startTime,finalTime));
+
+		broadcast(new TimeMessage(startTime, finalTime));
+	}
+
+	private void switchToList() {
+		startingNewActivity = true;
+		Intent i = new Intent(getApplicationContext(), ListView.class);
+		startActivityForResult(i, 100);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		startingNewActivity = false;
+
+		if (resultCode == 100) {
+			data.getExtras();
+			// Storing result in a variable called myvar
+			// get("website") 'website' is the key value result data
+			int song = data.getIntExtra("Song", -1);
+
+			if (song != -1) {
+
+			}
+
+		}
+
 	}
 
 	private Runnable UpdateSongTime = new Runnable() {
@@ -481,8 +514,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 							- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
 									.toMinutes((long) startTime))));
 			seekbar.setProgress((int) startTime);
-			
-			broadcast(new TimeMessage(startTime,finalTime));
+
+			broadcast(new TimeMessage(startTime, finalTime));
 			updateTime.postDelayed(this, 100);
 		}
 	};

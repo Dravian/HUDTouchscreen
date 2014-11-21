@@ -1147,6 +1147,7 @@ containing a value of this type.
         public static final int startTime=0x7f050041;
         public static final int submit_area=0x7f050039;
         public static final int tabMode=0x7f050002;
+        public static final int textViewNamelist3=0x7f050049;
         public static final int title=0x7f05002b;
         public static final int top_action_bar=0x7f050020;
         public static final int touch_title=0x7f050043;
@@ -1207,8 +1208,9 @@ containing a value of this type.
         public static final int abc_simple_decor=0x7f030017;
         public static final int activity_head_up_display=0x7f030018;
         public static final int activity_player=0x7f030019;
-        public static final int listsearch=0x7f03001a;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001b;
+        public static final int list_view=0x7f03001a;
+        public static final int listsearch=0x7f03001b;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001c;
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 
@@ -1252,11 +1254,13 @@ containing a value of this type.
          */
         public static final int abc_shareactionprovider_share_with_application=0x7f0a000b;
         public static final int end_time=0x7f0a0012;
+        public static final int hello_world=0x7f0a0014;
         public static final int hud=0x7f0a0010;
         public static final int player=0x7f0a000d;
         public static final int song_title=0x7f0a000f;
         public static final int start_time=0x7f0a0011;
         public static final int title_activity_headup_display=0x7f0a000e;
+        public static final int title_activity_list_view=0x7f0a0013;
     }
     public static final class style {
         /** 
