@@ -68,11 +68,13 @@ public class Music implements OnCompletionListener {
 	}
 
 	public void stop() {
-		mediaPlayer.seekTo(0);
-		mediaPlayer.stop();
+		if (isPrepared) {
+			mediaPlayer.seekTo(0);
+			mediaPlayer.stop();
 
-		synchronized (this) {
-			isPrepared = false;
+			synchronized (this) {
+				isPrepared = false;
+			}
 		}
 	}
 
@@ -106,11 +108,11 @@ public class Music implements OnCompletionListener {
 	protected double getStartTime() {
 		return mediaPlayer.getCurrentPosition();
 	}
-	
+
 	protected double getFinalTime() {
 		return mediaPlayer.getDuration();
 	}
-	
+
 	protected void seek(int progress) {
 		mediaPlayer.seekTo(progress);
 	}

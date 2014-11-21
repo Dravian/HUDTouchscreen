@@ -479,12 +479,14 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		broadcast(new TimeMessage(startTime, finalTime));
 	}
 
+	/*
 	private void switchToList() {
 		startingNewActivity = true;
 		Intent i = new Intent(getApplicationContext(), ListView.class);
 		startActivityForResult(i, 100);
 	}
 
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -502,7 +504,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 		}
 
-	}
+	}*/
 
 	private Runnable UpdateSongTime = new Runnable() {
 		public void run() {
