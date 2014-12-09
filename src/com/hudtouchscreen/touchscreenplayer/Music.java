@@ -68,14 +68,14 @@ public class Music implements OnCompletionListener {
 	}
 
 	public void stop() {
-		if (isPrepared) {
+		//if (isPrepared) {
 			mediaPlayer.seekTo(0);
-			mediaPlayer.stop();
+			mediaPlayer.pause();
 
-			synchronized (this) {
+		/*	synchronized (this) {
 				isPrepared = false;
 			}
-		}
+		}*/
 	}
 
 	public void pause() {

@@ -63,7 +63,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	private WakeLock wakeLock;
 	private static final String[] EXTENSIONS = { ".mp3", ".mid", ".wav",
 			".ogg", ".mp4" }; // Playable Extensions
-	private List<String> trackNames; // Playable Track Titles
+	private ArrayList<String> trackNames; // Playable Track Titles
 	private AssetManager assets;
 	private File path; // directory where music is loaded from on SD Card
 	private Music track; // currently loaded track
@@ -479,33 +479,6 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		broadcast(new TimeMessage(startTime, finalTime));
 	}
 
-	/*
-	private void switchToList() {
-		startingNewActivity = true;
-		Intent i = new Intent(getApplicationContext(), ListView.class);
-		startActivityForResult(i, 100);
-	}
-
-	
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		startingNewActivity = false;
-
-		if (resultCode == 100) {
-			data.getExtras();
-			// Storing result in a variable called myvar
-			// get("website") 'website' is the key value result data
-			int song = data.getIntExtra("Song", -1);
-
-			if (song != -1) {
-
-			}
-
-		}
-
-	}*/
-
 	private Runnable UpdateSongTime = new Runnable() {
 		public void run() {
 			startTime = track.getStartTime();
@@ -537,26 +510,74 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		loadTrack();
 		playTrack();
 	}
+	
+	private void switchTrack(int position) {
+		currentTrack = position;
+		loadTrack();
+		playTrack();
+	}
 
 	@Override
 	public boolean onDown(MotionEvent arg0) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean onFling(MotionEvent start, MotionEvent finish,
 			float xVelocity, float yVelocity) {
-		if (start.getRawX() < finish.getRawX()) {
-			setTrack(0);
-			loadTrack();
-			playTrack();
-		} else if (start.getRawX() > finish.getRawX()) {
-			setTrack(1);
-			loadTrack();
-			playTrack();
+
+		final int SWIPE_THRESHOLD = 100;
+		final int SWIPE_VELOCITY_THRESHOLD = 100;
+		
+		try {
+			float diffY = finish.getY() - start.getY();
+			float diffX = finish.getX() - start.getX();
+			
+			if (Math.abs(diffX) > Math.abs(diffY)) {
+				if (Math.abs(diffX) > SWIPE_THRESHOLD
+						&& Math.abs(xVelocity) > SWIPE_VELOCITY_THRESHOLD) {
+					if (diffX > 0) {
+						onSwipeRight();
+					} else {
+						onSwipeLeft();
+					}
+				}
+			} else {
+				if (Math.abs(diffY) > SWIPE_THRESHOLD
+						&& Math.abs(yVelocity) > SWIPE_VELOCITY_THRESHOLD) {
+					if (diffY > 0) {
+						onSwipeDown();
+					} else {
+						onSwipeUp();
+					}
+				}
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
 		}
+
 		return true;
+	}
+
+	public void onSwipeRight() {
+		setTrack(0); 
+		loadTrack();
+		playTrack();
+	}
+
+	public void onSwipeLeft() {
+		setTrack(1);
+		loadTrack();
+		playTrack();
+	}
+
+	public void onSwipeUp() {
+		switchToList();
+	}
+
+	public void onSwipeDown() {
+		switchToList();
 	}
 
 	@Override
@@ -587,6 +608,31 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		return gDetector.onTouchEvent(me);
+	}
+
+	private void switchToList() {
+		startingNewActivity = true;
+		Intent i = new Intent(getApplicationContext(), MusikList.class);
+		i.putStringArrayListExtra("Track Names",trackNames);
+		
+		startActivityForResult(i, 100);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		startingNewActivity = false;
+	
+		if (resultCode == 100) {
+			data.getExtras();
+			int position = data.getIntExtra("Song", -1);
+	
+			if (position != -1) {
+				switchTrack(position);
+			}
+	
+		}
+	
 	}
 
 	@Override
