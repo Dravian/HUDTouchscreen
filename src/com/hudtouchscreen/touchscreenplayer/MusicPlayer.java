@@ -25,6 +25,7 @@ import com.touchscreen.touchscreenplayer.R;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
@@ -62,7 +63,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	private WakeLock wakeLock;
 	private static final String[] EXTENSIONS = { ".mp3", ".mid", ".wav",
 			".ogg", ".mp4" }; // Playable Extensions
-	private List<String> trackNames; // Playable Track Titles
+	private ArrayList<String> trackNames; // Playable Track Titles
 	private AssetManager assets;
 	private File path; // directory where music is loaded from on SD Card
 	private Music track; // currently loaded track
@@ -85,7 +86,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	private double finalTime = 0;
 	private Handler updateTime = new Handler();;
 	private SeekBar seekbar;
-	public boolean newTrack;
+	private boolean newTrack;
+	private static boolean startingNewActivity;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -128,12 +130,13 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		random = new Random();
 		this.type = type;
 		newTrack = false;
+		startingNewActivity = false;
 
 		startTimeField = (TextView) findViewById(R.id.startTime);
 		endTimeField = (TextView) findViewById(R.id.endTime);
 		seekbar = (SeekBar) findViewById(R.id.seekBar1);
 		seekbar.setOnSeekBarChangeListener(this);
-		
+
 		addTracks(getTracks());
 
 		loadTrack();
@@ -172,21 +175,24 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 	@Override
 	public void onPause() {
+
 		super.onPause();
-		wakeLock.release();
-		if (track != null) {
-			if (track.isPlaying()) {
-				track.pause();
-				isTuning = false;
-				btnPlay.setBackgroundResource(R.drawable.play);
-			}
-			if (isFinishing()) {
-				track.dispose();
-				finish();
-			}
-		} else {
-			if (isFinishing()) {
-				finish();
+		if (!startingNewActivity) {
+			wakeLock.release();
+			if (track != null) {
+				if (track.isPlaying()) {
+					track.pause();
+					isTuning = false;
+					btnPlay.setBackgroundResource(R.drawable.play);
+				}
+				if (isFinishing()) {
+					track.dispose();
+					finish();
+				}
+			} else {
+				if (isFinishing()) {
+					finish();
+				}
 			}
 		}
 	}
@@ -336,7 +342,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 						btnPlay.setBackgroundResource(R.drawable.play);
 						track.pause();
 						updateTime.removeCallbacks(UpdateSongTime);
-						
+
 					} else {
 						isTuning = true;
 						btnPlay.setBackgroundResource(R.drawable.pause);
@@ -356,6 +362,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			case R.id.btnShuffle:
 				synchronized (this) {
 					Button btnShuffle = (Button) findViewById(R.id.btnShuffle);
+					// switchToList();
 
 					if (shuffle) {
 						shuffle = false;
@@ -366,6 +373,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 					}
 
 					broadcast(new ShuffleMessage(shuffle));
+
 				}
 				return;
 			case R.id.btnLooping:
@@ -438,13 +446,13 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		if (isTuning && track != null) {
 
 			track.play();
-			
+
 			setTime();
 			updateTime.postDelayed(UpdateSongTime, 100);
 		}
-		
+
 	}
-	
+
 	private void setTime() {
 		finalTime = track.getFinalTime();
 		startTime = track.getStartTime();
@@ -467,8 +475,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
 								.toMinutes((long) startTime))));
 		seekbar.setProgress((int) startTime);
-		
-		broadcast(new TimeMessage(startTime,finalTime));
+
+		broadcast(new TimeMessage(startTime, finalTime));
 	}
 
 	private Runnable UpdateSongTime = new Runnable() {
@@ -481,8 +489,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 							- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
 									.toMinutes((long) startTime))));
 			seekbar.setProgress((int) startTime);
-			
-			broadcast(new TimeMessage(startTime,finalTime));
+
+			broadcast(new TimeMessage(startTime, finalTime));
 			updateTime.postDelayed(this, 100);
 		}
 	};
@@ -502,26 +510,74 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		loadTrack();
 		playTrack();
 	}
+	
+	private void switchTrack(int position) {
+		currentTrack = position;
+		loadTrack();
+		playTrack();
+	}
 
 	@Override
 	public boolean onDown(MotionEvent arg0) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean onFling(MotionEvent start, MotionEvent finish,
 			float xVelocity, float yVelocity) {
-		if (start.getRawX() < finish.getRawX()) {
-			setTrack(0);
-			loadTrack();
-			playTrack();
-		} else if (start.getRawX() > finish.getRawX()) {
-			setTrack(1);
-			loadTrack();
-			playTrack();
+
+		final int SWIPE_THRESHOLD = 100;
+		final int SWIPE_VELOCITY_THRESHOLD = 100;
+		
+		try {
+			float diffY = finish.getY() - start.getY();
+			float diffX = finish.getX() - start.getX();
+			
+			if (Math.abs(diffX) > Math.abs(diffY)) {
+				if (Math.abs(diffX) > SWIPE_THRESHOLD
+						&& Math.abs(xVelocity) > SWIPE_VELOCITY_THRESHOLD) {
+					if (diffX > 0) {
+						onSwipeRight();
+					} else {
+						onSwipeLeft();
+					}
+				}
+			} else {
+				if (Math.abs(diffY) > SWIPE_THRESHOLD
+						&& Math.abs(yVelocity) > SWIPE_VELOCITY_THRESHOLD) {
+					if (diffY > 0) {
+						onSwipeDown();
+					} else {
+						onSwipeUp();
+					}
+				}
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
 		}
+
 		return true;
+	}
+
+	public void onSwipeRight() {
+		setTrack(0); 
+		loadTrack();
+		playTrack();
+	}
+
+	public void onSwipeLeft() {
+		setTrack(1);
+		loadTrack();
+		playTrack();
+	}
+
+	public void onSwipeUp() {
+		switchToList();
+	}
+
+	public void onSwipeDown() {
+		switchToList();
 	}
 
 	@Override
@@ -552,6 +608,31 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		return gDetector.onTouchEvent(me);
+	}
+
+	private void switchToList() {
+		startingNewActivity = true;
+		Intent i = new Intent(getApplicationContext(), MusikList.class);
+		i.putStringArrayListExtra("Track Names",trackNames);
+		
+		startActivityForResult(i, 100);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		startingNewActivity = false;
+	
+		if (resultCode == 100) {
+			data.getExtras();
+			int position = data.getIntExtra("Song", -1);
+	
+			if (position != -1) {
+				switchTrack(position);
+			}
+	
+		}
+	
 	}
 
 	@Override
