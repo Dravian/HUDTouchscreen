@@ -7,13 +7,20 @@ import java.net.Socket;
 public class ClientListener extends Thread {
 	private boolean waiting;
 	private ServerSocket serverSocket;
-	private MusicPlayer musicPlayer;
+	private ServerService server;
+	private int maxClients;
+	private int numberOfClients;
 
-	public ClientListener(int port, MusicPlayer musicPlayer) {
-		//super("CLT");
-		
-		this.musicPlayer = musicPlayer;
-		
+	public ClientListener(int port, ServerService serverService, int maxClients) {
+
+		this.server = serverService;
+		this.maxClients = maxClients;
+		numberOfClients = 0;
+
+		if (maxClients < 0) {
+			maxClients = 0;
+		}
+
 		try {
 
 			serverSocket = new ServerSocket(port);
@@ -31,10 +38,17 @@ public class ClientListener extends Thread {
 		while (waiting) {
 			Socket connection;
 			try {
-				connection = serverSocket.accept();
 
-				Client client = new Client(connection);
-				musicPlayer.addClient(client);
+				if (numberOfClients < maxClients) {
+					connection = serverSocket.accept();
+
+					Client client = new Client(connection);
+					server.addClient(client);
+					numberOfClients++;
+					
+				} else {
+					break;
+				}
 
 			} catch (IOException e) {
 				System.err.println("Couldn't connect with Socket");
@@ -42,6 +56,5 @@ public class ClientListener extends Thread {
 			}
 		}
 	}
-	
 
 }

@@ -1,11 +1,12 @@
 package com.hudtouchscreen.headup;
 
-import com.hudtouchscreen.message.LoopingMessage;
-import com.hudtouchscreen.message.Message;
-import com.hudtouchscreen.message.TimeMessage;
-import com.hudtouchscreen.message.ShuffleMessage;
-import com.hudtouchscreen.message.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.LoopingMessage;
+import com.hudtouchscreen.hudmessage.HudMessage;
+import com.hudtouchscreen.hudmessage.ShuffleMessage;
+import com.hudtouchscreen.hudmessage.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.TimeMessage;
 import com.touchscreen.touchscreenplayer.R;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,6 +17,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
+
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -116,7 +118,7 @@ public class HeadUpDisplay extends Activity {
 
 					message = in.readObject();
 
-					if (message instanceof Message) {
+					if (message instanceof HudMessage) {
 						
 						if (message instanceof SongTitleMessage) {
 							final TextView songTitle = (TextView) findViewById(R.id.hud_title);

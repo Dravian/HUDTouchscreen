@@ -1,7 +1,0 @@
-package com.hudtouchscreen.message;
-
-import java.io.Serializable;
-
-public interface Message extends Serializable{
-
-}

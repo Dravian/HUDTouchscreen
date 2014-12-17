@@ -4,41 +4,38 @@ import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.hudtouchscreen.message.LoopingMessage;
-import com.hudtouchscreen.message.Message;
-import com.hudtouchscreen.message.TimeMessage;
-import com.hudtouchscreen.message.ShuffleMessage;
-import com.hudtouchscreen.message.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.LoopingMessage;
+import com.hudtouchscreen.hudmessage.HudMessage;
+import com.hudtouchscreen.hudmessage.ShuffleMessage;
+import com.hudtouchscreen.hudmessage.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.TimeMessage;
 import com.touchscreen.touchscreenplayer.R;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Service;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
+import android.os.RemoteException;
 import android.view.GestureDetector;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -49,11 +46,12 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.GestureDetector.OnGestureListener;
+import android.os.Message;
+import android.os.Messenger;
 
 /**
  * MusicPlayer is responsible for controlling the Music played and also acts as
  * a Server for other Clients
- * 
  * @author daniel
  * 
  */
@@ -75,11 +73,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 								// automatically start playing the next track
 	private int currentTrack; // index of current track selected
 	private int type; // 0 for loading from assets, 1 for loading from SD card
-
-	private Set<Client> clients;
+	
 	private GestureDetector gDetector;
-
-	private ClientListener clientListener;
 
 	public TextView startTimeField, endTimeField;
 	private double startTime = 0;
@@ -88,6 +83,9 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	private SeekBar seekbar;
 	private boolean newTrack;
 	private static boolean startingNewActivity;
+	
+	private ServiceManager service;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -104,13 +102,58 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		gDetector = new GestureDetector(this);
 		initialize(0);
 
+		/*
 		clients = new HashSet<Client>();
 		final int PORT = 8000;
 
 		clientListener = new ClientListener(PORT, this);
 		Thread clientListenerThread = new Thread(clientListener);
-		clientListenerThread.start();
-
+		clientListenerThread.start();*/
+		
+		this.service = new ServiceManager(this, ServerService.class, new Handler() {
+			
+			@Override
+			public void handleMessage(Message msg) {
+				
+				switch(msg.what) {
+				case ServerService.MSG_NEWCLIENT:
+					try {
+						
+						Message message = Message.obtain(null, ServerService.MSG_SONGTITLE,0,0);
+						message.obj = getTrackName();
+						service.send(message);
+						
+						message = Message.obtain(null, ServerService.MSG_SHUFFLE,0,0);
+						message.obj = shuffle;
+						service.send(message);
+						
+						message = Message.obtain(null, ServerService.MSG_LOOPING,0,0);
+						message.obj = looping;
+						service.send(message);
+						
+						message = Message.obtain(null, ServerService.MSG_STARTTIME, 0,0);
+						message.obj = startTime;
+						service.send(message);
+						
+						message = Message.obtain(null, ServerService.MSG_FINALTIME, 0,0);
+						message.obj = finalTime;
+						service.send(message);
+						
+					} catch (RemoteException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					break;
+					
+				default:
+					super.handleMessage(msg);
+				}
+			}
+		});
+		
+		
+		service.start();
+		
 	}
 
 	/**
@@ -140,15 +183,13 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		addTracks(getTracks());
 
 		loadTrack();
+		
+		
 	}
 
-	/**
-	 * Adds a new Client the Server
-	 * 
-	 * @param client
-	 */
+	/*
 	protected void addClient(Client client) {
-
+		
 		clients.add(client);
 		client.send(new SongTitleMessage(getTrackName()));
 		client.send(new ShuffleMessage(shuffle));
@@ -156,17 +197,15 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		client.send(new TimeMessage(startTime, finalTime));
 	}
 
-	/**
-	 * Broadcasts a message to all Clients
-	 * 
-	 * @param message
-	 */
-	private void broadcast(Message message) {
+	private void broadcast(HudMessage message) {
 		for (Client client : clients) {
 			client.send(message);
 		}
 	}
 
+	*/
+	
+	
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -348,6 +387,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 						btnPlay.setBackgroundResource(R.drawable.pause);
 						playTrack();
 					}
+					
 				}
 				return;
 			case R.id.btnStop:
@@ -372,7 +412,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 						btnShuffle.setBackgroundResource(R.drawable.shuffleon);
 					}
 
-					broadcast(new ShuffleMessage(shuffle));
+					//broadcast(new ShuffleMessage(shuffle));
 
 				}
 				return;
@@ -390,7 +430,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 					}
 
 					track.setLooping(looping);
-					broadcast(new LoopingMessage(looping));
+					//broadcast(new LoopingMessage(looping));
 
 				}
 			default:
@@ -398,6 +438,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			}
 		}
 	}
+	
 
 	/**
 	 * Sets the track that is played next
@@ -434,8 +475,16 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			}
 		}
 
-		broadcast(new SongTitleMessage(getTrackName()));
-
+		Message message = Message.obtain(null, ServerService.MSG_SONGTITLE,0,0);
+		String title = new String(getTrackName());
+		//message.obj = new SongTitleMessage(title);
+		message.arg1 = 1;
+		try {
+			service.send(message);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -476,7 +525,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 								.toMinutes((long) startTime))));
 		seekbar.setProgress((int) startTime);
 
-		broadcast(new TimeMessage(startTime, finalTime));
+		//broadcast(new TimeMessage(startTime, finalTime));
 	}
 
 	private Runnable UpdateSongTime = new Runnable() {
@@ -490,7 +539,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 									.toMinutes((long) startTime))));
 			seekbar.setProgress((int) startTime);
 
-			broadcast(new TimeMessage(startTime, finalTime));
+			//broadcast(new TimeMessage(startTime, finalTime));
 			updateTime.postDelayed(this, 100);
 		}
 	};
@@ -637,9 +686,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 	@Override
 	protected void onStop() {
-		for (Client client : clients) {
-			client.closeConnection();
-		}
+		service.stop();
+		
 		super.onStop();
 	}
 

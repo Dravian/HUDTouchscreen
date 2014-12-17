@@ -41,6 +41,8 @@
             android:name="com.hudtouchscreen.touchscreenplayer.MusikList"
             android:label="@string/title_activity_list_view" >
         </activity>
+        <service android:name="com.hudtouchscreen.touchscreenplayer.ServerService"
+        android:process=":remote" />
     </application>
 
 </manifest>
