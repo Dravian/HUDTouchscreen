@@ -15,6 +15,7 @@ import com.hudtouchscreen.hudmessage.HudMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.parcelable.ParcelableString;
 import com.touchscreen.touchscreenplayer.R;
 
 import android.annotation.SuppressLint;
@@ -477,8 +478,14 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 		Message message = Message.obtain(null, ServerService.MSG_SONGTITLE,0,0);
 		String title = new String(getTrackName());
-		//message.obj = new SongTitleMessage(title);
-		message.arg1 = 1;
+		ParcelableString test = new ParcelableString();
+		test.setSongTitle(title);
+	/*	Bundle b = new Bundle();
+		b.putParcelable("Songtitle", test);
+		message.setData(b);*/
+		message.getData().putParcelable("Songtitle", test);
+		//message.obj = test;
+		
 		try {
 			service.send(message);
 		} catch (RemoteException e) {

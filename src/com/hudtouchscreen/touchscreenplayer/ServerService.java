@@ -11,12 +11,14 @@ import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
 import com.hudtouchscreen.hudmessage.StartTimeMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.parcelable.ParcelableString;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -62,7 +64,18 @@ public class ServerService extends AbstractService {
 		switch (msg.what) {
 		case MSG_SONGTITLE:
 
-			broadcast(new SongTitleMessage("Test"));
+			//if (msg.obj instanceof ParcelableString) {
+				//ParcelableString test = (ParcelableString)(msg.getData().getParcelable("SongTitle"));
+				//broadcast(new SongTitleMessage("shit"));
+			
+			final Bundle bundle = msg.getData();
+			bundle.setClassLoader(getClassLoader());
+			
+			ParcelableString test = (ParcelableString)bundle.getParcelable("Songtitle");
+			broadcast(new SongTitleMessage(test.getSongTitle()));
+			
+			//broadcast(new SongTitleMessage("Test"));
+			
 		/*	if (msg.obj instanceof SongTitleMessage) {
 				broadcast((HudMessage )msg.obj);
 			}*/
