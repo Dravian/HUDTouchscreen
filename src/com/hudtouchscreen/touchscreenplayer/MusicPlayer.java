@@ -11,11 +11,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.hudtouchscreen.hudmessage.LoopingMessage;
-import com.hudtouchscreen.hudmessage.HudMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
-import com.hudtouchscreen.parcelable.ParcelableString;
+import com.hudtouchscreen.parcelable.ServiceSongTitle;
 import com.touchscreen.touchscreenplayer.R;
 
 import android.annotation.SuppressLint;
@@ -79,7 +78,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 	public TextView startTimeField, endTimeField;
 	private double startTime = 0;
-	private double finalTime = 0;
+	private double endTime = 0;
 	private Handler updateTime = new Handler();;
 	private SeekBar seekbar;
 	private boolean newTrack;
@@ -118,32 +117,13 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				
 				switch(msg.what) {
 				case ServerService.MSG_NEWCLIENT:
-					try {
-						
-						Message message = Message.obtain(null, ServerService.MSG_SONGTITLE,0,0);
-						message.obj = getTrackName();
-						service.send(message);
-						
-						message = Message.obtain(null, ServerService.MSG_SHUFFLE,0,0);
-						message.obj = shuffle;
-						service.send(message);
-						
-						message = Message.obtain(null, ServerService.MSG_LOOPING,0,0);
-						message.obj = looping;
-						service.send(message);
-						
-						message = Message.obtain(null, ServerService.MSG_STARTTIME, 0,0);
-						message.obj = startTime;
-						service.send(message);
-						
-						message = Message.obtain(null, ServerService.MSG_FINALTIME, 0,0);
-						message.obj = finalTime;
-						service.send(message);
-						
-					} catch (RemoteException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					sendToService(ServerService.MSG_SONGTITLE);
+					
+					sendToService(ServerService.MSG_SHUFFLE);
+					
+					sendToService(ServerService.MSG_LOOPING);
+					
+					sendToService(ServerService.MSG_TIME);
 					break;
 					
 				default:
@@ -155,6 +135,46 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		
 		service.start();
 		
+	}
+	
+	private synchronized void sendToService(int what) {
+		Message message;
+		switch(what) {
+		case ServerService.MSG_REGISTER_CLIENT:
+			message = Message.obtain(null, ServerService.MSG_REGISTER_CLIENT,0,0);
+			break;
+		case ServerService.MSG_SONGTITLE:
+			message = Message.obtain(null, ServerService.MSG_SONGTITLE,0,0);
+			SongTitleMessage songTitle = new SongTitleMessage(new String(getTrackName()));		
+			message.getData().putParcelable("Songtitle", songTitle);
+			
+			break;
+		case ServerService.MSG_SHUFFLE:
+			message = Message.obtain(null, ServerService.MSG_SHUFFLE,0,0);
+			ShuffleMessage shuffleMessage = new ShuffleMessage(shuffle);
+			message.getData().putParcelable("Shuffle", shuffleMessage);
+			
+			break;
+		case ServerService.MSG_LOOPING:
+			message = Message.obtain(null, ServerService.MSG_LOOPING,0,0);
+			LoopingMessage loopingMessage = new LoopingMessage(new Boolean(looping));
+			message.getData().putParcelable("Looping", loopingMessage);
+				
+			break;
+		case ServerService.MSG_TIME:
+			message = Message.obtain(null, ServerService.MSG_TIME, 0,0);
+			TimeMessage timeMessage = new TimeMessage(startTime, endTime);
+			message.getData().putParcelable("Time", timeMessage);
+			
+		default:
+			return;
+		}
+		
+		try {
+			service.send(message);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -186,26 +206,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		loadTrack();
 		
 		
-	}
-
-	/*
-	protected void addClient(Client client) {
-		
-		clients.add(client);
-		client.send(new SongTitleMessage(getTrackName()));
-		client.send(new ShuffleMessage(shuffle));
-		client.send(new LoopingMessage(track.isLooping()));
-		client.send(new TimeMessage(startTime, finalTime));
-	}
-
-	private void broadcast(HudMessage message) {
-		for (Client client : clients) {
-			client.send(message);
-		}
-	}
-
-	*/
-	
+	}	
 	
 	@Override
 	public void onResume() {
@@ -413,7 +414,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 						btnShuffle.setBackgroundResource(R.drawable.shuffleon);
 					}
 
-					//broadcast(new ShuffleMessage(shuffle));
+					sendToService(ServerService.MSG_SHUFFLE);
 
 				}
 				return;
@@ -431,7 +432,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 					}
 
 					track.setLooping(looping);
-					//broadcast(new LoopingMessage(looping));
+					sendToService(ServerService.MSG_LOOPING);
 
 				}
 			default:
@@ -476,22 +477,18 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			}
 		}
 
-		Message message = Message.obtain(null, ServerService.MSG_SONGTITLE,0,0);
-		String title = new String(getTrackName());
-		ParcelableString test = new ParcelableString();
-		test.setSongTitle(title);
-	/*	Bundle b = new Bundle();
-		b.putParcelable("Songtitle", test);
-		message.setData(b);*/
-		message.getData().putParcelable("Songtitle", test);
-		//message.obj = test;
+		/*Message message = Message.obtain(null, ServerService.MSG_SONGTITLE,0,0);
+		SongTitleMessage songTitle = new SongTitleMessage(new String(getTrackName()));
+		
+		message.getData().putParcelable("Songtitle", songTitle);
 		
 		try {
 			service.send(message);
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+			
+		sendToService(ServerService.MSG_SONGTITLE);
 	}
 
 	/**
@@ -510,20 +507,20 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	}
 
 	private void setTime() {
-		finalTime = track.getFinalTime();
+		endTime = track.getFinalTime();
 		startTime = track.getStartTime();
 
 		if (newTrack) {
-			seekbar.setMax((int) finalTime);
+			seekbar.setMax((int) endTime);
 			newTrack = false;
 		}
 
 		endTimeField.setText(String.format(
 				" %dmin %dsec",
-				TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-				TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
+				TimeUnit.MILLISECONDS.toMinutes((long) endTime),
+				TimeUnit.MILLISECONDS.toSeconds((long) endTime)
 						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-								.toMinutes((long) finalTime))));
+								.toMinutes((long) endTime))));
 		startTimeField.setText(String.format(
 				"%dmin %dsec",
 				TimeUnit.MILLISECONDS.toMinutes((long) startTime),
@@ -532,7 +529,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 								.toMinutes((long) startTime))));
 		seekbar.setProgress((int) startTime);
 
-		//broadcast(new TimeMessage(startTime, finalTime));
+		sendToService(ServerService.MSG_TIME);
 	}
 
 	private Runnable UpdateSongTime = new Runnable() {
@@ -545,9 +542,9 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 							- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
 									.toMinutes((long) startTime))));
 			seekbar.setProgress((int) startTime);
-
-			//broadcast(new TimeMessage(startTime, finalTime));
 			updateTime.postDelayed(this, 100);
+			
+			sendToService(ServerService.MSG_TIME);
 		}
 	};
 
@@ -688,12 +685,13 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			}
 	
 		}
+		
+		sendToService(ServerService.MSG_REGISTER_CLIENT);
 	
 	}
 
 	@Override
 	protected void onStop() {
-		service.stop();
 		
 		super.onStop();
 	}

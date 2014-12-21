@@ -51,7 +51,6 @@ public abstract class AbstractService extends Service {
         return START_STICKY; // run until explicitly stopped.
     }
     
-    @Override
     public IBinder onBind(Intent intent) {
         return mMessenger.getBinder();
     }

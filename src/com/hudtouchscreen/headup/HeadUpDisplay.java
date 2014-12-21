@@ -1,10 +1,10 @@
 package com.hudtouchscreen.headup;
 
 import com.hudtouchscreen.hudmessage.LoopingMessage;
-import com.hudtouchscreen.hudmessage.HudMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.parcelable.ServiceSongTitle;
 import com.touchscreen.touchscreenplayer.R;
 
 import java.io.EOFException;
@@ -52,7 +52,7 @@ public class HeadUpDisplay extends Activity {
 	private final String SERVER_IP = "10.0.2.2";
 
 	private final int PORT = 7000;
-	
+
 	public TextView startTimeField, endTimeField;
 	private double startTime = 0;
 	private double finalTime = 0;
@@ -68,7 +68,7 @@ public class HeadUpDisplay extends Activity {
 		endTimeField = (TextView) findViewById(R.id.endTime);
 		seekbar = (SeekBar) findViewById(R.id.seekBar1);
 		seekbar.setClickable(false);
-		
+
 		// PACKETS TO PORT 7000 GET REDIRECTED TO THE SERVER EMULATOR'S PORT
 		// 8000
 		Thread playerListener = new Thread(new PlayerListener());
@@ -118,73 +118,72 @@ public class HeadUpDisplay extends Activity {
 
 					message = in.readObject();
 
-					if (message instanceof HudMessage) {
-						
-						if (message instanceof SongTitleMessage) {
-							final TextView songTitle = (TextView) findViewById(R.id.hud_title);
-							final String songTitleText = ((SongTitleMessage) message)
-									.getSongTitle();
+					if (message instanceof SongTitleMessage) {
+						final TextView songTitle = (TextView) findViewById(R.id.hud_title);
+						final String songTitleText = ((SongTitleMessage) message)
+								.getSongTitle();
 
-							runOnUiThread(new Runnable() {
+						runOnUiThread(new Runnable() {
 
-								@Override
-								public void run() {
-									songTitle.setText(songTitleText);
+							@Override
+							public void run() {
+								songTitle.setText(songTitleText);
+							}
+						});
+
+					} else if (message instanceof ShuffleMessage) {
+						final ImageView imgView = (ImageView) findViewById(R.id.shuffleVisible);
+						final boolean isShuffled = ((ShuffleMessage) message)
+								.isShuffled();
+
+						runOnUiThread(new Runnable() {
+
+							@Override
+							public void run() {
+
+								if (isShuffled) {
+									imgView.setVisibility(View.VISIBLE);
+								} else {
+									imgView.setVisibility(View.INVISIBLE);
 								}
-							});
+							}
+						});
 
-						} else if (message instanceof ShuffleMessage) {
-							final ImageView imgView = (ImageView) findViewById(R.id.shuffleVisible);
-							final boolean isShuffled = ((ShuffleMessage) message)
-									.isShuffled();
+					} else if (message instanceof LoopingMessage) {
+						final ImageView imgView = (ImageView) findViewById(R.id.loopingVisible);
+						final boolean isLooping = ((LoopingMessage) message)
+								.isLooping();
 
-							runOnUiThread(new Runnable() {
+						runOnUiThread(new Runnable() {
 
-								@Override
-								public void run() {
+							@Override
+							public void run() {
 
-									if (isShuffled) {
-										imgView.setVisibility(View.VISIBLE);
-									} else {
-										imgView.setVisibility(View.INVISIBLE);
-									}
+								if (isLooping) {
+									imgView.setVisibility(View.VISIBLE);
+								} else {
+									imgView.setVisibility(View.INVISIBLE);
 								}
-							});
-						
-						} else if (message instanceof LoopingMessage) {
-							final ImageView imgView = (ImageView) findViewById(R.id.loopingVisible);
-							final boolean isLooping = ((LoopingMessage) message)
-									.isLooping();
+							}
+						});
 
-							runOnUiThread(new Runnable() {
+					} else if (message instanceof TimeMessage) {
+						final double start = ((TimeMessage) message)
+								.getStartTime();
+						final double end = ((TimeMessage) message).getEndTime();
 
-								@Override
-								public void run() {
+						runOnUiThread(new Runnable() {
 
-									if (isLooping) {
-										imgView.setVisibility(View.VISIBLE);
-									} else {
-										imgView.setVisibility(View.INVISIBLE);
-									}
-								}
-							});
-						
-						} else if(message instanceof TimeMessage) {
-							final double start = ((TimeMessage)message).getStartTime();
-							final double end = ((TimeMessage)message).getEndTime();
-							
-							runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
 
-								@Override
-								public void run() {
+								updateTime(start, end);
+							}
+						});
 
-									updateTime(start,end);
-								}
-							});
-						}
 					}
-
 				}
+				
 			} catch (ClassNotFoundException e) {
 				System.err.println("Unbekanntes Objekt empfangen");
 				e.printStackTrace();
@@ -205,7 +204,7 @@ public class HeadUpDisplay extends Activity {
 			}
 		}
 	}
-	
+
 	@SuppressLint("NewApi")
 	private void updateTime(double startT, double finalT) {
 		finalTime = finalT;
@@ -227,8 +226,6 @@ public class HeadUpDisplay extends Activity {
 								.toMinutes((long) startTime))));
 		seekbar.setProgress((int) startTime);
 	}
-	
-	
 
 	/*
 	 * public synchronized void receiveMessage(SongTitleMessage msg) { if (msg

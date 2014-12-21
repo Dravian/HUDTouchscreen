@@ -1,30 +1,15 @@
 package com.hudtouchscreen.touchscreenplayer;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.hudtouchscreen.hudmessage.FinalTimeMessage;
 import com.hudtouchscreen.hudmessage.HudMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
-import com.hudtouchscreen.hudmessage.StartTimeMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
-import com.hudtouchscreen.parcelable.ParcelableString;
-
-import android.app.IntentService;
-import android.app.NotificationManager;
-import android.app.Service;
-import android.content.Intent;
-import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
-import android.os.RemoteException;
-import android.os.Messenger;
-import android.util.Log;
 
 public class ServerService extends AbstractService {
 
@@ -32,8 +17,7 @@ public class ServerService extends AbstractService {
 	public static final int MSG_SONGTITLE = 2;
 	public static final int MSG_SHUFFLE = 3;
 	public static final int MSG_LOOPING = 4;
-	public static final int MSG_STARTTIME = 5;
-	public static final int MSG_FINALTIME = 6;
+	public static final int MSG_TIME = 5;
 	
 	private static final int PORT = 8000;
 	private ClientListener clientListener;
@@ -61,49 +45,30 @@ public class ServerService extends AbstractService {
 
 	@Override
 	public void onReceiveMessage(Message msg) {
+		final Bundle bundle = msg.getData();
+		bundle.setClassLoader(getClassLoader());
+		
 		switch (msg.what) {
 		case MSG_SONGTITLE:
-
-			//if (msg.obj instanceof ParcelableString) {
-				//ParcelableString test = (ParcelableString)(msg.getData().getParcelable("SongTitle"));
-				//broadcast(new SongTitleMessage("shit"));
 			
-			final Bundle bundle = msg.getData();
-			bundle.setClassLoader(getClassLoader());
-			
-			ParcelableString test = (ParcelableString)bundle.getParcelable("Songtitle");
-			broadcast(new SongTitleMessage(test.getSongTitle()));
-			
-			//broadcast(new SongTitleMessage("Test"));
-			
-		/*	if (msg.obj instanceof SongTitleMessage) {
-				broadcast((HudMessage )msg.obj);
-			}*/
+			SongTitleMessage songTitle = (SongTitleMessage)bundle.getParcelable("Songtitle");
+			broadcast(songTitle);
 			break;
-		/*case MSG_SHUFFLE:
-
-			if (msg.obj instanceof Boolean) {
-				broadcast(new ShuffleMessage((boolean) msg.obj));
-			}
+		case MSG_SHUFFLE:
+			ShuffleMessage shuffle = (ShuffleMessage)bundle.getParcelable("Shuffle");
+			broadcast(shuffle);
 			break;
+			
 		case MSG_LOOPING:
-
-			if (msg.obj instanceof Boolean) {
-				broadcast(new LoopingMessage((boolean) msg.obj));
-			}
+			LoopingMessage looping = (LoopingMessage)bundle.getParcelable("Looping");
+			broadcast(looping);
 			break;
-		case MSG_STARTTIME:
-
-			if (msg.obj instanceof Double) {
-				broadcast(new StartTimeMessage((double) msg.obj));
-			}
+			
+		case MSG_TIME:
+			TimeMessage time = (TimeMessage)bundle.getParcelable("Time");
+			broadcast(time);
 			break;
-		case MSG_FINALTIME:
-
-			if (msg.obj instanceof Double) {
-				broadcast(new FinalTimeMessage((double) msg.obj));
-			}
-			break;*/
+			
 		default:
 		}
 		
@@ -119,6 +84,8 @@ public class ServerService extends AbstractService {
 	protected void addClient(Client client) {
 		if (clients.size() < MAX_CLIENTS) {
 			clients.add(client);
+			Message message = Message.obtain(null, MSG_NEWCLIENT,0,0);
+			send(message);
 		}
 	}
 
