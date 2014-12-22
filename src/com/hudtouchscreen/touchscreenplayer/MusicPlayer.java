@@ -87,6 +87,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	private ServiceManager service;
 
 
+	@SuppressLint("HandlerLeak")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -101,14 +102,6 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 		gDetector = new GestureDetector(this);
 		initialize(0);
-
-		/*
-		clients = new HashSet<Client>();
-		final int PORT = 8000;
-
-		clientListener = new ClientListener(PORT, this);
-		Thread clientListenerThread = new Thread(clientListener);
-		clientListenerThread.start();*/
 		
 		this.service = new ServiceManager(this, ServerService.class, new Handler() {
 			
@@ -528,8 +521,6 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
 								.toMinutes((long) startTime))));
 		seekbar.setProgress((int) startTime);
-
-		sendToService(ServerService.MSG_TIME);
 	}
 
 	private Runnable UpdateSongTime = new Runnable() {
@@ -542,9 +533,10 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 							- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
 									.toMinutes((long) startTime))));
 			seekbar.setProgress((int) startTime);
-			updateTime.postDelayed(this, 100);
 			
 			sendToService(ServerService.MSG_TIME);
+			updateTime.postDelayed(this, 100);
+			
 		}
 	};
 
@@ -687,12 +679,14 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		}
 		
 		sendToService(ServerService.MSG_REGISTER_CLIENT);
-	
+		sendToService(ServerService.MSG_SONGTITLE);		
+		sendToService(ServerService.MSG_SHUFFLE);		
+		sendToService(ServerService.MSG_LOOPING);		
+		sendToService(ServerService.MSG_TIME);
 	}
 
 	@Override
-	protected void onStop() {
-		
+	protected void onStop() {		
 		super.onStop();
 	}
 
