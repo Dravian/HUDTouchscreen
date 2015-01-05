@@ -9,5 +9,8 @@
     <string name="end_time"> 0min 0sec</string>
     <string name="title_activity_list_view">ListView</string>
     <string name="hello_world">Hello world!</string>
+    <string name="app_name">SimpleKeyboard</string>
+    <string name="simple_ime">Simple IME</string>
+    <string name="subtype_en_US">English (US)</string>
 
 </resources>

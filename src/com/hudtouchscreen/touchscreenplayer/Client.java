@@ -10,7 +10,6 @@ import com.hudtouchscreen.hudmessage.HudMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
-import com.hudtouchscreen.parcelable.ServiceSongTitle;
 
 public class Client {
 	Socket connection;

@@ -6,7 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 @SuppressWarnings("serial")
-public class TimeMessage implements Serializable, Parcelable, HudMessage{
+public class TimeMessage implements Parcelable, Serializable, HudMessage{
 	private double startTime;
 	private double endTime;
 	

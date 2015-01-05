@@ -18,7 +18,7 @@
          android:layout_height="50dp"
          android:layout_above="@+id/hud_title"
          android:layout_alignParentLeft="true"
-         android:src="@drawable/shuffleoff"
+         android:src="@drawable/shuffle" 
          android:visibility="invisible" />
 
      <ImageView
@@ -27,7 +27,7 @@
          android:layout_height="50dp"
          android:layout_above="@+id/hud_title"
          android:layout_toRightOf="@+id/shuffleVisible"
-         android:src="@drawable/loopingoff"
+         android:src="@drawable/looping" 
          android:visibility="invisible" />
 
      <TextView

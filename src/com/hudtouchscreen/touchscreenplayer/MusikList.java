@@ -191,7 +191,7 @@ public class MusikList extends Activity implements OnGestureListener {
 	}
 
 	private void onSwipeUp() {
-		if (position < 5) {
+		if (position < 5 && position >= 0 && listValues.size() > 5) {
 			position = position + 5;
 
 			fillList();

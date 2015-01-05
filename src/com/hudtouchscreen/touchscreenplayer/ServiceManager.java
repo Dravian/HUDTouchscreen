@@ -1,5 +1,6 @@
 package com.hudtouchscreen.touchscreenplayer;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.content.ComponentName;
@@ -21,6 +22,7 @@ public class ServiceManager {
 	private Handler mIncomingHandler = null;
 	private final Messenger mMessenger = new Messenger(new IncomingHandler());
 
+	@SuppressLint("HandlerLeak")
 	private class IncomingHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {

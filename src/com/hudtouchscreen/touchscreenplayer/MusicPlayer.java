@@ -5,32 +5,25 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
-import com.hudtouchscreen.parcelable.ServiceSongTitle;
 import com.touchscreen.touchscreenplayer.R;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -40,18 +33,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.GestureDetector.OnGestureListener;
-import android.os.Message;
-import android.os.Messenger;
 
 /**
  * MusicPlayer is responsible for controlling the Music played and also acts as
  * a Server for other Clients
+ * 
  * @author daniel
  * 
  */
@@ -65,7 +57,11 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	private AssetManager assets;
 	private File path; // directory where music is loaded from on SD Card
 	private Music track; // currently loaded track
-	private Button btnPlay;
+	private ImageView playImage;
+	private ImageView stopImage;
+	private ImageView shuffleImage;
+	private ImageView loopingImage;
+	private ImageView startImage;
 	private Random random;
 	private boolean shuffle; // is shuffle mode on?
 	private boolean looping;
@@ -73,7 +69,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 								// automatically start playing the next track
 	private int currentTrack; // index of current track selected
 	private int type; // 0 for loading from assets, 1 for loading from SD card
-	
+
 	private GestureDetector gDetector;
 
 	public TextView startTimeField, endTimeField;
@@ -83,9 +79,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	private SeekBar seekbar;
 	private boolean newTrack;
 	private static boolean startingNewActivity;
-	
-	private ServiceManager service;
 
+	private ServiceManager service;
 
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -98,71 +93,73 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
 				"Lexiconda");
-		setContentView(R.layout.activity_player);
+		setContentView(R.layout.touchscreen);
 
 		gDetector = new GestureDetector(this);
 		initialize(0);
-		
-		this.service = new ServiceManager(this, ServerService.class, new Handler() {
-			
-			@Override
-			public void handleMessage(Message msg) {
-				
-				switch(msg.what) {
-				case ServerService.MSG_NEWCLIENT:
-					sendToService(ServerService.MSG_SONGTITLE);
-					
-					sendToService(ServerService.MSG_SHUFFLE);
-					
-					sendToService(ServerService.MSG_LOOPING);
-					
-					sendToService(ServerService.MSG_TIME);
-					break;
-					
-				default:
-					super.handleMessage(msg);
-				}
-			}
-		});
-		
-		
+
+		this.service = new ServiceManager(this, ServerService.class,
+				new Handler() {
+
+					@Override
+					public void handleMessage(Message msg) {
+
+						switch (msg.what) {
+						case ServerService.MSG_NEWCLIENT:
+							sendToService(ServerService.MSG_SONGTITLE);
+
+							sendToService(ServerService.MSG_SHUFFLE);
+
+							sendToService(ServerService.MSG_LOOPING);
+
+							sendToService(ServerService.MSG_TIME);
+							break;
+
+						default:
+							super.handleMessage(msg);
+						}
+					}
+				});
+
 		service.start();
-		
+
 	}
-	
+
 	private synchronized void sendToService(int what) {
 		Message message;
-		switch(what) {
+		switch (what) {
 		case ServerService.MSG_REGISTER_CLIENT:
-			message = Message.obtain(null, ServerService.MSG_REGISTER_CLIENT,0,0);
+			message = Message.obtain(null, ServerService.MSG_REGISTER_CLIENT,
+					0, 0);
 			break;
 		case ServerService.MSG_SONGTITLE:
-			message = Message.obtain(null, ServerService.MSG_SONGTITLE,0,0);
-			SongTitleMessage songTitle = new SongTitleMessage(new String(getTrackName()));		
+			message = Message.obtain(null, ServerService.MSG_SONGTITLE, 0, 0);
+			SongTitleMessage songTitle = new SongTitleMessage(new String(
+					getTrackName()));
 			message.getData().putParcelable("Songtitle", songTitle);
-			
+
 			break;
 		case ServerService.MSG_SHUFFLE:
-			message = Message.obtain(null, ServerService.MSG_SHUFFLE,0,0);
+			message = Message.obtain(null, ServerService.MSG_SHUFFLE, 0, 0);
 			ShuffleMessage shuffleMessage = new ShuffleMessage(shuffle);
 			message.getData().putParcelable("Shuffle", shuffleMessage);
-			
+
 			break;
 		case ServerService.MSG_LOOPING:
-			message = Message.obtain(null, ServerService.MSG_LOOPING,0,0);
-			LoopingMessage loopingMessage = new LoopingMessage(new Boolean(looping));
+			message = Message.obtain(null, ServerService.MSG_LOOPING, 0, 0);
+			LoopingMessage loopingMessage = new LoopingMessage(looping);
 			message.getData().putParcelable("Looping", loopingMessage);
-				
+
 			break;
 		case ServerService.MSG_TIME:
-			message = Message.obtain(null, ServerService.MSG_TIME, 0,0);
-			TimeMessage timeMessage = new TimeMessage(startTime, endTime);
+			message = Message.obtain(null, ServerService.MSG_TIME, 0, 0);
+			TimeMessage timeMessage = new TimeMessage(new Double(startTime), new Double(endTime));
 			message.getData().putParcelable("Time", timeMessage);
-			
+			break;
 		default:
 			return;
 		}
-		
+
 		try {
 			service.send(message);
 		} catch (RemoteException e) {
@@ -176,8 +173,84 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	 * @param type
 	 */
 	private void initialize(int type) {
-		btnPlay = (Button) findViewById(R.id.btnPlay);
-		btnPlay.setBackgroundResource(R.drawable.play);
+		playImage = (ImageView) findViewById(R.id.play);
+		playImage.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				synchronized (this) {
+					if (isTuning) {
+						isTuning = false;
+						playImage.setImageResource(R.drawable.play);
+						track.pause();
+						updateTime.removeCallbacks(UpdateSongTime);
+
+					} else {
+						isTuning = true;
+						playImage.setImageResource(R.drawable.pause);
+						playTrack();
+					}
+					
+
+				}
+			}
+		});
+
+		stopImage = (ImageView) findViewById(R.id.stop);
+		stopImage.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				synchronized (this) {
+					isTuning = false;
+					playImage.setImageResource(R.drawable.play);
+					track.stop();
+					updateTime.removeCallbacks(UpdateSongTime);
+					setTime();
+				}
+			}
+		});
+
+		shuffleImage = (ImageView) findViewById(R.id.shuffle);
+		shuffleImage.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				synchronized (this) {
+					if (shuffle) {
+						shuffle = false;
+						shuffleImage.setBackgroundColor(Color.rgb(255, 255, 255));
+					} else {
+						shuffle = true;
+						shuffleImage.setBackgroundColor(Color.rgb(100, 100, 50));
+					}
+
+					sendToService(ServerService.MSG_SHUFFLE);
+				}
+			}
+		});
+
+		startImage = (ImageView) findViewById(R.id.start);
+		startImage.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+			}
+		});
+
+		loopingImage = (ImageView) findViewById(R.id.looping);
+		loopingImage.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+
+				synchronized (this) {
+
+					if (looping) {
+						looping = false;
+						loopingImage.setBackgroundColor(Color.rgb(255, 255, 255));
+					} else {
+						looping = true;
+						loopingImage.setBackgroundColor(Color.rgb(100, 100, 50));
+					}
+
+					track.setLooping(looping);
+					sendToService(ServerService.MSG_LOOPING);
+
+				}
+			}
+		});
+
 		trackNames = new ArrayList<String>();
 		assets = getAssets();
 		currentTrack = 0;
@@ -189,18 +262,17 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		newTrack = false;
 		startingNewActivity = false;
 
-		startTimeField = (TextView) findViewById(R.id.startTime);
-		endTimeField = (TextView) findViewById(R.id.endTime);
+		// startTimeField = (TextView) findViewById(R.id.startTime);
+		// endTimeField = (TextView) findViewById(R.id.endTime);
 		seekbar = (SeekBar) findViewById(R.id.seekBar1);
 		seekbar.setOnSeekBarChangeListener(this);
 
 		addTracks(getTracks());
 
 		loadTrack();
-		
-		
-	}	
-	
+
+	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -217,7 +289,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				if (track.isPlaying()) {
 					track.pause();
 					isTuning = false;
-					btnPlay.setBackgroundResource(R.drawable.play);
+
+					playImage.setBackgroundResource(R.drawable.play);
 				}
 				if (isFinishing()) {
 					track.dispose();
@@ -364,76 +437,42 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	 * 
 	 * @param view
 	 */
-	public void click(View view) {
-
-		if (trackNames.size() > 0) {
-			int id = view.getId();
-			switch (id) {
-			case R.id.btnPlay:
-				synchronized (this) {
-					if (isTuning) {
-						isTuning = false;
-						btnPlay.setBackgroundResource(R.drawable.play);
-						track.pause();
-						updateTime.removeCallbacks(UpdateSongTime);
-
-					} else {
-						isTuning = true;
-						btnPlay.setBackgroundResource(R.drawable.pause);
-						playTrack();
-					}
-					
-				}
-				return;
-			case R.id.btnStop:
-				synchronized (this) {
-					isTuning = false;
-					btnPlay.setBackgroundResource(R.drawable.play);
-					track.stop();
-					updateTime.removeCallbacks(UpdateSongTime);
-					setTime();
-				}
-				return;
-			case R.id.btnShuffle:
-				synchronized (this) {
-					Button btnShuffle = (Button) findViewById(R.id.btnShuffle);
-					// switchToList();
-
-					if (shuffle) {
-						shuffle = false;
-						btnShuffle.setBackgroundResource(R.drawable.shuffleoff);
-					} else {
-						shuffle = true;
-						btnShuffle.setBackgroundResource(R.drawable.shuffleon);
-					}
-
-					sendToService(ServerService.MSG_SHUFFLE);
-
-				}
-				return;
-			case R.id.btnLooping:
-				synchronized (this) {
-					Button btnLooping = (Button) findViewById(R.id.btnLooping);
-
-					if (looping) {
-						looping = false;
-						btnLooping.setBackgroundResource(R.drawable.loopingoff);
-
-					} else {
-						looping = true;
-						btnLooping.setBackgroundResource(R.drawable.loopingon);
-					}
-
-					track.setLooping(looping);
-					sendToService(ServerService.MSG_LOOPING);
-
-				}
-			default:
-				return;
-			}
-		}
-	}
-	
+	/*
+	 * public void click(View view) {
+	 * 
+	 * if (trackNames.size() > 0) { int id = view.getId(); switch (id) { case
+	 * R.id.play: synchronized (this) { if (isTuning) { isTuning = false;
+	 * btnPlay.setBackgroundResource(R.drawable.play); track.pause();
+	 * updateTime.removeCallbacks(UpdateSongTime);
+	 * 
+	 * } else { isTuning = true;
+	 * btnPlay.setBackgroundResource(R.drawable.pause); playTrack(); }
+	 * 
+	 * } return; case R.id.stop: synchronized (this) { isTuning = false;
+	 * btnPlay.setBackgroundResource(R.drawable.play); track.stop();
+	 * updateTime.removeCallbacks(UpdateSongTime); setTime(); } return; case
+	 * R.id.shuffle: synchronized (this) { Button btnShuffle = (Button)
+	 * findViewById(R.id.btnShuffle); // switchToList();
+	 * 
+	 * if (shuffle) { shuffle = false;
+	 * btnShuffle.setBackgroundResource(R.drawable.shuffleoff); } else { shuffle
+	 * = true; btnShuffle.setBackgroundResource(R.drawable.shuffleon); }
+	 * 
+	 * sendToService(ServerService.MSG_SHUFFLE);
+	 * 
+	 * } return; case R.id.looping: synchronized (this) { Button btnLooping =
+	 * (Button) findViewById(R.id.btnLooping);
+	 * 
+	 * if (looping) { looping = false;
+	 * btnLooping.setBackgroundResource(R.drawable.loopingoff);
+	 * 
+	 * } else { looping = true;
+	 * btnLooping.setBackgroundResource(R.drawable.loopingon); }
+	 * 
+	 * track.setLooping(looping); sendToService(ServerService.MSG_LOOPING);
+	 * 
+	 * } default: return; } } }
+	 */
 
 	/**
 	 * Sets the track that is played next
@@ -470,17 +509,6 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			}
 		}
 
-		/*Message message = Message.obtain(null, ServerService.MSG_SONGTITLE,0,0);
-		SongTitleMessage songTitle = new SongTitleMessage(new String(getTrackName()));
-		
-		message.getData().putParcelable("Songtitle", songTitle);
-		
-		try {
-			service.send(message);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}*/
-			
 		sendToService(ServerService.MSG_SONGTITLE);
 	}
 
@@ -508,35 +536,37 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			newTrack = false;
 		}
 
-		endTimeField.setText(String.format(
-				" %dmin %dsec",
-				TimeUnit.MILLISECONDS.toMinutes((long) endTime),
-				TimeUnit.MILLISECONDS.toSeconds((long) endTime)
-						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-								.toMinutes((long) endTime))));
-		startTimeField.setText(String.format(
-				"%dmin %dsec",
-				TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-				TimeUnit.MILLISECONDS.toSeconds((long) startTime)
-						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-								.toMinutes((long) startTime))));
+		/*
+		 * endTimeField.setText(String.format( " %dmin %dsec",
+		 * TimeUnit.MILLISECONDS.toMinutes((long) endTime),
+		 * TimeUnit.MILLISECONDS.toSeconds((long) endTime) -
+		 * TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS .toMinutes((long)
+		 * endTime)))); startTimeField.setText(String.format( "%dmin %dsec",
+		 * TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+		 * TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+		 * TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS .toMinutes((long)
+		 * startTime))));
+		 */
 		seekbar.setProgress((int) startTime);
+
+		sendToService(ServerService.MSG_TIME);
 	}
 
 	private Runnable UpdateSongTime = new Runnable() {
 		public void run() {
 			startTime = track.getStartTime();
-			startTimeField.setText(String.format(
-					"%dmin %dsec",
-					TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-					TimeUnit.MILLISECONDS.toSeconds((long) startTime)
-							- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-									.toMinutes((long) startTime))));
+			/*
+			 * startTimeField.setText(String.format( "%dmin %dsec",
+			 * TimeUnit.MILLISECONDS.toMinutes((long) startTime),
+			 * TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+			 * TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
+			 * .toMinutes((long) startTime))));
+			 */
 			seekbar.setProgress((int) startTime);
-			
 			sendToService(ServerService.MSG_TIME);
+
 			updateTime.postDelayed(this, 100);
-			
+
 		}
 	};
 
@@ -555,7 +585,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		loadTrack();
 		playTrack();
 	}
-	
+
 	private void switchTrack(int position) {
 		currentTrack = position;
 		loadTrack();
@@ -565,6 +595,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	@Override
 	public boolean onDown(MotionEvent arg0) {
 		// TODO Auto-generated method stub
+		switchToList();
 		return true;
 	}
 
@@ -572,13 +603,13 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	public boolean onFling(MotionEvent start, MotionEvent finish,
 			float xVelocity, float yVelocity) {
 
-		final int SWIPE_THRESHOLD = 100;
-		final int SWIPE_VELOCITY_THRESHOLD = 100;
-		
+		final int SWIPE_THRESHOLD = 50;
+		final int SWIPE_VELOCITY_THRESHOLD = 50;
+
 		try {
 			float diffY = finish.getY() - start.getY();
 			float diffX = finish.getX() - start.getX();
-			
+
 			if (Math.abs(diffX) > Math.abs(diffY)) {
 				if (Math.abs(diffX) > SWIPE_THRESHOLD
 						&& Math.abs(xVelocity) > SWIPE_VELOCITY_THRESHOLD) {
@@ -606,7 +637,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	}
 
 	public void onSwipeRight() {
-		setTrack(0); 
+		setTrack(0);
 		loadTrack();
 		playTrack();
 	}
@@ -618,6 +649,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	}
 
 	public void onSwipeUp() {
+
 		switchToList();
 	}
 
@@ -658,8 +690,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	private void switchToList() {
 		startingNewActivity = true;
 		Intent i = new Intent(getApplicationContext(), MusikList.class);
-		i.putStringArrayListExtra("Track Names",trackNames);
-		
+		i.putStringArrayListExtra("Track Names", trackNames);
+
 		startActivityForResult(i, 100);
 	}
 
@@ -667,26 +699,26 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		startingNewActivity = false;
-	
+
 		if (resultCode == 100) {
 			data.getExtras();
 			int position = data.getIntExtra("Song", -1);
-	
+
 			if (position != -1) {
 				switchTrack(position);
 			}
-	
+
 		}
-		
+
 		sendToService(ServerService.MSG_REGISTER_CLIENT);
-		sendToService(ServerService.MSG_SONGTITLE);		
-		sendToService(ServerService.MSG_SHUFFLE);		
-		sendToService(ServerService.MSG_LOOPING);		
+		sendToService(ServerService.MSG_SONGTITLE);
+		sendToService(ServerService.MSG_SHUFFLE);
+		sendToService(ServerService.MSG_LOOPING);
 		sendToService(ServerService.MSG_TIME);
 	}
 
 	@Override
-	protected void onStop() {		
+	protected void onStop() {
 		super.onStop();
 	}
 

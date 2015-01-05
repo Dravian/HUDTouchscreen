@@ -4,13 +4,11 @@ import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
-import com.hudtouchscreen.parcelable.ServiceSongTitle;
 import com.touchscreen.touchscreenplayer.R;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -26,6 +24,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -107,8 +106,6 @@ public class HeadUpDisplay extends Activity {
 		@Override
 		public void run() {
 			startConnection();
-			// final TextView songTitle = (TextView)
-			// findViewById(R.id.hud_title);
 			waiting = true;
 
 			try {
@@ -117,7 +114,7 @@ public class HeadUpDisplay extends Activity {
 					Object message;
 
 					message = in.readObject();
-
+					
 					if (message instanceof SongTitleMessage) {
 						final TextView songTitle = (TextView) findViewById(R.id.hud_title);
 						final String songTitleText = ((SongTitleMessage) message)
@@ -135,7 +132,7 @@ public class HeadUpDisplay extends Activity {
 						final ImageView imgView = (ImageView) findViewById(R.id.shuffleVisible);
 						final boolean isShuffled = ((ShuffleMessage) message)
 								.isShuffled();
-
+						
 						runOnUiThread(new Runnable() {
 
 							@Override
@@ -168,20 +165,18 @@ public class HeadUpDisplay extends Activity {
 						});
 
 					} else if (message instanceof TimeMessage) {
-						final double start = ((TimeMessage) message)
-								.getStartTime();
+						final double start = ((TimeMessage) message).getStartTime();
 						final double end = ((TimeMessage) message).getEndTime();
-
+						
 						runOnUiThread(new Runnable() {
 
 							@Override
 							public void run() {
-
 								updateTime(start, end);
 							}
 						});
 
-					}
+					} 
 				}
 				
 			} catch (ClassNotFoundException e) {
