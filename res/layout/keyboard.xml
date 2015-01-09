@@ -43,85 +43,6 @@
         android:text="P" />
 
     <Button
-        android:id="@+id/S"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/A"
-        android:layout_alignBottom="@+id/A"
-        android:layout_toLeftOf="@+id/E"
-        android:text="S" />
-
-    <Button
-        android:id="@+id/D"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/E"
-        android:layout_toLeftOf="@+id/R"
-        android:text="D" />
-
-    <Button
-        android:id="@+id/F"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/D"
-        android:layout_alignBottom="@+id/D"
-        android:layout_toLeftOf="@+id/T"
-        android:text="F" />
-
-    <Button
-        android:id="@+id/G"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/T"
-        android:layout_below="@+id/T"
-        android:text="G" />
-
-    <Button
-        android:id="@+id/J"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/H"
-        android:layout_alignBottom="@+id/H"
-        android:layout_toRightOf="@+id/H"
-        android:text="J" />
-
-    <Button
-        android:id="@+id/K"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/J"
-        android:layout_alignBottom="@+id/J"
-        android:layout_toRightOf="@+id/J"
-        android:text="K" />
-
-    <Button
-        android:id="@+id/L"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/K"
-        android:layout_alignBottom="@+id/K"
-        android:layout_toRightOf="@+id/K"
-        android:text="L" />
-
-    <Button
-        android:id="@+id/Del"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/P"
-        android:layout_below="@+id/P"
-        android:background="#000000"
-        android:textColor="#FFFFFF"
-        android:text="Del" />
-
-    <Button
         android:id="@+id/X"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
@@ -185,7 +106,7 @@
         android:id="@+id/Enter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/L"
+        android:layout_alignLeft="@+id/O"
         android:layout_alignRight="@+id/Del"
         android:layout_alignTop="@+id/M"
         android:background="#000000"
@@ -205,16 +126,6 @@
 
         <requestFocus />
     </EditText>
-
-    <Button
-        android:id="@+id/H"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/G"
-        android:layout_alignBottom="@+id/G"
-        android:layout_toLeftOf="@+id/U"
-        android:text="H" />
 
     <Button
         android:id="@+id/T"
@@ -266,15 +177,6 @@
         android:text="Q" />
 
     <Button
-        android:id="@+id/Y"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/S"
-        android:layout_toLeftOf="@+id/D"
-        android:text="Y" />
-
-    <Button
         android:id="@+id/Z"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
@@ -284,12 +186,109 @@
         android:text="Z" />
 
     <Button
+        android:id="@+id/Del"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/Enter"
+        android:layout_alignTop="@+id/P"
+        android:layout_toRightOf="@+id/P"
+        android:background="#000000"
+        android:text="Del"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/S"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/W"
+        android:layout_below="@+id/E"
+        android:layout_marginLeft="23dp"
+        android:text="S" />
+
+    <Button
         android:id="@+id/A"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/W"
-        android:layout_toLeftOf="@+id/S"
+        android:layout_alignBaseline="@+id/S"
+        android:layout_alignBottom="@+id/S"
+        android:layout_alignRight="@+id/W"
+        android:layout_marginRight="22dp"
         android:text="A" />
+
+    <Button
+        android:id="@+id/Y"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/S"
+        android:layout_toLeftOf="@+id/E"
+        android:text="Y" />
+
+    <Button
+        android:id="@+id/D"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/R"
+        android:layout_toRightOf="@+id/S"
+        android:text="D" />
+
+    <Button
+        android:id="@+id/F"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/C"
+        android:layout_toRightOf="@+id/D"
+        android:text="F" />
+
+    <Button
+        android:id="@+id/G"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/B"
+        android:layout_toRightOf="@+id/F"
+        android:text="G" />
+
+    <Button
+        android:id="@+id/H"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/G"
+        android:layout_alignBottom="@+id/G"
+        android:layout_toRightOf="@+id/G"
+        android:text="H" />
+
+    <Button
+        android:id="@+id/J"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/U"
+        android:layout_toRightOf="@+id/H"
+        android:text="J" />
+
+    <Button
+        android:id="@+id/K"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/I"
+        android:layout_toRightOf="@+id/J"
+        android:text="K" />
+
+    <Button
+        android:id="@+id/L"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/O"
+        android:layout_toRightOf="@+id/K"
+        android:text="L" />
 
 </RelativeLayout>

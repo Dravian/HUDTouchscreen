@@ -1,12 +1,19 @@
 package com.hudtouchscreen.touchscreenplayer;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.hudtouchscreen.hudmessage.ActivityMessage;
+import com.hudtouchscreen.hudmessage.ListMessage;
 import com.touchscreen.touchscreenplayer.R;
 
+import Service.ServiceManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -25,6 +32,9 @@ public class MusikList extends Activity implements OnGestureListener {
 	private TextView title4;
 	private TextView title5;
 	private GestureDetector gDetector;
+	
+	private ServiceManager service;
+	private boolean activityOn;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -32,6 +42,7 @@ public class MusikList extends Activity implements OnGestureListener {
 		setContentView(R.layout.list_search);
 		position = 0;
 		list = new String[5];
+		activityOn = true;
 
 		gDetector = new GestureDetector(this, this);
 
@@ -88,7 +99,23 @@ public class MusikList extends Activity implements OnGestureListener {
 
 		Intent intent = getIntent();
 		listValues = intent.getStringArrayListExtra("Track Names");
+		
+		this.service = new ServiceManager(this, ServerService.class,
+				new Handler() {
 
+					@Override
+					public void handleMessage(Message msg) {
+						final Bundle bundle = msg.getData();
+						bundle.setClassLoader(getClassLoader());
+						
+						switch (msg.what) {
+						case ServerService.MSG_NEWCLIENT:
+						}
+					}
+				});
+
+		service.start();
+		
 		fillList();
 
 	}
@@ -115,6 +142,8 @@ public class MusikList extends Activity implements OnGestureListener {
 			}
 
 		}
+		
+		sendToService(ServerService.MSG_LIST);
 	}
 
 	public void finishClick(int position) {
@@ -125,13 +154,53 @@ public class MusikList extends Activity implements OnGestureListener {
 			i.putExtra("Song", position);
 
 			setResult(100, i);
+			
+			sendToService(ServerService.MSG_ACTIVITY);
+		
+			activityOn = false;
+			service.unbind();
 			finish();
+		}
+	}
+	
+	private void sendToService(int type) {
+		Message message;
+		switch(type){
+		/*case ServerService.MSG_NEWCLIENT:
+			message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);	
+			ActivityMessage newClientMessage = new ActivityMessage(ActivityMessage.SWITCH_TO_LIST);
+			message.getData().putParcelable("Activity", newClientMessage);
+			break;*/
+		
+		case ServerService.MSG_LIST:
+			message = Message.obtain(null, ServerService.MSG_LIST, 0, 0);
+			ArrayList<String> titels = new ArrayList<String>();
+			for(int i = 0; i < list.length; i++) {
+				titels.add(list[i]);
+			}
+			
+			ListMessage listMessage = new ListMessage(titels);
+			message.getData().putParcelable("List", listMessage);
+			break;
+		case ServerService.MSG_ACTIVITY:
+			message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);
+			
+			ActivityMessage activityMessage = new ActivityMessage(ActivityMessage.BACK_TO_MAIN);
+			message.getData().putParcelable("Activity", activityMessage);
+			break;
+		default:
+			return;
+		}
+		
+		try {
+			service.send(message);
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public boolean onDown(MotionEvent arg0) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

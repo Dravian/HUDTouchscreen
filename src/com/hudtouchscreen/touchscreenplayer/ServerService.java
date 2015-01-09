@@ -3,12 +3,15 @@ package com.hudtouchscreen.touchscreenplayer;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.HudMessage;
+import com.hudtouchscreen.hudmessage.ListMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 
+import Service.AbstractService;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
@@ -20,13 +23,14 @@ public class ServerService extends AbstractService {
 	public static final int MSG_SHUFFLE = 3;
 	public static final int MSG_LOOPING = 4;
 	public static final int MSG_TIME = 5;
+	public static final int MSG_ACTIVITY = 6;
+	public static final int MSG_LIST= 7;
+	public static final int MSG_KEYBOARD = 8;
 	
-	private static final int PORT = 8000;
 	private ClientListener clientListener;
 	private Set<Client> clients;
-	private static final int MAX_CLIENTS = 1;
+	private final int MAX_CLIENTS = 1;
 	
-	boolean timeStamp = false;
 
 	@Override
 	public void onStartService() {
@@ -36,7 +40,7 @@ public class ServerService extends AbstractService {
 	}
 	
 	private void startListener() {
-		clientListener = new ClientListener(PORT, this, MAX_CLIENTS);
+		clientListener = new ClientListener(this, MAX_CLIENTS);
 		Thread clientListenerThread = new Thread(clientListener);
 		clientListenerThread.start();
 	}
@@ -70,6 +74,14 @@ public class ServerService extends AbstractService {
 		case MSG_TIME:		
 			TimeMessage time = (TimeMessage)bundle.getParcelable("Time");
 			broadcast(time);
+			break;
+		case MSG_ACTIVITY:
+			ActivityMessage activity = (ActivityMessage)bundle.getParcelable("Activity");
+			broadcast(activity);
+			break;
+		case MSG_LIST:
+			ListMessage list = (ListMessage)bundle.getParcelable("List");
+			broadcast(list);
 			break;
 		default:
 		}

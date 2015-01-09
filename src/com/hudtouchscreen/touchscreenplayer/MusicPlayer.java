@@ -7,12 +7,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 import com.touchscreen.touchscreenplayer.R;
 
+import Service.ServiceManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -432,47 +434,6 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		}
 	}
 
-	/**
-	 * Starts a command depending on the button a user clicked
-	 * 
-	 * @param view
-	 */
-	/*
-	 * public void click(View view) {
-	 * 
-	 * if (trackNames.size() > 0) { int id = view.getId(); switch (id) { case
-	 * R.id.play: synchronized (this) { if (isTuning) { isTuning = false;
-	 * btnPlay.setBackgroundResource(R.drawable.play); track.pause();
-	 * updateTime.removeCallbacks(UpdateSongTime);
-	 * 
-	 * } else { isTuning = true;
-	 * btnPlay.setBackgroundResource(R.drawable.pause); playTrack(); }
-	 * 
-	 * } return; case R.id.stop: synchronized (this) { isTuning = false;
-	 * btnPlay.setBackgroundResource(R.drawable.play); track.stop();
-	 * updateTime.removeCallbacks(UpdateSongTime); setTime(); } return; case
-	 * R.id.shuffle: synchronized (this) { Button btnShuffle = (Button)
-	 * findViewById(R.id.btnShuffle); // switchToList();
-	 * 
-	 * if (shuffle) { shuffle = false;
-	 * btnShuffle.setBackgroundResource(R.drawable.shuffleoff); } else { shuffle
-	 * = true; btnShuffle.setBackgroundResource(R.drawable.shuffleon); }
-	 * 
-	 * sendToService(ServerService.MSG_SHUFFLE);
-	 * 
-	 * } return; case R.id.looping: synchronized (this) { Button btnLooping =
-	 * (Button) findViewById(R.id.btnLooping);
-	 * 
-	 * if (looping) { looping = false;
-	 * btnLooping.setBackgroundResource(R.drawable.loopingoff);
-	 * 
-	 * } else { looping = true;
-	 * btnLooping.setBackgroundResource(R.drawable.loopingon); }
-	 * 
-	 * track.setLooping(looping); sendToService(ServerService.MSG_LOOPING);
-	 * 
-	 * } default: return; } } }
-	 */
 
 	/**
 	 * Sets the track that is played next
@@ -595,7 +556,6 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	@Override
 	public boolean onDown(MotionEvent arg0) {
 		// TODO Auto-generated method stub
-		switchToList();
 		return true;
 	}
 
@@ -603,8 +563,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	public boolean onFling(MotionEvent start, MotionEvent finish,
 			float xVelocity, float yVelocity) {
 
-		final int SWIPE_THRESHOLD = 50;
-		final int SWIPE_VELOCITY_THRESHOLD = 50;
+		final int SWIPE_THRESHOLD = 100;
+		final int SWIPE_VELOCITY_THRESHOLD = 100;
 
 		try {
 			float diffY = finish.getY() - start.getY();
@@ -650,7 +610,6 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 	public void onSwipeUp() {
 
-		switchToList();
 	}
 
 	public void onSwipeDown() {
@@ -686,13 +645,25 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	public boolean onTouchEvent(MotionEvent me) {
 		return gDetector.onTouchEvent(me);
 	}
-
+	
 	private void switchToList() {
 		startingNewActivity = true;
 		Intent i = new Intent(getApplicationContext(), MusikList.class);
 		i.putStringArrayListExtra("Track Names", trackNames);
 
+		Message message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);
+		
+		ActivityMessage activityMessage = new ActivityMessage(ActivityMessage.SWITCH_TO_LIST);
+		message.getData().putParcelable("Activity", activityMessage);
+		
+		try {
+			service.send(message);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+
 		startActivityForResult(i, 100);
+	
 	}
 
 	@Override

@@ -11,8 +11,9 @@ public class ClientListener extends Thread {
 	private int maxClients;
 	private int numberOfClients;
 
-	public ClientListener(int port, ServerService serverService, int maxClients) {
-
+	public ClientListener(ServerService serverService, int maxClients) {
+		final int PORT = 8000;
+		
 		this.server = serverService;
 		this.maxClients = maxClients;
 		numberOfClients = 0;
@@ -23,9 +24,9 @@ public class ClientListener extends Thread {
 
 		try {
 
-			serverSocket = new ServerSocket(port);
+			serverSocket = new ServerSocket(PORT);
 		} catch (IOException e) {
-			System.err.println("Could not listen on port: " + port);
+			System.err.println("Could not listen on port: " + PORT);
 			e.printStackTrace();
 			System.exit(0);
 		}

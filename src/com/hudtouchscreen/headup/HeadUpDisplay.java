@@ -1,9 +1,12 @@
 package com.hudtouchscreen.headup;
 
+import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongTitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.touchscreenplayer.MusikList;
+import com.hudtouchscreen.touchscreenplayer.ServerService;
 import com.touchscreen.touchscreenplayer.R;
 
 import java.io.EOFException;
@@ -16,14 +19,18 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
+import Service.ServiceManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,6 +64,8 @@ public class HeadUpDisplay extends Activity {
 	private double finalTime = 0;
 	private Handler myHandler = new Handler();;
 	private SeekBar seekbar;
+	
+	private ServiceManager service;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,136 +77,96 @@ public class HeadUpDisplay extends Activity {
 		seekbar = (SeekBar) findViewById(R.id.seekBar1);
 		seekbar.setClickable(false);
 
-		// PACKETS TO PORT 7000 GET REDIRECTED TO THE SERVER EMULATOR'S PORT
-		// 8000
-		Thread playerListener = new Thread(new PlayerListener());
-		playerListener.start();
-	}
+		
+		this.service = new ServiceManager(this, ClientService.class,
+				new Handler() {
 
-	/**
-	 * Initialisiert die ObjectStreams und speichert den TCP Socket im Thread.
-	 * 
-	 * @param model
-	 *            ClientModel, Das Model das den Spielablauf und
-	 *            Serverkommunikation steuert. oder Socket Argumenten.
-	 * @throws IOException
-	 *             Wird geworfen beim fehlerbehafteten Erstellen der
-	 *             ObjectStreams.
-	 */
-	public void startConnection() {
-		try {
-			InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
-			connection = new Socket(SERVER_IP, PORT);
-			connection.setSoTimeout(0);
-
-			in = new ObjectInputStream(connection.getInputStream());
-			out = connection.getOutputStream();
-			out.flush();
-			socketSet = true;
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public class PlayerListener implements Runnable {
-		private boolean waiting;
-
-		@Override
-		public void run() {
-			startConnection();
-			waiting = true;
-
-			try {
-
-				while (waiting) {
-					Object message;
-
-					message = in.readObject();
-					
-					if (message instanceof SongTitleMessage) {
-						final TextView songTitle = (TextView) findViewById(R.id.hud_title);
-						final String songTitleText = ((SongTitleMessage) message)
-								.getSongTitle();
-
-						runOnUiThread(new Runnable() {
-
-							@Override
-							public void run() {
-								songTitle.setText(songTitleText);
-							}
-						});
-
-					} else if (message instanceof ShuffleMessage) {
-						final ImageView imgView = (ImageView) findViewById(R.id.shuffleVisible);
-						final boolean isShuffled = ((ShuffleMessage) message)
-								.isShuffled();
+					@Override
+					public void handleMessage(Message msg) {
+						final Bundle bundle = msg.getData();
+						bundle.setClassLoader(getClassLoader());
 						
-						runOnUiThread(new Runnable() {
+						switch (msg.what) {
+						case ClientService.MSG_SONGTITLE:
+							SongTitleMessage songTitleMessage = (SongTitleMessage)bundle.getParcelable("Songtitle");
+							final TextView songTitle = (TextView) findViewById(R.id.hud_title);
+							final String songTitleText = (songTitleMessage)
+									.getSongTitle();
 
-							@Override
-							public void run() {
+							runOnUiThread(new Runnable() {
 
-								if (isShuffled) {
-									imgView.setVisibility(View.VISIBLE);
-								} else {
-									imgView.setVisibility(View.INVISIBLE);
+								@Override
+								public void run() {
+									songTitle.setText(songTitleText);
 								}
-							}
-						});
+							});
+							break;
+						case ClientService.MSG_SHUFFLE:
+							ShuffleMessage shuffleMessage = (ShuffleMessage)bundle.getParcelable("Shuffle");
+							final ImageView imgShuffle = (ImageView) findViewById(R.id.shuffleVisible);
+							final boolean isShuffled = (shuffleMessage)
+									.isShuffled();
+							
+							runOnUiThread(new Runnable() {
 
-					} else if (message instanceof LoopingMessage) {
-						final ImageView imgView = (ImageView) findViewById(R.id.loopingVisible);
-						final boolean isLooping = ((LoopingMessage) message)
-								.isLooping();
+								@Override
+								public void run() {
 
-						runOnUiThread(new Runnable() {
-
-							@Override
-							public void run() {
-
-								if (isLooping) {
-									imgView.setVisibility(View.VISIBLE);
-								} else {
-									imgView.setVisibility(View.INVISIBLE);
+									if (isShuffled) {
+										imgShuffle.setVisibility(View.VISIBLE);
+									} else {
+										imgShuffle.setVisibility(View.INVISIBLE);
+									}
 								}
+							});
+							break;
+						case ClientService.MSG_LOOPING:
+							LoopingMessage loopingMessage = (LoopingMessage)bundle.getParcelable("Looping");
+							final ImageView imgLooping = (ImageView) findViewById(R.id.loopingVisible);
+							final boolean isLooping = (loopingMessage)
+									.isLooping();
+
+							runOnUiThread(new Runnable() {
+
+								@Override
+								public void run() {
+
+									if (isLooping) {
+										imgLooping.setVisibility(View.VISIBLE);
+									} else {
+										imgLooping.setVisibility(View.INVISIBLE);
+									}
+								}
+							});
+							break;
+						case ClientService.MSG_TIME:
+							TimeMessage timeMessage = (TimeMessage)bundle.getParcelable("Time");
+							final double start = timeMessage.getStartTime();
+							final double end = timeMessage.getEndTime();
+							
+							runOnUiThread(new Runnable() {
+
+								@Override
+								public void run() {
+									updateTime(start, end);
+								}
+							});
+							break;
+						case ClientService.MSG_ACTIVITY:
+							ActivityMessage activityMessage = (ActivityMessage)bundle.getParcelable("Activity");
+							
+							if(activityMessage.getActivity() == ActivityMessage.SWITCH_TO_LIST) {
+								switchToList();
 							}
-						});
+						default:
+							super.handleMessage(msg);
+						}
+					}
+				});
 
-					} else if (message instanceof TimeMessage) {
-						final double start = ((TimeMessage) message).getStartTime();
-						final double end = ((TimeMessage) message).getEndTime();
-						
-						runOnUiThread(new Runnable() {
-
-							@Override
-							public void run() {
-								updateTime(start, end);
-							}
-						});
-
-					} 
-				}
-				
-			} catch (ClassNotFoundException e) {
-				System.err.println("Unbekanntes Objekt empfangen");
-				e.printStackTrace();
-			} catch (EOFException e) {
-				System.err.println("Ende des Objektstroms");
-				e.printStackTrace();
-
-			} catch (SocketException e) {
-
-				System.err.println("Verbindung verloren");
-				e.printStackTrace();
-
-			} catch (IOException e) {
-				System.err.println("Netzwerkfehler");
-				e.printStackTrace();
-			} finally {
-				closeConnection();
-			}
-		}
+		service.start();
+		
+		
 	}
 
 	@SuppressLint("NewApi")
@@ -222,14 +191,19 @@ public class HeadUpDisplay extends Activity {
 		seekbar.setProgress((int) startTime);
 	}
 
-	/*
-	 * public synchronized void receiveMessage(SongTitleMessage msg) { if (msg
-	 * != null) { if (msg.getSongTitle() != null) {
-	 * switchSong(msg.getSongTitle()); } else { throw new
-	 * IllegalArgumentException("Leerer String"); } } else { throw new
-	 * IllegalArgumentException("Argument ist null"); } }
-	 */
+	private void switchToList() {
+		Intent i = new Intent(getApplicationContext(), HeadUpList.class);
 
+
+		startActivityForResult(i, 100);
+	
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+	
 	/**
 	 * Hilfsmethode die eine bestehende Verbindung abbaut und deren Ressourcen
 	 * freigibt.
