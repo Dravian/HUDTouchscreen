@@ -117,7 +117,6 @@ public class MusikList extends Activity implements OnGestureListener {
 		service.start();
 		
 		fillList();
-
 	}
 
 	private void fillList() {
@@ -166,12 +165,6 @@ public class MusikList extends Activity implements OnGestureListener {
 	private void sendToService(int type) {
 		Message message;
 		switch(type){
-		/*case ServerService.MSG_NEWCLIENT:
-			message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);	
-			ActivityMessage newClientMessage = new ActivityMessage(ActivityMessage.SWITCH_TO_LIST);
-			message.getData().putParcelable("Activity", newClientMessage);
-			break;*/
-		
 		case ServerService.MSG_LIST:
 			message = Message.obtain(null, ServerService.MSG_LIST, 0, 0);
 			ArrayList<String> titels = new ArrayList<String>();

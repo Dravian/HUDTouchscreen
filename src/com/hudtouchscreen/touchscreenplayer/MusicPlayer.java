@@ -222,6 +222,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 					}
 
 					sendToService(ServerService.MSG_SHUFFLE);
+					
+					switchToKeyBoard();
 				}
 			}
 		});
@@ -609,7 +611,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	}
 
 	public void onSwipeUp() {
-
+		switchToKeyBoard();
 	}
 
 	public void onSwipeDown() {
@@ -665,6 +667,26 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		startActivityForResult(i, 100);
 	
 	}
+	
+	private void switchToKeyBoard() {
+		startingNewActivity = true;
+		Intent i = new Intent(getApplicationContext(), MusikKeyboard.class);
+		//i.putStringArrayListExtra("Track Names", trackNames);
+
+		Message message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);
+		
+		ActivityMessage activityMessage = new ActivityMessage(ActivityMessage.SWITCH_TO_KEYBOARD);
+		message.getData().putParcelable("Activity", activityMessage);
+		
+		try {
+			service.send(message);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+
+		startActivityForResult(i, 200);
+	
+	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -679,8 +701,10 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				switchTrack(position);
 			}
 
-		}
+		} else if(resultCode == 200) {
 
+		}
+		
 		sendToService(ServerService.MSG_REGISTER_CLIENT);
 		sendToService(ServerService.MSG_SONGTITLE);
 		sendToService(ServerService.MSG_SHUFFLE);

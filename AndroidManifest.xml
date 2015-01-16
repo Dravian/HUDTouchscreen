@@ -41,9 +41,16 @@
             android:name="com.hudtouchscreen.touchscreenplayer.MusikList"
             android:label="@string/title_activity_list_view" >
         </activity>
+         <activity
+            android:name="com.hudtouchscreen.touchscreenplayer.MusikKeyboard"
+            android:label="@string/title_activity_list_view" >
+        </activity>
 		  <activity
             android:name="com.hudtouchscreen.headup.HeadUpList"
             android:label="@string/title_activity_list_view" >
+        </activity>
+         <activity
+            android:name="com.hudtouchscreen.headup.HeadUpKeyboard">
         </activity>
         <service
             android:name="com.hudtouchscreen.touchscreenplayer.ServerService"

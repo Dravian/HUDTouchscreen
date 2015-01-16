@@ -216,7 +216,7 @@ public class HeadUpDisplay extends Activity {
 				in.close();
 				connection.close();
 			} catch (IOException e) {
-				System.out.println("Fehler beim schlie�en des Netzwerkes");
+				System.out.println("Fehler beim schließen des Netzwerkes");
 				e.printStackTrace();
 			}
 		}

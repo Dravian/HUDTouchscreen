@@ -26,6 +26,17 @@ public class HeadUpList extends Activity{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.list_search);
+		final TextView title1 = (TextView) findViewById(R.id.title1);
+		final TextView title2 = (TextView) findViewById(R.id.title2);
+		final TextView title3 = (TextView) findViewById(R.id.title3);
+		final TextView title4 = (TextView) findViewById(R.id.title4);
+		final TextView title5 = (TextView) findViewById(R.id.title5);
+		
+		title1.setClickable(false);
+		title2.setClickable(false);
+		title3.setClickable(false);
+		title4.setClickable(false);
+		title5.setClickable(false);
 		
 		this.service = new ServiceManager(this, ClientService.class,
 				new Handler() {
@@ -40,7 +51,27 @@ public class HeadUpList extends Activity{
 							ListMessage listMessage = (ListMessage)bundle.getParcelable("List");
 							ArrayList<String> list = new ArrayList<String>();
 							listMessage.fillList(list);
-							fillList(list);
+							
+							if(list.size() == 5) {
+								final String songTitle1 = list.get(0);
+								final String songTitle2 = list.get(1);
+								final String songTitle3 = list.get(2);
+								final String songTitle4 = list.get(3);
+								final String songTitle5 = list.get(4);
+								
+								runOnUiThread(new Runnable() {
+
+									@Override
+									public void run() {
+										title1.setText(songTitle1);
+										title2.setText(songTitle2);
+										title3.setText(songTitle3);
+										title4.setText(songTitle4);
+										title5.setText(songTitle5);
+									}
+								});
+							}
+							
 							break;
 						case ClientService.MSG_ACTIVITY:
 							ActivityMessage activityMessage = (ActivityMessage)bundle.getParcelable("Activity");
@@ -57,22 +88,5 @@ public class HeadUpList extends Activity{
 
 		service.start();
 
-	}
-	
-	private void fillList(ArrayList<String> list) {
-		TextView title1 = (TextView) findViewById(R.id.title1);
-		title1.setText(list.get(0));
-		
-		TextView title2 = (TextView) findViewById(R.id.title2);
-		title2.setText(list.get(1));
-		
-		TextView title3 = (TextView) findViewById(R.id.title3);
-		title3.setText(list.get(2));
-		
-		TextView title4 = (TextView) findViewById(R.id.title4);
-		title4.setText(list.get(3));
-		
-		TextView title5 = (TextView) findViewById(R.id.title5);
-		title5.setText(list.get(4));
 	}
 }
