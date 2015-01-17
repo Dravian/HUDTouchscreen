@@ -17,36 +17,6 @@ public class MusikKeyboard extends Activity {
 
 	private ServiceManager service;
 	private boolean activityOn;
-	/*
-	private Button qKey;
-	private Button wKey;
-	private Button eKey;
-	private Button rKey;
-	private Button tKey;
-	private Button zKey;
-	private Button uKey;
-	private Button iKey;
-	private Button oKey;
-	private Button pKey;
-	private Button aKey;
-	private Button sKey;
-	private Button dKey;
-	private Button fKey;
-	private Button gKey;
-	private Button hKey;
-	private Button jKey;
-	private Button kKey;
-	private Button lKey;
-	private Button yKey;
-	private Button xKey;
-	private Button cKey;
-	private Button vKey;
-	private Button bKey;
-	private Button nKey;
-	private Button mKey;
-
-	private Button delKey;
-	private Button enterKey;*/
 
 	private EditText keyBoardText;
 	
@@ -76,67 +46,6 @@ public class MusikKeyboard extends Activity {
 
 	}
 	
-	private void initialize() {
-		/*qKey = (Button) findViewById(R.id.Q);	
-		wKey = (Button) findViewById(R.id.W);
-		eKey = (Button) findViewById(R.id.E);
-		rKey = (Button) findViewById(R.id.R);
-		tKey = (Button) findViewById(R.id.T);
-		zKey = (Button) findViewById(R.id.Z);
-		uKey = (Button) findViewById(R.id.U);
-		iKey = (Button) findViewById(R.id.I);
-		oKey = (Button) findViewById(R.id.O);
-		pKey = (Button) findViewById(R.id.P);
-		aKey = (Button) findViewById(R.id.A);
-		sKey = (Button) findViewById(R.id.S);
-		dKey = (Button) findViewById(R.id.D);
-		fKey = (Button) findViewById(R.id.F);
-		gKey = (Button) findViewById(R.id.G);
-		hKey = (Button) findViewById(R.id.H);
-		jKey = (Button) findViewById(R.id.J);
-		kKey = (Button) findViewById(R.id.K);
-		lKey = (Button) findViewById(R.id.L);
-		yKey = (Button) findViewById(R.id.Y);
-		xKey = (Button) findViewById(R.id.X);
-		cKey = (Button) findViewById(R.id.C);
-		vKey = (Button) findViewById(R.id.V);
-		bKey = (Button) findViewById(R.id.B);
-		nKey = (Button) findViewById(R.id.N);
-		mKey = (Button) findViewById(R.id.M);
-		
-		delKey = (Button) findViewById(R.id.Del);
-		enterKey = (Button) findViewById(R.id.Enter);
-		
-		qKey.setOnClickListener(this);
-		wKey.setOnClickListener(this);
-		eKey.setOnClickListener(this);
-		rKey.setOnClickListener(this);
-		tKey.setOnClickListener(this);
-		zKey.setOnClickListener(this);
-		uKey.setOnClickListener(this);
-		iKey.setOnClickListener(this);
-		oKey.setOnClickListener(this);
-		
-		aKey.setOnClickListener(this);
-		sKey.setOnClickListener(this);
-		dKey.setOnClickListener(this);
-		fKey.setOnClickListener(this);
-		gKey.setOnClickListener(this);
-		hKey.setOnClickListener(this);
-		jKey.setOnClickListener(this);
-		kKey.setOnClickListener(this);
-		lKey.setOnClickListener(this);
-		
-		yKey.setOnClickListener(this);
-		xKey.setOnClickListener(this);
-		cKey.setOnClickListener(this);
-		bKey.setOnClickListener(this);
-		nKey.setOnClickListener(this);
-		mKey.setOnClickListener(this);
-		
-		delKey.setOnClickListener(this);
-		enterKey.setOnClickListener(this);*/
-	}
 	
 	private void finishTyping() {
 		Intent i = new Intent();
@@ -360,16 +269,16 @@ public class MusikKeyboard extends Activity {
 				keyBoardText.append("m");
 			}
 			break;
-		/*case R.id.Del:
+		case R.id.delete:
 			if (keyBoardText.getText().length() > 0) {
 				keyBoardText.getText().delete(
 						keyBoardText.getText().length() - 1,
 						keyBoardText.getText().length());
 			}
 			break;
-		case R.id.Enter:
+		case R.id.enter:
 			finishTyping();
-			break;*/
+			break;
 		default:
 			return;
 		}
