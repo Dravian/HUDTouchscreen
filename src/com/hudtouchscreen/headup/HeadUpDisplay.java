@@ -3,7 +3,7 @@ package com.hudtouchscreen.headup;
 import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 import com.hudtouchscreen.touchscreenplayer.MusikList;
 import com.hudtouchscreen.touchscreenplayer.ServerService;
@@ -87,11 +87,11 @@ public class HeadUpDisplay extends Activity {
 						bundle.setClassLoader(getClassLoader());
 						
 						switch (msg.what) {
-						case ClientService.MSG_SONGTITLE:
-							SongTitleMessage songTitleMessage = (SongTitleMessage)bundle.getParcelable("Songtitle");
+						case ClientService.MSG_TEXT:
+							TextMessage songTitleMessage = (TextMessage)bundle.getParcelable("Text");
 							final TextView songTitle = (TextView) findViewById(R.id.hud_title);
 							final String songTitleText = (songTitleMessage)
-									.getSongTitle();
+									.getText();
 
 							runOnUiThread(new Runnable() {
 
@@ -157,6 +157,10 @@ public class HeadUpDisplay extends Activity {
 							
 							if(activityMessage.getActivity() == ActivityMessage.SWITCH_TO_LIST) {
 								switchToList();
+							
+							} else if(activityMessage.getActivity() == ActivityMessage.SWITCH_TO_KEYBOARD) {
+								switchToKeyboard();
+								
 							}
 						default:
 							super.handleMessage(msg);
@@ -193,10 +197,12 @@ public class HeadUpDisplay extends Activity {
 
 	private void switchToList() {
 		Intent i = new Intent(getApplicationContext(), HeadUpList.class);
-
-
-		startActivityForResult(i, 100);
+		startActivityForResult(i, 100);	
+	}
 	
+	private void switchToKeyboard() {
+		Intent i = new Intent(getApplicationContext(), HeadUpKeyboard.class);
+		startActivity(i);	
 	}
 
 	@Override

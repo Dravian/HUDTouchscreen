@@ -9,7 +9,7 @@ import java.net.Socket;
 import com.hudtouchscreen.hudmessage.HudMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.TextMessage;
 
 public class Client {
 	Socket connection;

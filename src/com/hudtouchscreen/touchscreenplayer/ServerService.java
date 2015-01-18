@@ -8,7 +8,7 @@ import com.hudtouchscreen.hudmessage.HudMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 
 import Service.AbstractService;
@@ -19,7 +19,7 @@ import android.util.Log;
 public class ServerService extends AbstractService {
 
 	public static final int MSG_NEWCLIENT = 1;
-	public static final int MSG_SONGTITLE = 2;
+	public static final int MSG_TEXT = 2;
 	public static final int MSG_SHUFFLE = 3;
 	public static final int MSG_LOOPING = 4;
 	public static final int MSG_TIME = 5;
@@ -57,8 +57,8 @@ public class ServerService extends AbstractService {
 		bundle.setClassLoader(getClassLoader());
 		
 		switch (msg.what) {
-		case MSG_SONGTITLE:
-			SongTitleMessage songTitle = (SongTitleMessage)bundle.getParcelable("Songtitle");
+		case MSG_TEXT:
+			TextMessage songTitle = (TextMessage)bundle.getParcelable("Text");
 			broadcast(songTitle);
 			break;
 		case MSG_SHUFFLE:

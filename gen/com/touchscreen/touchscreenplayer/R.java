@@ -1465,10 +1465,11 @@ containing a value of this type.
         public static final int abc_simple_decor=0x7f030017;
         public static final int activity_head_up_display=0x7f030018;
         public static final int keyboard=0x7f030019;
-        public static final int keyboardtest=0x7f03001a;
-        public static final int list_search=0x7f03001b;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001c;
-        public static final int touchscreen=0x7f03001d;
+        public static final int keyboardheadup=0x7f03001a;
+        public static final int keyboardtest=0x7f03001b;
+        public static final int list_search=0x7f03001c;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001d;
+        public static final int touchscreen=0x7f03001e;
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 

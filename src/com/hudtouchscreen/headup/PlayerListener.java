@@ -16,7 +16,7 @@ import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 import com.hudtouchscreen.touchscreenplayer.ServerService;
 
@@ -89,10 +89,10 @@ public class PlayerListener extends Thread {
 				
 				boolean trueMessage = false;
 
-				if (hudMessage instanceof SongTitleMessage) {
+				if (hudMessage instanceof TextMessage) {
 					
-					message = Message.obtain(null, ClientService.MSG_SONGTITLE, 0, 0);				
-					message.getData().putParcelable("Songtitle", (SongTitleMessage)hudMessage);
+					message = Message.obtain(null, ClientService.MSG_TEXT, 0, 0);				
+					message.getData().putParcelable("Text", (TextMessage)hudMessage);
 					trueMessage = true;
 
 				} else if (hudMessage instanceof ShuffleMessage) {			

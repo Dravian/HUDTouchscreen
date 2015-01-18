@@ -14,13 +14,13 @@ import com.hudtouchscreen.headup.PlayerListener;
 import com.hudtouchscreen.hudmessage.HudMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 
 public class ClientService extends AbstractService{
 
 	public static final int MSG_NEWCLIENT = 1;
-	public static final int MSG_SONGTITLE = 2;
+	public static final int MSG_TEXT = 2;
 	public static final int MSG_SHUFFLE = 3;
 	public static final int MSG_LOOPING = 4;
 	public static final int MSG_TIME = 5;

@@ -7,7 +7,7 @@ import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 import com.touchscreen.touchscreenplayer.R;
 

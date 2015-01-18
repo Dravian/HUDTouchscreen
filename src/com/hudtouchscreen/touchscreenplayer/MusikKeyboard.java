@@ -1,6 +1,7 @@
 package com.hudtouchscreen.touchscreenplayer;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
+import com.hudtouchscreen.hudmessage.TextMessage;
 import com.touchscreen.touchscreenplayer.R;
 
 import Service.ServiceManager;
@@ -38,6 +39,9 @@ public class MusikKeyboard extends Activity {
 
 						switch (msg.what) {
 						case ServerService.MSG_NEWCLIENT:
+						default:
+							super.handleMessage(msg);
+							break;
 						}
 					}
 				});
@@ -64,7 +68,12 @@ public class MusikKeyboard extends Activity {
 	private void sendToService(int type) {
 		Message message;
 		switch(type){
-		
+		case ServerService.MSG_TEXT:
+			message = Message.obtain(null, ServerService.MSG_TEXT, 0, 0);			
+			TextMessage testMessage = new TextMessage(keyBoardText.getText().toString());
+			message.getData().putParcelable("Text", testMessage);
+			break;
+			
 		case ServerService.MSG_ACTIVITY:
 			message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);
 			
@@ -278,10 +287,12 @@ public class MusikKeyboard extends Activity {
 			break;
 		case R.id.enter:
 			finishTyping();
-			break;
+			return;
 		default:
 			return;
 		}
+		
+		sendToService(ServerService.MSG_TEXT);
 
 	}
 }

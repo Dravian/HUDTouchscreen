@@ -10,7 +10,7 @@ import java.util.Random;
 import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.SongTitleMessage;
+import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 import com.touchscreen.touchscreenplayer.R;
 
@@ -41,6 +41,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.view.GestureDetector.OnGestureListener;
+import android.view.View.OnClickListener;
 
 /**
  * MusicPlayer is responsible for controlling the Music played and also acts as
@@ -96,8 +97,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
 				"Lexiconda");
 		setContentView(R.layout.touchscreen);
-
-		gDetector = new GestureDetector(this);
+		
 		initialize(0);
 
 		this.service = new ServiceManager(this, ServerService.class,
@@ -108,7 +108,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 						switch (msg.what) {
 						case ServerService.MSG_NEWCLIENT:
-							sendToService(ServerService.MSG_SONGTITLE);
+							sendToService(ServerService.MSG_TEXT);
 
 							sendToService(ServerService.MSG_SHUFFLE);
 
@@ -134,11 +134,11 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			message = Message.obtain(null, ServerService.MSG_REGISTER_CLIENT,
 					0, 0);
 			break;
-		case ServerService.MSG_SONGTITLE:
-			message = Message.obtain(null, ServerService.MSG_SONGTITLE, 0, 0);
-			SongTitleMessage songTitle = new SongTitleMessage(new String(
+		case ServerService.MSG_TEXT:
+			message = Message.obtain(null, ServerService.MSG_TEXT, 0, 0);
+			TextMessage songTitle = new TextMessage(new String(
 					getTrackName()));
-			message.getData().putParcelable("Songtitle", songTitle);
+			message.getData().putParcelable("Text", songTitle);
 
 			break;
 		case ServerService.MSG_SHUFFLE:
@@ -175,8 +175,17 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	 * @param type
 	 */
 	private void initialize(int type) {
+		gDetector = new GestureDetector(this, this);
+		
+		View.OnTouchListener gestureListener = new View.OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				return gDetector.onTouchEvent(event);
+			}
+		};
+		
+		
 		playImage = (ImageView) findViewById(R.id.play);
-		playImage.setOnClickListener(new View.OnClickListener() {
+		playImage.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				synchronized (this) {
 					if (isTuning) {
@@ -195,9 +204,11 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				}
 			}
 		});
+		playImage.setOnTouchListener(gestureListener);
 
+		
 		stopImage = (ImageView) findViewById(R.id.stop);
-		stopImage.setOnClickListener(new View.OnClickListener() {
+		stopImage.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				synchronized (this) {
 					isTuning = false;
@@ -208,9 +219,10 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				}
 			}
 		});
+		stopImage.setOnTouchListener(gestureListener);
 
 		shuffleImage = (ImageView) findViewById(R.id.shuffle);
-		shuffleImage.setOnClickListener(new View.OnClickListener() {
+		shuffleImage.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				synchronized (this) {
 					if (shuffle) {
@@ -223,19 +235,20 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 					sendToService(ServerService.MSG_SHUFFLE);
 					
-					switchToKeyBoard();
 				}
 			}
 		});
+		shuffleImage.setOnTouchListener(gestureListener);
 
 		startImage = (ImageView) findViewById(R.id.start);
-		startImage.setOnClickListener(new View.OnClickListener() {
+		startImage.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 			}
 		});
+		startImage.setOnTouchListener(gestureListener);
 
 		loopingImage = (ImageView) findViewById(R.id.looping);
-		loopingImage.setOnClickListener(new View.OnClickListener() {
+		loopingImage.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 
 				synchronized (this) {
@@ -254,6 +267,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				}
 			}
 		});
+		loopingImage.setOnTouchListener(gestureListener);
 
 		trackNames = new ArrayList<String>();
 		assets = getAssets();
@@ -472,7 +486,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			}
 		}
 
-		sendToService(ServerService.MSG_SONGTITLE);
+		sendToService(ServerService.MSG_TEXT);
 	}
 
 	/**
@@ -558,7 +572,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 	@Override
 	public boolean onDown(MotionEvent arg0) {
 		// TODO Auto-generated method stub
-		return true;
+		return false;
 	}
 
 	@Override
@@ -706,7 +720,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		}
 		
 		sendToService(ServerService.MSG_REGISTER_CLIENT);
-		sendToService(ServerService.MSG_SONGTITLE);
+		sendToService(ServerService.MSG_TEXT);
 		sendToService(ServerService.MSG_SHUFFLE);
 		sendToService(ServerService.MSG_LOOPING);
 		sendToService(ServerService.MSG_TIME);

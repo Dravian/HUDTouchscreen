@@ -110,13 +110,17 @@ public class MusikList extends Activity implements OnGestureListener {
 						
 						switch (msg.what) {
 						case ServerService.MSG_NEWCLIENT:
+							sendToService(ServerService.MSG_LIST);
+						default:
+							super.handleMessage(msg);
+						
 						}
 					}
 				});
 
-		service.start();
-		
 		fillList();
+		
+		service.start();
 	}
 
 	private void fillList() {
@@ -141,8 +145,7 @@ public class MusikList extends Activity implements OnGestureListener {
 			}
 
 		}
-		
-		sendToService(ServerService.MSG_LIST);
+	
 	}
 
 	public void finishClick(int position) {
@@ -249,6 +252,7 @@ public class MusikList extends Activity implements OnGestureListener {
 			position = position - 5;
 
 			fillList();
+			sendToService(ServerService.MSG_LIST);
 		}
 	}
 
@@ -257,6 +261,7 @@ public class MusikList extends Activity implements OnGestureListener {
 			position = position + 5;
 
 			fillList();
+			sendToService(ServerService.MSG_LIST);
 		}
 	}
 
