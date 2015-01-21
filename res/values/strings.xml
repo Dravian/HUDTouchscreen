@@ -3,11 +3,14 @@
 
     <string name="player">TouchScreenPlayer</string>
     <string name="title_activity_headup_display">HeadupDisplay</string>
-    <string name="song_title">test very very long long text</string>
+    <string name="song_title">test text</string>
     <string name="hud">HeadUpDisplay</string>
     <string name="start_time">0min 0sec</string>
     <string name="end_time"> 0min 0sec</string>
     <string name="title_activity_list_view">ListView</string>
     <string name="hello_world">Hello world!</string>
+    <string name="app_name">SimpleKeyboard</string>
+    <string name="simple_ime">Simple IME</string>
+    <string name="subtype_en_US">English (US)</string>
 
 </resources>

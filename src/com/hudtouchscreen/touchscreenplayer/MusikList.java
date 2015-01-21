@@ -1,12 +1,19 @@
 package com.hudtouchscreen.touchscreenplayer;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.hudtouchscreen.hudmessage.ActivityMessage;
+import com.hudtouchscreen.hudmessage.ListMessage;
 import com.touchscreen.touchscreenplayer.R;
 
+import Service.ServiceManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -26,15 +33,43 @@ public class MusikList extends Activity implements OnGestureListener {
 	private TextView title5;
 	private GestureDetector gDetector;
 
+	private ServiceManager service;
+	private boolean activityOn;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.list_search);
 		position = 0;
 		list = new String[5];
+		activityOn = true;
+		
+		Intent intent = getIntent();
+		listValues = intent.getStringArrayListExtra("Track Names");
 
 		gDetector = new GestureDetector(this, this);
 
+		this.service = new ServiceManager(this, ServerService.class,
+				new Handler() {
+
+					@Override
+					public void handleMessage(Message msg) {
+						final Bundle bundle = msg.getData();
+						bundle.setClassLoader(getClassLoader());
+
+						switch (msg.what) {
+						case ServerService.MSG_NEWCLIENT:
+							sendToService(ServerService.MSG_LIST);
+						default:
+							super.handleMessage(msg);
+
+						}
+					}
+				});	
+	
+		
+		service.start();
+		
 		View.OnTouchListener gestureListener = new View.OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
 				return gDetector.onTouchEvent(event);
@@ -45,7 +80,9 @@ public class MusikList extends Activity implements OnGestureListener {
 		title1.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				finishClick(position);
+				if (list[0] != "") {
+					finishClick(position);
+				}
 			}
 		});
 		title1.setOnTouchListener(gestureListener);
@@ -54,7 +91,9 @@ public class MusikList extends Activity implements OnGestureListener {
 		title2.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				finishClick(position + 1);
+				if (list[1] != "") {
+					finishClick(position + 1);
+				}
 			}
 		});
 		title2.setOnTouchListener(gestureListener);
@@ -63,7 +102,9 @@ public class MusikList extends Activity implements OnGestureListener {
 		title3.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				finishClick(position + 2);
+				if (list[2] != "") {
+					finishClick(position + 2);
+				}
 			}
 		});
 		title3.setOnTouchListener(gestureListener);
@@ -72,7 +113,9 @@ public class MusikList extends Activity implements OnGestureListener {
 		title4.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				finishClick(position + 3);
+				if (list[3] != "") {
+					finishClick(position + 3);
+				}
 			}
 		});
 		title4.setOnTouchListener(gestureListener);
@@ -81,16 +124,14 @@ public class MusikList extends Activity implements OnGestureListener {
 		title5.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				finishClick(position + 4);
+				if (list[4] != "") {
+					finishClick(position + 4);
+				}
 			}
 		});
 		title5.setOnTouchListener(gestureListener);
-
-		Intent intent = getIntent();
-		listValues = intent.getStringArrayListExtra("Track Names");
-
+		
 		fillList();
-
 	}
 
 	private void fillList() {
@@ -115,6 +156,7 @@ public class MusikList extends Activity implements OnGestureListener {
 			}
 
 		}
+
 	}
 
 	public void finishClick(int position) {
@@ -125,13 +167,48 @@ public class MusikList extends Activity implements OnGestureListener {
 			i.putExtra("Song", position);
 
 			setResult(100, i);
+
+			sendToService(ServerService.MSG_ACTIVITY);
+
+			activityOn = false;
+			service.unbind();
 			finish();
+		}
+	}
+
+	private void sendToService(int type) {
+		Message message;
+		switch (type) {
+		case ServerService.MSG_LIST:
+			message = Message.obtain(null, ServerService.MSG_LIST, 0, 0);
+			ArrayList<String> titels = new ArrayList<String>();
+			for (int i = 0; i < list.length; i++) {
+				titels.add(list[i]);
+			}
+
+			ListMessage listMessage = new ListMessage(titels);
+			message.getData().putParcelable("List", listMessage);
+			break;
+		case ServerService.MSG_ACTIVITY:
+			message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);
+
+			ActivityMessage activityMessage = new ActivityMessage(
+					ActivityMessage.BACK_TO_MAIN);
+			message.getData().putParcelable("Activity", activityMessage);
+			break;
+		default:
+			return;
+		}
+
+		try {
+			service.send(message);
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 	}
 
 	@Override
 	public boolean onDown(MotionEvent arg0) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -178,7 +255,12 @@ public class MusikList extends Activity implements OnGestureListener {
 	}
 
 	private void onSwipeRight() {
-		// TODO Auto-generated method stub
+		sendToService(ServerService.MSG_ACTIVITY);
+		activityOn = false;
+		service.unbind();
+		Intent i = new Intent();
+		setResult(1, i);
+		finish();
 
 	}
 
@@ -187,14 +269,16 @@ public class MusikList extends Activity implements OnGestureListener {
 			position = position - 5;
 
 			fillList();
+			sendToService(ServerService.MSG_LIST);
 		}
 	}
 
 	private void onSwipeUp() {
-		if (position < 5) {
+		if (position < 5 && position >= 0 && listValues.size() > 5) {
 			position = position + 5;
 
 			fillList();
+			sendToService(ServerService.MSG_LIST);
 		}
 	}
 
