@@ -1271,13 +1271,23 @@ containing a value of this type.
         public static final int abc_textfield_searchview_holo_light=0x7f020054;
         public static final int abc_textfield_searchview_right_holo_dark=0x7f020055;
         public static final int abc_textfield_searchview_right_holo_light=0x7f020056;
-        public static final int ic_launcher=0x7f020057;
-        public static final int looping=0x7f020058;
-        public static final int pause=0x7f020059;
-        public static final int play=0x7f02005a;
-        public static final int shuffle=0x7f02005b;
-        public static final int start=0x7f02005c;
-        public static final int stop=0x7f02005d;
+        public static final int button=0x7f020057;
+        public static final int grey=0x7f020058;
+        public static final int ic_launcher=0x7f020059;
+        public static final int ice=0x7f02005a;
+        public static final int looping=0x7f02005b;
+        public static final int navy=0x7f02005c;
+        public static final int pause=0x7f02005d;
+        public static final int pause7=0x7f02005e;
+        public static final int play=0x7f02005f;
+        public static final int reload8=0x7f020060;
+        public static final int shuffle=0x7f020061;
+        public static final int shuffle18=0x7f020062;
+        public static final int shuffle19=0x7f020063;
+        public static final int start=0x7f020064;
+        public static final int stop=0x7f020065;
+        public static final int stop48=0x7f020066;
+        public static final int youtube10=0x7f020067;
     }
     public static final class id {
         public static final int a=0x7f050056;
@@ -1318,7 +1328,6 @@ containing a value of this type.
         public static final int editKeyBoard=0x7f05006a;
         public static final int edit_query=0x7f050041;
         public static final int empty=0x7f050055;
-        public static final int empty4=0x7f050078;
         public static final int empty6=0x7f050075;
         public static final int end=0x7f050011;
         public static final int endTime=0x7f050051;
@@ -1348,7 +1357,7 @@ containing a value of this type.
         public static final int linearLayout3=0x7f050060;
         public static final int listMode=0x7f050013;
         public static final int list_item=0x7f05003a;
-        public static final int looping=0x7f050083;
+        public static final int looping=0x7f050081;
         public static final int loopingVisible=0x7f050050;
         public static final int m=0x7f050068;
         public static final int middle=0x7f050024;
@@ -1358,7 +1367,7 @@ containing a value of this type.
         public static final int normal=0x7f050012;
         public static final int o=0x7f050073;
         public static final int p=0x7f050074;
-        public static final int play=0x7f05007f;
+        public static final int play=0x7f05007d;
         public static final int progress_circular=0x7f050029;
         public static final int progress_horizontal=0x7f05002a;
         public static final int q=0x7f05006b;
@@ -1381,27 +1390,26 @@ containing a value of this type.
         public static final int showCustom=0x7f050019;
         public static final int showHome=0x7f050016;
         public static final int showTitle=0x7f050018;
-        public static final int shuffle=0x7f050082;
+        public static final int shuffle=0x7f050080;
         public static final int shuffleVisible=0x7f05004e;
         public static final int split_action_bar=0x7f05002f;
         public static final int start=0x7f050010;
         public static final int startTime=0x7f050052;
-        public static final int stop=0x7f050080;
+        public static final int stop=0x7f05007e;
         public static final int submit_area=0x7f05004a;
         public static final int t=0x7f05006f;
         public static final int tabMode=0x7f050014;
         public static final int test=0x7f05005f;
         public static final int test1=0x7f050061;
-        public static final int test3=0x7f050079;
         public static final int title=0x7f05003c;
-        public static final int title1=0x7f05007a;
-        public static final int title2=0x7f05007b;
-        public static final int title3=0x7f05007c;
-        public static final int title4=0x7f05007d;
-        public static final int title5=0x7f05007e;
+        public static final int title1=0x7f050078;
+        public static final int title2=0x7f050079;
+        public static final int title3=0x7f05007a;
+        public static final int title4=0x7f05007b;
+        public static final int title5=0x7f05007c;
         public static final int top=0x7f050004;
         public static final int top_action_bar=0x7f050031;
-        public static final int touch_title=0x7f050081;
+        public static final int touch_title=0x7f05007f;
         public static final int u=0x7f050071;
         public static final int up=0x7f050032;
         public static final int useLogo=0x7f050015;
@@ -1466,10 +1474,9 @@ containing a value of this type.
         public static final int activity_head_up_display=0x7f030018;
         public static final int keyboard=0x7f030019;
         public static final int keyboardheadup=0x7f03001a;
-        public static final int keyboardtest=0x7f03001b;
-        public static final int list_search=0x7f03001c;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001d;
-        public static final int touchscreen=0x7f03001e;
+        public static final int list_search=0x7f03001b;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001c;
+        public static final int touchscreen=0x7f03001d;
     }
     public static final class string {
         /**  Content description for the action bar "home" affordance. [CHAR LIMIT=NONE] 

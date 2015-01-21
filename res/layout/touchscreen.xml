@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="10" >
+    android:weightSum="10"
+    android:background="@drawable/ice" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,28 +14,36 @@
         android:layout_weight="4"
         android:orientation="horizontal" >
 
-        <ImageView
+        <ImageButton
             android:id="@+id/play"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_weight="4"
+            android:layout_weight="3.9"
             android:adjustViewBounds="true"
             android:contentDescription="Play"
-            android:src="@drawable/play" 
+            android:background="@drawable/ice"
+            android:src="@drawable/youtube10" 
             android:clickable="true"
             android:onClick="onClick"
          	/>
-
+        
         <ImageView
-            android:id="@+id/stop"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_weight="4"
+            android:layout_weight="0.2" />
+
+        <ImageButton
+            android:id="@+id/stop"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="3.9"
             android:adjustViewBounds="true"
             android:contentDescription="Stop"
-            android:src="@drawable/stop"
+            android:background="@drawable/ice"
+            android:src="@drawable/stop48"
             android:clickable="true" 
             android:onClick="onClick"/>
     </LinearLayout>
@@ -68,39 +77,55 @@
         android:layout_weight="4"
         android:orientation="horizontal" >
         
-        <ImageView
+        <ImageButton
             android:id="@+id/shuffle"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_weight="4"
+            android:layout_weight="3.8"
             android:adjustViewBounds="true"
             android:contentDescription="Shuffle"
-            android:src="@drawable/shuffle"
+            android:background="@drawable/ice"
+            android:src="@drawable/shuffle19"
             android:clickable="true" 
-            android:onClick="onClick"/>
+            android:onClick="onClick"
+            />
         
         <ImageView
-            android:id="@+id/start"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_weight="4"
+            android:layout_weight="0.3" />
+        
+        <ImageButton
+            android:id="@+id/start"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="3.8"
             android:adjustViewBounds="true"
             android:contentDescription="Start"
+            android:background="@drawable/ice"
             android:src="@drawable/start" 
             android:clickable="true"
             android:onClick="onClick"/>
         
         <ImageView
-            android:id="@+id/looping"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_weight="4"
+            android:layout_weight="0.3" />
+        
+        <ImageButton
+            android:id="@+id/looping"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="3.8"
             android:adjustViewBounds="true"
             android:contentDescription="Looping"
-            android:src="@drawable/looping"
+            android:background="@drawable/ice"
+            android:src="@drawable/reload8"
             android:clickable="true" 
             android:onClick="onClick"/>
 
