@@ -3,32 +3,8 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:gravity="center_vertical"
-    tools:context="${packageName}.${activityClass}" >
-
-     <SeekBar
-         android:id="@+id/seekBar1"
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-         android:layout_alignParentBottom="true"
-         android:layout_alignParentLeft="true" />
-
-     <ImageView
-         android:id="@+id/shuffleVisible"
-         android:layout_width="50dp"
-         android:layout_height="50dp"
-         android:layout_above="@+id/hud_title"
-         android:layout_alignParentLeft="true"
-         android:src="@drawable/shuffle" 
-         android:visibility="invisible" />
-
-     <ImageView
-         android:id="@+id/loopingVisible"
-         android:layout_width="50dp"
-         android:layout_height="50dp"
-         android:layout_above="@+id/hud_title"
-         android:layout_toRightOf="@+id/shuffleVisible"
-         android:src="@drawable/looping" 
-         android:visibility="invisible" />
+    tools:context="${packageName}.${activityClass}" 
+    android:background="@android:color/black">
 
      <TextView
          android:id="@+id/endTime"
@@ -37,7 +13,8 @@
          android:layout_above="@+id/seekBar1"
          android:layout_alignParentRight="true"
          android:text="@string/end_time"
-         android:textSize="25sp" />
+         android:textSize="40sp"
+         android:textColor="@android:color/white" />
 
      <TextView
          android:id="@+id/hud_title"
@@ -45,8 +22,9 @@
          android:layout_height="wrap_content"
          android:layout_above="@+id/seekBar1"
          android:layout_centerHorizontal="true"
-         android:text="@string/song_title"
-         android:textSize="25sp" />
+         android:text=""
+         android:textSize="40sp"
+         android:textColor="@android:color/white" />
 
      <TextView
          android:id="@+id/startTime"
@@ -55,6 +33,32 @@
          android:layout_above="@+id/seekBar1"
          android:layout_alignParentLeft="true"
          android:text="@string/start_time"
-         android:textSize="25sp" />
+         android:textSize="40sp" 
+         android:textColor="@android:color/white"/>
+
+     <ImageView
+         android:id="@+id/loopingVisible"
+         android:layout_width="50dp"
+         android:layout_height="50dp"
+         android:layout_alignParentBottom="true"
+         android:layout_alignParentRight="true"
+         android:src="@drawable/looping"
+         android:visibility="invisible"/>
+
+     <SeekBar
+         android:id="@+id/seekBar1"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_above="@+id/shuffleVisible"
+         android:layout_alignParentLeft="true" />
+
+     <ImageView
+         android:id="@+id/shuffleVisible"
+         android:layout_width="50dp"
+         android:layout_height="50dp"
+         android:layout_alignParentBottom="true"
+         android:layout_alignParentLeft="true"
+         android:src="@drawable/shuffle"
+         android:visibility="invisible" />
 
 </RelativeLayout>

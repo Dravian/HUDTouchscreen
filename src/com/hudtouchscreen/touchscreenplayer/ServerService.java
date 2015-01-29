@@ -58,8 +58,8 @@ public class ServerService extends AbstractService {
 		
 		switch (msg.what) {
 		case MSG_TEXT:
-			TextMessage songTitle = (TextMessage)bundle.getParcelable("Text");
-			broadcast(songTitle);
+			TextMessage text = (TextMessage)bundle.getParcelable("Text");
+			broadcast(text);
 			break;
 		case MSG_SHUFFLE:
 			ShuffleMessage shuffle = (ShuffleMessage)bundle.getParcelable("Shuffle");

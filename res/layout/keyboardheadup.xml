@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" 
+    android:background="@android:color/black"
     >
 
     <LinearLayout
@@ -14,7 +15,7 @@
         android:weightSum="10" >
 
         <Button
-            android:id="@+id/empty"
+            android:id="@+id/empty1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
@@ -105,7 +106,7 @@
             android:clickable="false" />
 
         <Button
-            android:id="@+id/test"
+            android:id="@+id/empty2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
@@ -124,7 +125,7 @@
         android:weightSum="10" >
 
         <Button
-            android:id="@+id/test1"
+            android:id="@+id/empty3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -197,12 +198,13 @@
             android:clickable="false" />
 
         <Button
-            android:id="@+id/del"
+            android:id="@+id/empty4"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="M"
+            android:text=""
             android:textSize="20sp"
+            android:visibility="invisible" 
             android:clickable="false"/>
 
     </LinearLayout>
@@ -216,7 +218,9 @@
         android:clickable="false"
         android:ems="10"
         android:focusable="false"
-        android:textSize="50sp" />
+        android:textSize="50sp" 
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"/>
 
     <LinearLayout
         android:id="@+id/linearLayout1"
@@ -325,21 +329,12 @@
         android:layout_below="@+id/linearLayout3"
         android:weightSum="10" >
 
-        <Button
-            android:id="@+id/empty6"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:clickable="false"
-            android:text="1"
-            android:textSize="20sp"
-            android:visibility="invisible" />
         
         <Button
             android:id="@+id/delete"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4"
+            android:layout_weight="5"
             android:text="Del"
             android:textSize="20sp" 
             android:clickable="false"/>
@@ -348,7 +343,7 @@
             android:id="@+id/enter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4"
+            android:layout_weight="5"
             android:text="Enter"
             android:textSize="20sp"
             android:clickable="false"/>

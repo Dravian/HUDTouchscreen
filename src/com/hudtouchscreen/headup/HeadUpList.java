@@ -32,12 +32,6 @@ public class HeadUpList extends Activity{
 		final TextView title4 = (TextView) findViewById(R.id.title4);
 		final TextView title5 = (TextView) findViewById(R.id.title5);
 		
-		title1.setClickable(false);
-		title2.setClickable(false);
-		title3.setClickable(false);
-		title4.setClickable(false);
-		title5.setClickable(false);
-		
 		this.service = new ServiceManager(this, ClientService.class,
 				new Handler() {
 				

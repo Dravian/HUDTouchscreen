@@ -11,16 +11,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.GestureDetector.OnGestureListener;
 import android.widget.EditText;
 
-public class MusikKeyboard extends Activity {
+public class MusikKeyboard extends Activity implements OnGestureListener {
 
 	private ServiceManager service;
 	private boolean activityOn;
 
 	private EditText keyBoardText;
-	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -49,41 +50,42 @@ public class MusikKeyboard extends Activity {
 		service.start();
 
 	}
-	
-	
+
 	private void finishTyping() {
 		Intent i = new Intent();
 
-		//i.putExtra("Keyboard", keyBoardText.getText());
+		i.putExtra("Keyboard", keyBoardText.getText().toString());
 
 		setResult(200, i);
-		
+
 		sendToService(ServerService.MSG_ACTIVITY);
-	
+
 		activityOn = false;
 		service.unbind();
 		finish();
 	}
-	
+
 	private void sendToService(int type) {
 		Message message;
-		switch(type){
+		switch (type) {
 		case ServerService.MSG_TEXT:
-			message = Message.obtain(null, ServerService.MSG_TEXT, 0, 0);			
-			TextMessage testMessage = new TextMessage(keyBoardText.getText().toString());
+			message = Message.obtain(null, ServerService.MSG_TEXT, 0, 0);
+			TextMessage testMessage = new TextMessage(keyBoardText.getText()
+					.toString());
 			message.getData().putParcelable("Text", testMessage);
 			break;
-			
+
 		case ServerService.MSG_ACTIVITY:
 			message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);
-			
-			ActivityMessage activityMessage = new ActivityMessage(ActivityMessage.BACK_TO_MAIN);
+
+			ActivityMessage activityMessage = new ActivityMessage(
+					ActivityMessage.BACK_TO_MAIN);
 			message.getData().putParcelable("Activity", activityMessage);
 			break;
 		default:
 			return;
 		}
-		
+
 		try {
 			service.send(message);
 		} catch (RemoteException e) {
@@ -91,208 +93,268 @@ public class MusikKeyboard extends Activity {
 		}
 	}
 
-	
 	public void click(View view) {
 		int id = view.getId();
-		
-		switch(id) {
-		case R.id.q:
+
+		if (id == R.id.q) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("Q");
 			} else {
 				keyBoardText.append("q");
 			}
-			break;
-		case R.id.w:
+		} else if (id == R.id.w) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("W");
 			} else {
 				keyBoardText.append("w");
 			}
-			break;
-		case R.id.e:
+		} else if (id == R.id.e) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("E");
 			} else {
 				keyBoardText.append("e");
 			}
-			break;
-		case R.id.r:
+		} else if (id == R.id.r) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("R");
 			} else {
 				keyBoardText.append("r");
 			}
-			break;
-		case R.id.t:
+		} else if (id == R.id.t) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("T");
 			} else {
 				keyBoardText.append("t");
 			}
-			break;
-		case R.id.z:
+		} else if (id == R.id.z) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("Z");
 			} else {
 				keyBoardText.append("z");
 			}
-			break;
-		case R.id.u:
+		} else if (id == R.id.u) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("U");
 			} else {
 				keyBoardText.append("u");
 			}
-			break;
-		case R.id.i:
+		} else if (id == R.id.i) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("I");
 			} else {
 				keyBoardText.append("i");
 			}
-			break;
-		case R.id.o:
+		} else if (id == R.id.o) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("O");
 			} else {
 				keyBoardText.append("o");
 			}
-			break;
-		case R.id.p:
+		} else if (id == R.id.p) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("P");
 			} else {
 				keyBoardText.append("p");
 			}
-			break;
-		case R.id.a:
+		} else if (id == R.id.a) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("A");
 			} else {
 				keyBoardText.append("a");
 			}
-			break;
-		case R.id.s:
+		} else if (id == R.id.s) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("S");
 			} else {
 				keyBoardText.append("s");
 			}
-			break;
-		case R.id.d:
+		} else if (id == R.id.d) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("D");
 			} else {
 				keyBoardText.append("d");
 			}
-			break;
-		case R.id.f:
+		} else if (id == R.id.f) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("F");
 			} else {
 				keyBoardText.append("f");
 			}
-			break;
-		case R.id.g:
+		} else if (id == R.id.g) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("G");
 			} else {
 				keyBoardText.append("g");
 			}
-			break;
-		case R.id.h:
+		} else if (id == R.id.h) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("H");
 			} else {
 				keyBoardText.append("h");
 			}
-			break;
-		case R.id.j:
+		} else if (id == R.id.j) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("J");
 			} else {
 				keyBoardText.append("j");
 			}
-			break;
-		case R.id.k:
+		} else if (id == R.id.k) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("K");
 			} else {
 				keyBoardText.append("k");
 			}
-			break;
-		case R.id.l:
+		} else if (id == R.id.l) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("L");
 			} else {
 				keyBoardText.append("l");
 			}
-			break;
-		case R.id.y:
+		} else if (id == R.id.y) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("Y");
 			} else {
 				keyBoardText.append("y");
 			}
-			break;
-		case R.id.x:
+		} else if (id == R.id.x) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("X");
 			} else {
 				keyBoardText.append("x");
 			}
-			break;
-		case R.id.c:
+		} else if (id == R.id.c) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("C");
 			} else {
 				keyBoardText.append("c");
 			}
-			break;
-		case R.id.v:
+		} else if (id == R.id.v) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("V");
 			} else {
 				keyBoardText.append("v");
 			}
-			break;
-		case R.id.b:
+		} else if (id == R.id.b) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("B");
 			} else {
 				keyBoardText.append("b");
 			}
-			break;
-		case R.id.n:
+		} else if (id == R.id.n) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("N");
 			} else {
 				keyBoardText.append("n");
 			}
-			break;
-		case R.id.m:
+		} else if (id == R.id.m) {
 			if (keyBoardText.getText().length() == 0) {
 				keyBoardText.append("M");
 			} else {
 				keyBoardText.append("m");
 			}
-			break;
-		case R.id.delete:
+		} else if (id == R.id.delete) {
 			if (keyBoardText.getText().length() > 0) {
 				keyBoardText.getText().delete(
 						keyBoardText.getText().length() - 1,
 						keyBoardText.getText().length());
 			}
-			break;
-		case R.id.enter:
+		} else if (id == R.id.enter) {
 			finishTyping();
 			return;
-		default:
+		} else {
 			return;
 		}
-		
+
 		sendToService(ServerService.MSG_TEXT);
 
+	}
+
+	@Override
+	public boolean onDown(MotionEvent arg0) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean onFling(MotionEvent start, MotionEvent finish,
+			float xVelocity, float yVelocity) {
+
+		final int SWIPE_THRESHOLD = 100;
+		final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+		try {
+			float diffY = finish.getY() - start.getY();
+			float diffX = finish.getX() - start.getX();
+
+			if (Math.abs(diffX) > Math.abs(diffY)) {
+				if (Math.abs(diffX) > SWIPE_THRESHOLD
+						&& Math.abs(xVelocity) > SWIPE_VELOCITY_THRESHOLD) {
+					if (diffX > 0) {
+						onSwipeRight();
+					} else {
+						onSwipeLeft();
+					}
+				}
+			} else {
+				if (Math.abs(diffY) > SWIPE_THRESHOLD
+						&& Math.abs(yVelocity) > SWIPE_VELOCITY_THRESHOLD) {
+					if (diffY > 0) {
+						onSwipeDown();
+					} else {
+						onSwipeUp();
+					}
+				}
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+
+		return true;
+	}
+
+	private void onSwipeLeft() {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void onSwipeRight() {
+		sendToService(ServerService.MSG_ACTIVITY);
+		activityOn = false;
+		service.unbind();
+		Intent i = new Intent();
+		setResult(1, i);
+		finish();
+
+	}
+
+	private void onSwipeDown() {
+	}
+
+	private void onSwipeUp() {
+	}
+	
+	@Override
+	public void onLongPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void onShowPress(MotionEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

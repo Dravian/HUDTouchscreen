@@ -61,7 +61,7 @@ public class HeadUpDisplay extends Activity {
 
 	public TextView startTimeField, endTimeField;
 	private double startTime = 0;
-	private double finalTime = 0;
+	private double endTime = 0;
 	private Handler myHandler = new Handler();;
 	private SeekBar seekbar;
 	
@@ -174,24 +174,40 @@ public class HeadUpDisplay extends Activity {
 	}
 
 	@SuppressLint("NewApi")
-	private void updateTime(double startT, double finalT) {
-		finalTime = finalT;
+	private void updateTime(double startT, double endT) {
+		endTime = endT;
 		startTime = startT;
 
-		seekbar.setMax((int) finalTime);
+		seekbar.setMax((int) endTime);
 
-		endTimeField.setText(String.format(
-				"%dmin %dsec",
-				TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-				TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
-						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-								.toMinutes((long) finalTime))));
-		startTimeField.setText(String.format(
-				"%dmin %dsec",
-				TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-				TimeUnit.MILLISECONDS.toSeconds((long) startTime)
-						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-								.toMinutes((long) startTime))));
+		long endMinutes = TimeUnit.MILLISECONDS.toMinutes((long) endTime);
+		long endSeconds = TimeUnit.MILLISECONDS.toSeconds((long) endTime)
+				- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
+						.toMinutes((long) endTime));
+		
+		if(endSeconds < 10) {
+			endTimeField.setText(String.format(
+					" %d:0%d",
+					endMinutes,endSeconds));
+		} else{
+			endTimeField.setText(String.format(
+					" %d:%d",
+					endMinutes,endSeconds));
+		}
+		
+		long startMinutes = TimeUnit.MILLISECONDS.toMinutes((long) startTime);
+		long startSeconds = TimeUnit.MILLISECONDS.toSeconds((long) startTime)
+				- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
+						.toMinutes((long) startTime));
+		
+		if(startSeconds < 10) {
+			startTimeField.setText(String.format(
+					"%d:0%d",startMinutes,startSeconds));
+		} else {
+			startTimeField.setText(String.format(
+					"%d:%d",startMinutes,startSeconds));
+		}
+		
 		seekbar.setProgress((int) startTime);
 	}
 

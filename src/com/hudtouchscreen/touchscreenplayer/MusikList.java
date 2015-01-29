@@ -131,6 +131,7 @@ public class MusikList extends Activity implements OnGestureListener {
 		});
 		title5.setOnTouchListener(gestureListener);
 		
+		
 		fillList();
 	}
 
@@ -156,6 +157,8 @@ public class MusikList extends Activity implements OnGestureListener {
 			}
 
 		}
+		
+		sendToService(ServerService.MSG_LIST);
 
 	}
 
@@ -269,7 +272,7 @@ public class MusikList extends Activity implements OnGestureListener {
 			position = position - 5;
 
 			fillList();
-			sendToService(ServerService.MSG_LIST);
+			
 		}
 	}
 
@@ -278,7 +281,6 @@ public class MusikList extends Activity implements OnGestureListener {
 			position = position + 5;
 
 			fillList();
-			sendToService(ServerService.MSG_LIST);
 		}
 	}
 
