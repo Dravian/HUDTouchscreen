@@ -478,7 +478,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			};*/
 			
 			rect = new Rect(0,0,0,0);
-			view = playImage;
+			view = startImage;
 
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
@@ -518,7 +518,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			//	handler.removeCallbacks(mLongPressed);
 				buttonOnTouch(view, false);
 
-				if (rect.contains(view.getLeft() + (int) event.getX(),
+				if (rect.width() != 0 && rect.contains(view.getLeft() + (int) event.getX(),
 						view.getTop() + (int) event.getY())) {
 					view.performClick();
 				}
@@ -536,7 +536,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 				if ((Math.abs(mDownX - event.getX()) > SCROLL_THRESHOLD || Math
 						.abs(mDownY - event.getY()) > SCROLL_THRESHOLD)) {
 
-					if (!rect.contains(view.getLeft() + (int) event.getX(),
+					if (rect.width() != 0 && !rect.contains(view.getLeft() + (int) event.getX(),
 							view.getTop() + (int) event.getY())) {
 
 						Log.i("Event X", Integer.toString((int) event.getX()));
@@ -557,9 +557,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 							buttonOnTouch(view, true);
 						//	handler.postDelayed(mLongPressed, 300);
-
-						} else if (stopRect.contains(
-								stopImage.getLeft() + (int) event.getX(),
+						} else if (stopRect.contains(stopImage.getLeft() + (int) event.getX(),
 								stopImage.getTop() + (int) event.getY())) {
 							rect = stopRect;
 							view = stopImage;
