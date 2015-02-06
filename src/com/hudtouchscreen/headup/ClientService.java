@@ -27,6 +27,7 @@ public class ClientService extends AbstractService{
 	public static final int MSG_ACTIVITY = 6;
 	public static final int MSG_LIST= 7;
 	public static final int MSG_KEYBOARD = 8;
+	public static final int MSG_TOUCH = 9;
 	
 	private Socket connection;
 

@@ -10,6 +10,7 @@ import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.hudmessage.TouchMessage;
 
 import Service.AbstractService;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ public class ServerService extends AbstractService {
 	public static final int MSG_ACTIVITY = 6;
 	public static final int MSG_LIST= 7;
 	public static final int MSG_KEYBOARD = 8;
+	public static final int MSG_TOUCH = 9;
 	
 	private ClientListener clientListener;
 	private Set<Client> clients;
@@ -47,8 +49,6 @@ public class ServerService extends AbstractService {
 
 	@Override
 	public void onStopService() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -82,6 +82,10 @@ public class ServerService extends AbstractService {
 		case MSG_LIST:
 			ListMessage list = (ListMessage)bundle.getParcelable("List");
 			broadcast(list);
+			break;
+		case MSG_TOUCH:
+			TouchMessage touch = (TouchMessage)bundle.getParcelable("Touch");
+			broadcast(touch);
 			break;
 		default:
 		}

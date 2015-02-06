@@ -18,6 +18,7 @@ import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.hudmessage.TouchMessage;
 import com.hudtouchscreen.touchscreenplayer.ServerService;
 
 public class PlayerListener extends Thread {
@@ -118,6 +119,11 @@ public class PlayerListener extends Thread {
 				} else if (hudMessage instanceof ListMessage) {
 					message = Message.obtain(null, ClientService.MSG_LIST, 0, 0);
 					message.getData().putParcelable("List", (ListMessage)hudMessage);
+					trueMessage = true;
+				
+				} else if (hudMessage instanceof TouchMessage) {
+					message = Message.obtain(null, ClientService.MSG_TOUCH, 0, 0);
+					message.getData().putParcelable("Touch", (TouchMessage)hudMessage);
 					trueMessage = true;
 				}
 				

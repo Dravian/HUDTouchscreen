@@ -5,6 +5,7 @@ import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.hudmessage.TouchMessage;
 import com.hudtouchscreen.touchscreenplayer.MusikList;
 import com.hudtouchscreen.touchscreenplayer.ServerService;
 import com.touchscreen.touchscreenplayer.R;
@@ -152,6 +153,50 @@ public class HeadUpDisplay extends Activity {
 								}
 							});
 							break;
+						case ClientService.MSG_TOUCH:
+							TouchMessage touchMessage = (TouchMessage)bundle.getParcelable("Touch");
+							final int buttonType = touchMessage.getButtonType();
+							final boolean touching = touchMessage.isTouching();
+							final ImageView imgTouch = (ImageView) findViewById(R.id.showTouch);
+							
+							runOnUiThread(new Runnable() {
+
+								@Override
+								public void run() {
+									
+									if(!touching) {
+										imgTouch.setVisibility(View.INVISIBLE);
+										Log.i("notouchmore", "nottouch");
+									} else {
+										switch(buttonType){
+										case TouchMessage.PLAYBUTTON:
+											imgTouch.setImageResource(R.drawable.play);
+											break;
+										case TouchMessage.PAUSEBUTTON:
+											imgTouch.setImageResource(R.drawable.pause);
+											break;	
+										case TouchMessage.STOPBUTTON:
+											imgTouch.setImageResource(R.drawable.stop);
+											break;	
+										case TouchMessage.SHUFFLEBUTTON:
+											imgTouch.setImageResource(R.drawable.shuffle);
+											break;
+										case TouchMessage.LOOPINGBUTTON:
+											imgTouch.setImageResource(R.drawable.looping);
+											break;
+										case TouchMessage.STARTBUTTON:
+											imgTouch.setImageResource(R.drawable.start);
+											break;
+										default:
+											return;
+										}
+										
+										imgTouch.setVisibility(View.VISIBLE);
+									}
+									
+								}
+							});
+							break;
 						case ClientService.MSG_ACTIVITY:
 							ActivityMessage activityMessage = (ActivityMessage)bundle.getParcelable("Activity");
 							
@@ -162,6 +207,7 @@ public class HeadUpDisplay extends Activity {
 								switchToKeyboard();
 								
 							}
+							break;
 						default:
 							super.handleMessage(msg);
 						}

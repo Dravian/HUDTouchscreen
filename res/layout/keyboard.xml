@@ -18,37 +18,37 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
+            android:clickable="false"
             android:text=""
-            android:textSize="90sp"
-            android:visibility="invisible"
-            android:clickable="false" />
+            android:textSize="60sp"
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/a"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="click"
             android:text="A"
-            android:textSize="90sp"
-            android:onClick="click" />
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/s"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="click"
             android:text="S"
-            android:textSize="90sp"
-            android:onClick="click" />
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/d"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="click"
             android:text="D"
-            android:textSize="90sp" 
-            android:onClick="click"/>
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/f"
@@ -56,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="F"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="G"
-            android:textSize="90sp" 
+            android:textSize="60sp" 
             android:onClick="click"/>
 
         <Button
@@ -74,7 +74,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="H"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -83,7 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="J"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -92,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="K"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="L"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -110,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_weight=".5"
             android:text=""
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:visibility="invisible" 
             android:clickable="false"/>
     </LinearLayout>
@@ -129,7 +129,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text=""
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:visibility="invisible"
             android:clickable="false" />
 
@@ -139,7 +139,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Y"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -148,7 +148,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="X"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -157,7 +157,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="C"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -166,7 +166,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="V"
-            android:textSize="90sp" 
+            android:textSize="60sp" 
             android:onClick="click"/>
 
         <Button
@@ -175,7 +175,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="B"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -184,7 +184,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="N"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -193,7 +193,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="M"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -202,7 +202,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text=""
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:visibility="invisible"
             android:clickable="false" />
 
@@ -218,7 +218,7 @@
         android:ems="10"
         android:focusable="false"
         android:textColor="@android:color/white"
-        android:textSize="150sp" 
+        android:textSize="110sp" 
         android:background="@android:color/black"/>
 
     <LinearLayout
@@ -235,7 +235,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Q"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -244,7 +244,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="W"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -253,7 +253,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="E"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -262,7 +262,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="R"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -271,7 +271,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="T"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -280,7 +280,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Z"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -289,7 +289,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="U"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -298,7 +298,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="I"
-            android:textSize="90sp" 
+            android:textSize="60sp" 
             android:onClick="click"/>
 
         <Button
@@ -307,7 +307,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="O"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
         <Button
@@ -316,7 +316,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="P"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
     </LinearLayout>
 
@@ -335,7 +335,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="5"
             android:text="Del"
-            android:textSize="90sp" 
+            android:textSize="60sp" 
             android:onClick="click"/>
 
         <Button
@@ -344,7 +344,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="5"
             android:text="Enter"
-            android:textSize="90sp"
+            android:textSize="60sp"
             android:onClick="click" />
 
     </LinearLayout>

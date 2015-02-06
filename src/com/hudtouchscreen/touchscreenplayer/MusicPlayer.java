@@ -14,6 +14,7 @@ import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.TextMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.hudmessage.TouchMessage;
 import com.touchscreen.touchscreenplayer.R;
 
 import Service.ServiceManager;
@@ -33,10 +34,12 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -55,8 +58,7 @@ import android.view.View.OnClickListener;
  * 
  */
 @SuppressLint("NewApi")
-public class MusicPlayer extends Activity implements OnGestureListener,
-		OnSeekBarChangeListener {
+public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	private WakeLock wakeLock;
 	private static final String[] EXTENSIONS = { ".mp3", ".mid", ".wav",
 			".ogg", ".mp4" }; // Playable Extensions
@@ -184,6 +186,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		gDetector = new GestureDetector(this, new GestureListener());
 
 		playImage = (ImageView) findViewById(R.id.play);
+		stopImage = (ImageView) findViewById(R.id.stop);
+
 		playImage.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				synchronized (this) {
@@ -202,71 +206,10 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				}
 			}
 		});
+		
 
-		playImage.setOnTouchListener(new View.OnTouchListener() {
-			private float mDownX;
-			private float mDownY;
-			final Handler handler = new Handler();
+		//playImage.setOnTouchListener(new TouchCommand(playImage,TouchMessage.PLAYBUTTON));
 
-			Runnable mLongPressed = new Runnable() {
-				public void run() {
-					//playImage.setBackgroundResource(R.drawable.fire);
-				}
-			};
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-
-				if (gDetector.onTouchEvent(event)) {
-					return true;
-				} else {
-					Rect rect = new Rect(v.getLeft(), v.getTop(), v.getRight(),
-							v.getBottom());
-
-					switch (event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						mDownX = event.getX();
-						mDownY = event.getY();
-						handler.postDelayed(mLongPressed, 300);
-						break;
-
-					case MotionEvent.ACTION_UP:
-						handler.removeCallbacks(mLongPressed);
-						if (rect.contains(v.getLeft() + (int) event.getX(),
-								v.getTop() + (int) event.getY())) {
-							playImage.setBackgroundResource(R.drawable.ice);
-							v.performClick();
-							return true;
-						}
-						playImage.setBackgroundResource(R.drawable.ice);
-						break;
-					case MotionEvent.ACTION_MOVE:
-
-						int SCROLL_THRESHOLD = 10;
-
-						if ((Math.abs(mDownX - event.getX()) > SCROLL_THRESHOLD || Math
-								.abs(mDownY - event.getY()) > SCROLL_THRESHOLD)) {
-
-							if (rect.contains(v.getLeft() + (int) event.getX(),
-									v.getTop() + (int) event.getY())) {
-								//playImage.setBackgroundResource(R.drawable.fire);
-							} else {
-								handler.removeCallbacks(mLongPressed);
-								playImage.setBackgroundResource(R.drawable.ice);
-								return false;
-							}
-
-						}
-						break;
-
-					}
-					return true;
-				}
-
-			}
-		});
-
-		stopImage = (ImageView) findViewById(R.id.stop);
 		stopImage.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				synchronized (this) {
@@ -278,62 +221,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				}
 			}
 		});
-		stopImage.setOnTouchListener(new View.OnTouchListener() {
-			private float mDownX;
-			private float mDownY;
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-
-				if (gDetector.onTouchEvent(event)) {
-					return true;
-				} else {
-					Rect rect = new Rect(v.getLeft(), v.getTop(), v.getRight(),
-							v.getBottom());
-
-					switch (event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						stopImage.setBackgroundResource(R.drawable.fire);
-
-						mDownX = event.getX();
-						mDownY = event.getY();
-						break;
-
-					case MotionEvent.ACTION_UP:
-						if (rect.contains(v.getLeft() + (int) event.getX(),
-								v.getTop() + (int) event.getY())) {
-
-							v.performClick();
-						}
-						stopImage.setBackgroundResource(R.drawable.ice);
-
-						break;
-					case MotionEvent.ACTION_MOVE:
-
-						int SCROLL_THRESHOLD = 10;
-
-						if ((Math.abs(mDownX - event.getX()) > SCROLL_THRESHOLD || Math
-								.abs(mDownY - event.getY()) > SCROLL_THRESHOLD)) {
-
-							if (rect.contains(v.getLeft() + (int) event.getX(),
-									v.getTop() + (int) event.getY())) {
-								stopImage
-										.setBackgroundResource(R.drawable.fire);
-
-							} else {
-								stopImage.setBackgroundResource(R.drawable.ice);
-
-							}
-
-						}
-						break;
-
-					}
-					return true;
-				}
-
-			}
-		});
+	//	stopImage.setOnTouchListener(new TouchCommand(stopImage,
+		//		TouchMessage.STOPBUTTON));
 
 		shuffleImage = (ImageView) findViewById(R.id.shuffle);
 		shuffleImage.setOnClickListener(new OnClickListener() {
@@ -341,10 +230,10 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				synchronized (this) {
 					if (shuffle) {
 						shuffle = false;
-						shuffleImage.setBackgroundResource(R.drawable.ice);
+						shuffleImage.setImageResource(R.drawable.shuffle);
 					} else {
 						shuffle = true;
-						shuffleImage.setBackgroundResource(R.drawable.fire);
+						shuffleImage.setImageResource(R.drawable.shuffleon);
 					}
 
 					sendToService(ServerService.MSG_SHUFFLE);
@@ -352,100 +241,16 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 				}
 			}
 		});
-		shuffleImage.setOnTouchListener(new View.OnTouchListener() {
-			private float mDownX;
-			private float mDownY;
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-
-				if (gDetector.onTouchEvent(event)) {
-					return true;
-				} else {
-					Rect rect = new Rect(v.getLeft(), v.getTop(), v.getRight(),
-							v.getBottom());
-
-					switch (event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						if (shuffle) {
-							shuffleImage.setBackgroundResource(R.drawable.ice);
-						} else {
-							shuffleImage.setBackgroundResource(R.drawable.fire);
-						}
-
-						mDownX = event.getX();
-						mDownY = event.getY();
-						break;
-
-					case MotionEvent.ACTION_UP:
-						if (rect.contains(v.getLeft() + (int) event.getX(),
-								v.getTop() + (int) event.getY())) {
-
-							v.performClick();
-						} else {
-							if (shuffle) {
-								shuffleImage
-										.setBackgroundResource(R.drawable.fire);
-							} else {
-								shuffleImage
-										.setBackgroundResource(R.drawable.ice);
-							}
-						}
-
-						break;
-					case MotionEvent.ACTION_MOVE:
-
-						int SCROLL_THRESHOLD = 10;
-
-						if ((Math.abs(mDownX - event.getX()) > SCROLL_THRESHOLD || Math
-								.abs(mDownY - event.getY()) > SCROLL_THRESHOLD)) {
-
-							if (rect.contains(v.getLeft() + (int) event.getX(),
-									v.getTop() + (int) event.getY())) {
-								if (shuffle) {
-									shuffleImage
-											.setBackgroundResource(R.drawable.ice);
-								} else {
-									shuffleImage
-											.setBackgroundResource(R.drawable.fire);
-								}
-							} else {
-								if (shuffle) {
-									shuffleImage
-											.setBackgroundResource(R.drawable.fire);
-								} else {
-									shuffleImage
-											.setBackgroundResource(R.drawable.ice);
-								}
-							}
-
-						}
-						break;
-
-					}
-					return true;
-				}
-
-			}
-		});
+	//	shuffleImage.setOnTouchListener(new TouchCommand(shuffleImage,
+		//		TouchMessage.SHUFFLEBUTTON));
 
 		startImage = (ImageView) findViewById(R.id.start);
 		startImage.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 			}
 		});
-		startImage.setOnTouchListener(new View.OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-
-				if (gDetector.onTouchEvent(event)) {
-					return true;
-				} else {
-					return true;
-				}
-			}
-		});
+	//	startImage.setOnTouchListener(new TouchCommand(startImage,
+		//		TouchMessage.STARTBUTTON));
 
 		loopingImage = (ImageView) findViewById(R.id.looping);
 		loopingImage.setOnClickListener(new OnClickListener() {
@@ -455,10 +260,10 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 					if (looping) {
 						looping = false;
-						loopingImage.setBackgroundResource(R.drawable.ice);
+						loopingImage.setImageResource(R.drawable.looping);
 					} else {
 						looping = true;
-						loopingImage.setBackgroundResource(R.drawable.fire);
+						loopingImage.setImageResource(R.drawable.loopingon);
 					}
 
 					track.setLooping(looping);
@@ -468,84 +273,8 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 			}
 		});
 
-		
-
-		loopingImage.setOnTouchListener(new View.OnTouchListener() {
-			private float mDownX;
-			private float mDownY;
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-
-				if (gDetector.onTouchEvent(event)) {
-					return true;
-				} else {
-					Rect rect = new Rect(v.getLeft(), v.getTop(), v.getRight(),
-							v.getBottom());
-
-					switch (event.getAction()) {
-					case MotionEvent.ACTION_DOWN:
-						if (looping) {
-							loopingImage.setBackgroundResource(R.drawable.ice);
-						} else {
-							loopingImage.setBackgroundResource(R.drawable.fire);
-						}
-
-						mDownX = event.getX();
-						mDownY = event.getY();
-						break;
-
-					case MotionEvent.ACTION_UP:
-						if (rect.contains(v.getLeft() + (int) event.getX(),
-								v.getTop() + (int) event.getY())) {
-
-							v.performClick();
-						} else {
-							if (looping) {
-								loopingImage
-										.setBackgroundResource(R.drawable.fire);
-							} else {
-								loopingImage
-										.setBackgroundResource(R.drawable.ice);
-							}
-						}
-
-						break;
-					case MotionEvent.ACTION_MOVE:
-
-						int SCROLL_THRESHOLD = 10;
-
-						if ((Math.abs(mDownX - event.getX()) > SCROLL_THRESHOLD || Math
-								.abs(mDownY - event.getY()) > SCROLL_THRESHOLD)) {
-
-							if (rect.contains(v.getLeft() + (int) event.getX(),
-									v.getTop() + (int) event.getY())) {
-								if (looping) {
-									loopingImage
-											.setBackgroundResource(R.drawable.ice);
-								} else {
-									loopingImage
-											.setBackgroundResource(R.drawable.fire);
-								}
-							} else {
-								if (looping) {
-									loopingImage
-											.setBackgroundResource(R.drawable.fire);
-								} else {
-									loopingImage
-											.setBackgroundResource(R.drawable.ice);
-								}
-							}
-
-						}
-						break;
-
-					}
-					return true;
-				}
-
-			}
-		});
+	//	loopingImage.setOnTouchListener(new TouchCommand(loopingImage,
+		//		TouchMessage.LOOPINGBUTTON));
 
 		trackNames = new ArrayList<String>();
 		assets = getAssets();
@@ -568,8 +297,322 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 	}
 
-	public class GestureListener implements OnGestureListener {
+	protected class TouchCommand implements OnTouchListener {
+		private float mDownX;
+		private float mDownY;
+		private View view;
+		private int buttonType;
+		private Rect rect;
+		private Rect playRect;
+		private Rect stopRect;
+
+		final Handler handler = new Handler();
+
+		public TouchCommand(View view, int buttonType) {
+			this.view = view;
+			this.buttonType = buttonType;
+		}
+
+		Runnable mLongPressed = new Runnable() {
+			public void run() {
+				buttonOnTouch(true);
+			}
+		};
+
+		private void drawRect() {
+
+			playRect = new Rect(playImage.getLeft(), playImage.getTop(),
+					playImage.getRight(), playImage.getBottom());	
+
+			stopRect = new Rect(stopImage.getLeft(), stopImage.getTop(),
+					stopImage.getRight(), stopImage.getBottom());
+			
+			
+		}
+
+		private void containRect(MotionEvent event) {
+			
+			if (playRect.contains(playImage.getLeft() + (int) event.getX(),
+					playImage.getTop() + (int) event.getY())) {
+				rect = playRect;
+				view = playImage;
+
+				handler.postDelayed(mLongPressed, 300);
+
+			} else if (stopRect.contains(
+					stopImage.getLeft() + (int) event.getX(),
+					stopImage.getTop() + (int) event.getY())) {
+				rect = stopRect;
+				view = stopImage;
+				
+
+				handler.postDelayed(mLongPressed, 300);
+			}
+		}
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+
+			if (gDetector.onTouchEvent(event)) {
+				return true;
+			} else {
+
+				
+				/*
+				 * if (ignore && event.getAction() != MotionEvent.ACTION_UP) {
+				 * return false; }
+				 */
+
+				switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+					mDownX = event.getX();
+					mDownY = event.getY();
+					rect = new Rect(v.getLeft(), v.getTop(), v.getRight(),
+							v.getBottom());
+					view = v;
+					drawRect();
+					containRect(event);
+					// handler.postDelayed(mLongPressed, 300);
+
+					break;
+				case MotionEvent.ACTION_UP:
+					handler.removeCallbacks(mLongPressed);
+					buttonOnTouch(false);
+
+					if (rect.contains(view.getLeft() + (int) event.getX(),
+							view.getTop() + (int) event.getY())) {
+						view.performClick();
+					}
+
+					return false;
+
+				case MotionEvent.ACTION_CANCEL:
+					handler.removeCallbacks(mLongPressed);
+					buttonOnTouch(false);
+
+					return true;
+				case MotionEvent.ACTION_MOVE:
+					int SCROLL_THRESHOLD = 10;
+
+					if ((Math.abs(mDownX - event.getX()) > SCROLL_THRESHOLD || Math
+							.abs(mDownY - event.getY()) > SCROLL_THRESHOLD)) {
+
+						if (!rect.contains(view.getLeft() + (int) event.getX(),
+								view.getTop() + (int) event.getY())) {
+
+							Log.i("Event X", Integer.toString((int) event.getX()));
+							
+							handler.removeCallbacks(mLongPressed);
+							buttonOnTouch(false);
+
+							containRect(event);
+						}
+
+					}
+					return false;
+				}
+			}
+			return true;
+		}
+
+		private void buttonOnTouch(boolean touching) {
+
+			if (touching) {
+				view.setBackgroundResource(R.drawable.fire);
+			} else {
+				view.setBackgroundResource(R.drawable.ice);
+			}
+
+			Message message = Message.obtain(null, ServerService.MSG_TOUCH, 0,
+					0);
+
+			TouchMessage touchMessage;
+
+			// Pausebutton Spezialfall
+			if (buttonType == TouchMessage.PLAYBUTTON && isTuning) {
+				touchMessage = new TouchMessage(TouchMessage.PAUSEBUTTON,
+						touching);
+			} else {
+				touchMessage = new TouchMessage(buttonType, touching);
+			}
+			message.getData().putParcelable("Touch", touchMessage);
+
+			try {
+				service.send(message);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@Override
+	public boolean dispatchTouchEvent (MotionEvent ev) {
+	  
+		onTouchEvent(ev);
+	  return super.dispatchTouchEvent(ev);
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		final Handler handler = new Handler();		
+		float mDownX = 0;
+		float mDownY = 0;
+		Rect playRect;
+		Rect stopRect;
+		Rect rect;
+		View view;
 		
+		if (gDetector.onTouchEvent(event)) {
+			return true;
+		} else {
+
+			/*
+			 * if (ignore && event.getAction() != MotionEvent.ACTION_UP) {
+			 * return false; }
+			 */
+			
+			/*Runnable mLongPressed = new Runnable() {
+				public void run() {
+					buttonOnTouch(view, true);
+				}
+			};*/
+			
+			rect = new Rect(0,0,0,0);
+			view = playImage;
+
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN:
+				mDownX = event.getX();
+				mDownY = event.getY();
+				
+				playRect = new Rect(playImage.getLeft(), playImage.getTop(),
+						playImage.getRight(), playImage.getBottom());	
+
+				stopRect = new Rect(stopImage.getLeft(), stopImage.getTop(),
+						stopImage.getRight(), stopImage.getBottom());
+				
+				//containRect(event);
+				// handler.postDelayed(mLongPressed, 300);
+				
+				if (playRect.contains(playImage.getLeft() + (int) event.getX(),
+						playImage.getTop() + (int) event.getY())) {
+					rect = playRect;
+					view = playImage;
+
+					//handler.postDelayed(mLongPressed, 300);
+					buttonOnTouch(view, true);
+
+				} else if (stopRect.contains(
+						stopImage.getLeft() + (int) event.getX(),
+						stopImage.getTop() + (int) event.getY())) {
+					rect = stopRect;
+					view = stopImage;
+					
+					buttonOnTouch(view, true);
+					//handler.postDelayed(mLongPressed, 300);
+				} else {
+				}
+
+				break;
+			case MotionEvent.ACTION_UP:
+			//	handler.removeCallbacks(mLongPressed);
+				buttonOnTouch(view, false);
+
+				if (rect.contains(view.getLeft() + (int) event.getX(),
+						view.getTop() + (int) event.getY())) {
+					view.performClick();
+				}
+
+				return false;
+
+			case MotionEvent.ACTION_CANCEL:
+			//	handler.removeCallbacks(mLongPressed);
+				buttonOnTouch(view, false);
+
+				return true;
+			case MotionEvent.ACTION_MOVE:
+				int SCROLL_THRESHOLD = 10;
+
+				if ((Math.abs(mDownX - event.getX()) > SCROLL_THRESHOLD || Math
+						.abs(mDownY - event.getY()) > SCROLL_THRESHOLD)) {
+
+					if (!rect.contains(view.getLeft() + (int) event.getX(),
+							view.getTop() + (int) event.getY())) {
+
+						Log.i("Event X", Integer.toString((int) event.getX()));
+						
+						//handler.removeCallbacks(mLongPressed);
+						buttonOnTouch(view, false);
+						
+						playRect = new Rect(playImage.getLeft(), playImage.getTop(),
+								playImage.getRight(), playImage.getBottom());	
+
+						stopRect = new Rect(stopImage.getLeft(), stopImage.getTop(),
+								stopImage.getRight(), stopImage.getBottom());
+
+						if (playRect.contains(playImage.getLeft() + (int) event.getX(),
+								playImage.getTop() + (int) event.getY())) {
+							rect = playRect;
+							view = playImage;
+
+							buttonOnTouch(view, true);
+						//	handler.postDelayed(mLongPressed, 300);
+
+						} else if (stopRect.contains(
+								stopImage.getLeft() + (int) event.getX(),
+								stopImage.getTop() + (int) event.getY())) {
+							rect = stopRect;
+							view = stopImage;
+							
+							buttonOnTouch(view, true);
+							//handler.postDelayed(mLongPressed, 300);
+						} 
+					}
+
+				}
+				return false;
+			}
+		}
+		return true;
+		
+	//	return gDetector.onTouchEvent(me);
+	}
+	
+	
+	
+	
+	private void buttonOnTouch(View view, boolean touching) {
+
+		if (touching) {
+			view.setBackgroundResource(R.drawable.fire);
+		} else {
+			view.setBackgroundResource(R.drawable.ice);
+		}
+
+		Message message = Message.obtain(null, ServerService.MSG_TOUCH, 0,
+				0);
+
+		TouchMessage touchMessage;
+
+		int buttonType = TouchMessage.PLAYBUTTON;
+		// Pausebutton Spezialfall
+		if (buttonType == TouchMessage.PLAYBUTTON && isTuning) {
+			touchMessage = new TouchMessage(TouchMessage.PAUSEBUTTON,
+					touching);
+		} else {
+			touchMessage = new TouchMessage(buttonType, touching);
+		}
+		message.getData().putParcelable("Touch", touchMessage);
+
+		try {
+			service.send(message);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public class GestureListener implements OnGestureListener {
+
 		@Override
 		public boolean onDown(MotionEvent e) {
 			// TODO Auto-generated method stub
@@ -628,20 +671,33 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 
 		@Override
 		public void onShowPress(MotionEvent e) {
-			Rect play = new Rect(playImage.getLeft(), playImage.getTop(), playImage.getRight(),
-					playImage.getBottom());
-			
-			if (play.contains(playImage.getLeft() + (int) e.getX(),
-					playImage.getTop() + (int) e.getY())) {
-				playImage.setBackgroundResource(R.drawable.fire);
-			}		
-			
+
 		}
 
 		@Override
 		public boolean onSingleTapUp(MotionEvent e) {
 			// TODO Auto-generated method stub
 			return false;
+		}
+		
+		private void onSwipeRight() {
+			setTrack(0);
+			loadTrack();
+			playTrack();
+		}
+
+		private void onSwipeLeft() {
+			setTrack(1);
+			loadTrack();
+			playTrack();
+		}
+
+		private void onSwipeUp() {
+			switchToKeyBoard();
+		}
+
+		private void onSwipeDown() {
+			switchToList();
 		}
 
 	}
@@ -950,99 +1006,7 @@ public class MusicPlayer extends Activity implements OnGestureListener,
 		playTrack();
 	}
 
-	@Override
-	public boolean onDown(MotionEvent arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean onFling(MotionEvent start, MotionEvent finish,
-			float xVelocity, float yVelocity) {
-
-		final int SWIPE_THRESHOLD = 100;
-		final int SWIPE_VELOCITY_THRESHOLD = 100;
-
-		try {
-			float diffY = finish.getY() - start.getY();
-			float diffX = finish.getX() - start.getX();
-
-			if (Math.abs(diffX) > Math.abs(diffY)) {
-				if (Math.abs(diffX) > SWIPE_THRESHOLD
-						&& Math.abs(xVelocity) > SWIPE_VELOCITY_THRESHOLD) {
-					if (diffX > 0) {
-						onSwipeRight();
-					} else {
-						onSwipeLeft();
-					}
-				}
-			} else {
-				if (Math.abs(diffY) > SWIPE_THRESHOLD
-						&& Math.abs(yVelocity) > SWIPE_VELOCITY_THRESHOLD) {
-					if (diffY > 0) {
-						onSwipeDown();
-					} else {
-						onSwipeUp();
-					}
-				}
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
-
-		return true;
-	}
-
-	public void onSwipeRight() {
-		setTrack(0);
-		loadTrack();
-		playTrack();
-	}
-
-	public void onSwipeLeft() {
-		setTrack(1);
-		loadTrack();
-		playTrack();
-	}
-
-	public void onSwipeUp() {
-		switchToKeyBoard();
-	}
-
-	public void onSwipeDown() {
-		switchToList();
-	}
-
-	@Override
-	public void onLongPress(MotionEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean onScroll(MotionEvent arg0, MotionEvent arg1, float arg2,
-			float arg3) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void onShowPress(MotionEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean onSingleTapUp(MotionEvent arg0) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean onTouchEvent(MotionEvent me) {
-		return gDetector.onTouchEvent(me);
-	}
-
+	
 	private void switchToList() {
 		startingNewActivity = true;
 		Intent i = new Intent(getApplicationContext(), MusikList.class);
