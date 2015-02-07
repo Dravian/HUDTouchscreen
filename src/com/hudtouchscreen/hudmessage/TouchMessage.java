@@ -5,6 +5,7 @@ import java.io.Serializable;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@SuppressWarnings("serial")
 public class TouchMessage implements Parcelable, Serializable, HudMessage{
 	private int buttonType;
 	private int touching;

@@ -15,13 +15,13 @@ public class Music implements OnCompletionListener {
 	public Music(AssetFileDescriptor assetDescriptor, MusicPlayer musicPlayer) {
 		mediaPlayer = new MediaPlayer();
 		this.musicPlayer = musicPlayer;
-
+		
 		try {
 			mediaPlayer.setDataSource(assetDescriptor.getFileDescriptor(),
 					assetDescriptor.getStartOffset(),
 					assetDescriptor.getLength());
-			mediaPlayer.prepare();
-			isPrepared = true;
+			//mediaPlayer.prepalseare();
+			isPrepared = false;
 			mediaPlayer.setOnCompletionListener(this);
 		} catch (Exception ex) {
 			throw new RuntimeException("Couldn't load music, uh oh!");
@@ -34,8 +34,8 @@ public class Music implements OnCompletionListener {
 
 		try {
 			mediaPlayer.setDataSource(fileDescriptor);
-			mediaPlayer.prepare();
-			isPrepared = true;
+			//mediaPlayer.prepare();
+			isPrepared = false;
 			mediaPlayer.setOnCompletionListener(this);
 		} catch (Exception ex) {
 			throw new RuntimeException("Couldn't load music, uh oh!");
@@ -45,7 +45,7 @@ public class Music implements OnCompletionListener {
 	public void onCompletion(MediaPlayer mediaPlayer) {
 		synchronized (this) {
 			isPrepared = false;
-			musicPlayer.nextTrack();
+			musicPlayer.nextTrack();		
 		}
 	}
 
@@ -57,6 +57,7 @@ public class Music implements OnCompletionListener {
 			synchronized (this) {
 				if (!isPrepared) {
 					mediaPlayer.prepare();
+					isPrepared = true;
 				}
 				mediaPlayer.start();
 			}
@@ -68,14 +69,11 @@ public class Music implements OnCompletionListener {
 	}
 
 	public void stop() {
-		//if (isPrepared) {
+		if (isPrepared) {
 			mediaPlayer.seekTo(0);
 			mediaPlayer.pause();
-
-		/*	synchronized (this) {
-				isPrepared = false;
-			}
-		}*/
+	
+		}
 	}
 
 	public void pause() {

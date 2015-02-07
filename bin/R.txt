@@ -328,7 +328,7 @@ int id linearLayout2 0x7f050054
 int id linearLayout3 0x7f050061
 int id listMode 0x7f050001
 int id list_item 0x7f05003a
-int id looping 0x7f050081
+int id looping 0x7f050082
 int id loopingVisible 0x7f050052
 int id m 0x7f050069
 int id middle 0x7f050012
@@ -338,7 +338,7 @@ int id none 0x7f050010
 int id normal 0x7f050000
 int id o 0x7f050074
 int id p 0x7f050075
-int id play 0x7f05007d
+int id play 0x7f05007e
 int id progress_circular 0x7f050018
 int id progress_horizontal 0x7f050019
 int id q 0x7f05006c
@@ -362,12 +362,12 @@ int id showCustom 0x7f050007
 int id showHome 0x7f050004
 int id showTitle 0x7f050006
 int id showTouch 0x7f050053
-int id shuffle 0x7f050080
+int id shuffle 0x7f050081
 int id shuffleVisible 0x7f050051
 int id split_action_bar 0x7f05002f
 int id start 0x7f05002a
 int id startTime 0x7f050050
-int id stop 0x7f05007e
+int id stop 0x7f05007f
 int id submit_area 0x7f05004a
 int id t 0x7f050070
 int id tabMode 0x7f050002
@@ -379,7 +379,8 @@ int id title4 0x7f05007b
 int id title5 0x7f05007c
 int id top 0x7f05001e
 int id top_action_bar 0x7f050031
-int id touch_title 0x7f05007f
+int id touch_title 0x7f050080
+int id touchscreenview 0x7f05007d
 int id u 0x7f050072
 int id up 0x7f050032
 int id useLogo 0x7f050003

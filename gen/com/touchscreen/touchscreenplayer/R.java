@@ -1356,7 +1356,7 @@ containing a value of this type.
         public static final int linearLayout3=0x7f050061;
         public static final int listMode=0x7f050001;
         public static final int list_item=0x7f05003a;
-        public static final int looping=0x7f050081;
+        public static final int looping=0x7f050082;
         public static final int loopingVisible=0x7f050052;
         public static final int m=0x7f050069;
         public static final int middle=0x7f050012;
@@ -1366,7 +1366,7 @@ containing a value of this type.
         public static final int normal=0x7f050000;
         public static final int o=0x7f050074;
         public static final int p=0x7f050075;
-        public static final int play=0x7f05007d;
+        public static final int play=0x7f05007e;
         public static final int progress_circular=0x7f050018;
         public static final int progress_horizontal=0x7f050019;
         public static final int q=0x7f05006c;
@@ -1390,12 +1390,12 @@ containing a value of this type.
         public static final int showHome=0x7f050004;
         public static final int showTitle=0x7f050006;
         public static final int showTouch=0x7f050053;
-        public static final int shuffle=0x7f050080;
+        public static final int shuffle=0x7f050081;
         public static final int shuffleVisible=0x7f050051;
         public static final int split_action_bar=0x7f05002f;
         public static final int start=0x7f05002a;
         public static final int startTime=0x7f050050;
-        public static final int stop=0x7f05007e;
+        public static final int stop=0x7f05007f;
         public static final int submit_area=0x7f05004a;
         public static final int t=0x7f050070;
         public static final int tabMode=0x7f050002;
@@ -1407,7 +1407,8 @@ containing a value of this type.
         public static final int title5=0x7f05007c;
         public static final int top=0x7f05001e;
         public static final int top_action_bar=0x7f050031;
-        public static final int touch_title=0x7f05007f;
+        public static final int touch_title=0x7f050080;
+        public static final int touchscreenview=0x7f05007d;
         public static final int u=0x7f050072;
         public static final int up=0x7f050032;
         public static final int useLogo=0x7f050003;
