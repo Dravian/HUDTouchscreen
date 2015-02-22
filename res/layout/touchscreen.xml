@@ -5,12 +5,13 @@
     android:background="@android:color/black"
     android:orientation="vertical"
     android:weightSum="10" 
+    android:screenOrientation="landscape"
     android:id="@+id/touchscreenview">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"
+        android:layout_weight="3.5"
         android:orientation="horizontal" >
 
         <ImageButton
@@ -20,7 +21,7 @@
             android:layout_gravity="center"
             android:layout_weight="3.9"
             android:adjustViewBounds="true"
-            android:background="@drawable/ice"
+            android:background="@drawable/darkblue"
             android:contentDescription="Play"
             android:clickable="false"
             android:src="@drawable/play" />
@@ -38,7 +39,7 @@
             android:layout_gravity="center"
             android:layout_weight="3.9"
             android:adjustViewBounds="true"
-            android:background="@drawable/ice"
+            android:background="@drawable/darkblue"
             android:contentDescription="Stop"
             android:clickable="false"
             android:src="@drawable/stop" />
@@ -47,7 +48,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:layout_weight="3"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -70,7 +71,7 @@
                 android:id="@+id/touch_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="2"
                 android:gravity="center_horizontal"
                 android:text="SongTitle"
                 android:textColor="@android:color/white"
@@ -97,7 +98,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="4"
+        android:layout_weight="3.5"
         android:orientation="horizontal" >
 
         <ImageButton
@@ -107,7 +108,7 @@
             android:layout_gravity="center"
             android:layout_weight="3.8"
             android:adjustViewBounds="true"
-            android:background="@drawable/ice"
+            android:background="@drawable/darkblue"
             android:clickable="false"
             android:contentDescription="Shuffle"
             android:src="@drawable/shuffle" />
@@ -125,7 +126,7 @@
             android:layout_gravity="center"
             android:layout_weight="3.8"
             android:adjustViewBounds="true"
-            android:background="@drawable/ice"
+            android:background="@drawable/darkblue"
             android:clickable="false"
             android:contentDescription="Start"
             android:src="@drawable/start" />
@@ -143,7 +144,7 @@
             android:layout_gravity="center"
             android:layout_weight="3.8"
             android:adjustViewBounds="true"
-            android:background="@drawable/ice"
+            android:background="@drawable/darkblue"
             android:clickable="false"
             android:contentDescription="Looping"
             android:src="@drawable/looping" />

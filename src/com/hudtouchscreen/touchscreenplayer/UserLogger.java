@@ -1,0 +1,456 @@
+package com.hudtouchscreen.touchscreenplayer;
+
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+
+import com.hudtouchscreen.hudmessage.KeyTouchMessage;
+
+import android.os.Environment;
+
+/**
+ * Logt die Aktionen die ein Nutzer tätigt während er eine bestimmte Aufgabe
+ * erfüllen muss
+ * 
+ * @author daniel
+ * 
+ */
+public final class UserLogger {
+
+	private static Logger logger;
+	private static FileHandler fhandler;
+	private static Timestamp userStart;
+
+	private static List<String> actions;
+	private static List<UserLogger.State> tasks;
+	private static State currentState = State.OFF;
+	private static int error;
+	private static int counter;
+
+	/**
+	 * Beschreibt in welchen Zustand die der Logger ist
+	 * 
+	 * @author daniel
+	 * 
+	 */
+	public enum State {
+		OFF, IDLE, LIST_SEARCH, KEYBOARD, SEEKBAR, PAUSE_BACK_PLAY, LOOPING_FORWARD_SHUFFLE;
+	}
+
+	/**
+	 * Beschreibt in welchen Logevent der Logger sich gerade befindet
+	 * 
+	 * @author daniel
+	 * 
+	 */
+	public enum UserView {
+		PLAYER("PLAYER"), LIST("LIST"), KEYBOARD("KEYBOARD");
+
+		private String text;
+
+		private UserView(String text) {
+			this.text = text;
+		}
+
+		public String toString() {
+			return text;
+		}
+	}
+
+	/**
+	 * Beschreibt die Action die geloggt wird
+	 * 
+	 * @author daniel
+	 * 
+	 */
+	public enum Action {
+		CLICK_PLAY("CLICK_PLAY"), CLICK_PAUSE("CLICK_PAUSE"), CLICK_STOP(
+				"CLICK_STOP"),
+
+		CLICK_SHUFFLE("CLICK_SHUFFLE"), CLICK_START("CLICK_START"), CLICK_LOOPING(
+				"CLICK_LOOPING"),
+
+		CLICK_ITEM("CLICK_ITEM"), CLICK_KEY("CLICK_KEY"), MOVE_SEEKBAR(
+				"MOVE_SEEKBAR"),
+
+		SWIPE_LEFT("SWIPE_LEFT"), SWIPE_RIGHT("SCROLL_RIGHT"), SWIPE_UP(
+				"SWIPE_UP"),
+
+		SWIPE_DOWN("SWIPE_DOWN"), SEEKBAR("SEEK_BAR");
+
+		private String text;
+
+		private Action(String text) {
+			this.text = text;
+		}
+
+		public String toString() {
+			return text;
+		}
+	}
+	
+	private UserLogger() {
+		currentState = State.OFF;
+	}
+
+	/**
+	 * Setzt die Startzeit
+	 */
+	private static void userStart() {
+		java.util.Date date = new java.util.Date();
+		userStart = new Timestamp(date.getTime());
+	}
+
+	/**
+	 * Speichert eine neue Action in die Liste
+	 * 
+	 * @param view
+	 *            Der Ort an dem Aktion gemacht wurde
+	 * @param action
+	 *            Die Aktion die gemacht wurde
+	 * @param item
+	 *            Ein String Wer der die Aktion spezifiziert
+	 * @param position
+	 *            Ein int Wert der die Aktion spezifiert
+	 */
+	private static void addAction(UserView view, Action action, String item,
+			int position) {
+		StringBuilder sb = new StringBuilder();
+
+		switch (view) {
+		case PLAYER:
+			sb.append("(" + view.toString() + ": " + action.toString() + ")");
+			break;
+		case KEYBOARD:
+			if (action == Action.CLICK_KEY) {
+				sb.append("(" + view.toString() + ": " + action.toString()
+						+ " + " + item + ")");
+			} else {
+				sb.append("(" + view.toString() + ": " + action.toString()
+						+ ")");
+			}
+			break;
+		case LIST:
+			if (action == Action.CLICK_ITEM) {
+				sb.append("(" + view.toString() + ": " + action.toString()
+						+ " + " + item + ")");
+			} else {
+				sb.append("(" + view.toString() + ": " + action.toString()
+						+ ")");
+			}
+			break;
+		default:
+			break;
+
+		}
+		actions.add(sb.toString());
+	}
+
+	/**
+	 * Loogt eine Aktion
+	 * 
+	 * @param view
+	 *            Der Ort an dem Aktion gemacht wurde
+	 * @param action
+	 *            Die Aktion die gemacht wurde
+	 * @param item
+	 *            Ein String Wer der die Aktion spezifiziert
+	 * @param position
+	 *            Ein int Wert der die Aktion spezifiert
+	 */
+	static void logAction(UserView view, Action action, String item,
+			int position) {
+		switch (currentState) {
+		case OFF:
+			return;
+		case IDLE:
+			break;
+		case LIST_SEARCH:
+			addAction(view, action, item, position);
+			logListTask(view, action, item, position);
+			break;
+		case KEYBOARD:
+			addAction(view, action, item, position);
+			logKeyBoardTask(view, action, item, position);
+			break;
+		case SEEKBAR:
+			addAction(view, action, item, position);
+			logSeekbarTask(view, action, item, position);
+			break;
+		default:
+			break;
+
+		}
+	}
+
+	/**
+	 * Verarbeitet die Listensuche Aufgabe
+	 * 
+	 * @param view
+	 *            Der Ort an dem Aktion gemacht wurde
+	 * @param action
+	 *            Die Aktion die gemacht wurde
+	 * @param item
+	 *            Ein String Wer der die Aktion spezifiziert
+	 * @param position
+	 *            Ein int Wert der die Aktion spezifiert
+	 */
+	private static void logListTask(UserView view, Action action, String item,
+			int position) {
+		String goal = "Spidey";
+		int listPosition = 5;
+
+		if (view == UserView.PLAYER && action != Action.SWIPE_DOWN) {
+			error++;
+		} else if (view == UserView.KEYBOARD && action != Action.SWIPE_RIGHT) {
+			error++;
+		} else if (view == UserView.LIST) {
+			if (action == Action.CLICK_ITEM && !item.equals(goal)) {
+				error++;
+
+			} else if (action == Action.SWIPE_UP) {
+
+				if (position >= listPosition) {
+					error++;
+				}
+			} else if (action == Action.SWIPE_DOWN) {
+
+				if (position <= listPosition) {
+					error++;
+				}
+
+			} else if (action == Action.CLICK_ITEM && item.equals(goal)) {
+
+				StringBuilder sb = new StringBuilder();
+				sb.append("List_Search: 3");							
+
+				endTask(sb);
+
+			} else if (action == Action.SWIPE_RIGHT) {
+				error++;
+			}
+		}
+	}
+
+	private static void logKeyBoardTask(UserView view, Action action,
+			String item, int size) {
+		String goal = "Spidey";
+
+		if (view == UserView.PLAYER && action != Action.SWIPE_UP) {
+			error++;
+		} else if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
+			error++;
+		} else if (view == UserView.KEYBOARD) {
+			if (action == Action.CLICK_KEY) {
+
+				if (counter > 0 && !item.equals(KeyTouchMessage.KEY_DELETE)) {
+					error++;
+					counter++;
+
+				} else if (counter > 0
+						&& item.equals(KeyTouchMessage.KEY_DELETE)) {
+					counter--;
+
+				} else if (size == 0 && !item.equals("s")) {
+					error++;
+
+					if (!item.equals(KeyTouchMessage.KEY_DELETE)) {
+						counter++;
+					}
+
+				} else if (size == 1 && !item.equals("p")) {
+					error++;
+
+					if (!item.equals(KeyTouchMessage.KEY_DELETE)) {
+						counter++;
+					}
+
+				} else if (size == 2 && !item.equals("i")) {
+					error++;
+
+					if (!item.equals(KeyTouchMessage.KEY_DELETE)) {
+						counter++;
+					}
+				} else if (size == 3 && !item.equals("d")) {
+					error++;
+
+					if (!item.equals(KeyTouchMessage.KEY_DELETE)) {
+						counter++;
+					}
+
+				} else if (size == 4 && !item.equals("e")) {
+					error++;
+
+					if (!item.equals(KeyTouchMessage.KEY_DELETE)) {
+						counter++;
+					}
+				} else if (size == 5 && !item.equals("y")) {
+					error++;
+
+					if (!item.equals(KeyTouchMessage.KEY_DELETE)) {
+						counter++;
+					}
+
+				} else if (size == 6 && !item.equals(KeyTouchMessage.KEY_ENTER)) {
+					error++;
+
+					if (!item.equals(KeyTouchMessage.KEY_DELETE)) {
+						counter++;
+					}
+
+				} else if (size == 6 && item.equals(KeyTouchMessage.KEY_ENTER)) {
+
+					StringBuilder sb = new StringBuilder();
+					sb.append("Keyboard_Input: 8");
+					
+					endTask(sb);
+				}
+			} else {
+				error++;
+			}
+		}
+	}
+
+	private static void logSeekbarTask(UserView view, Action action,
+			String item, int percent) {
+		int minPercent;
+		int maxPercent;
+
+		if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
+			error++;
+		} else if (view == UserView.KEYBOARD && action != Action.SWIPE_RIGHT) {
+			error++;
+		} else if (view == UserView.PLAYER) {
+
+			if (counter == 0 && action == Action.CLICK_STOP) {
+				counter++;
+			} else if (counter == 1) {
+
+			}
+		}
+	}
+
+	static void logPauseBackPlayTask(UserView view, Action action, String item,
+			int position) {
+		if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
+			error++;
+		} else if (view == UserView.KEYBOARD && action != Action.SWIPE_RIGHT) {
+			error++;
+
+		} else if (view == UserView.PLAYER) {
+
+			if (counter == 0 && action == Action.CLICK_PAUSE) {
+				counter++;
+			} else if (counter == 1 && action == Action.SWIPE_RIGHT) {
+				counter++;
+
+			} else if (counter == 2 && action == Action.SWIPE_RIGHT) {
+				counter++;
+
+			} else if (counter == 3 && action == Action.CLICK_PLAY) {
+				
+			}
+		}
+	}
+
+	/**
+	 * Beendet eine Aufgabe
+	 * 
+	 * @param log
+	 *            Der String in einer Datei geloggt wird
+	 */
+	private static void endTask(StringBuilder log) {
+		String startTime = new SimpleDateFormat("HH:mm:ss").format(userStart);
+
+		java.util.Date date = new java.util.Date();
+		Timestamp userEnd = new Timestamp(date.getTime());
+		
+		long seconds = userEnd.getTime() - userStart.getTime();
+
+		String duration = Long.toString(seconds);
+
+		int usedActions = actions.size();
+		log.append(", " + startTime);
+		log.append(", " + duration + "ms");
+		log.append(", " + Integer.toString(usedActions));
+		log.append(", " + error);
+
+		for (String s : actions) {
+
+				log.append(", " + s);
+		}
+
+		log.append("\n");
+		
+		logger.info(log.toString());
+		fhandler.flush();
+
+		actions = new ArrayList<String>();
+		currentState = State.IDLE;
+		error = 0;
+		counter = 0;
+
+		if (tasks.size() == 0) {
+			fhandler.close();
+			currentState = State.OFF;
+		}
+
+	}
+
+	/**
+	 * Beginnt eine LogAufgabe
+	 */
+	static void start() {
+		if (currentState == State.IDLE) {
+			currentState = tasks.remove(0);
+			userStart();
+		}
+	}
+
+	/**
+	 * Intitialisert UseLogger
+	 */
+	static void init(String fileName, List<UserLogger.State> initTasks) {
+
+		actions = new ArrayList<String>();
+		tasks = new LinkedList<UserLogger.State>();
+		tasks.addAll(initTasks);
+		currentState = State.IDLE;
+		error = 0;
+		counter = 0;
+		logger = Logger.getLogger(UserLogger.class.getName());
+		// logger.setUseParentHandlers(false);
+
+		try {
+			String logfileName = Environment.getExternalStoragePublicDirectory(
+					Environment.DIRECTORY_MUSIC).getAbsolutePath()
+					+ "/" + fileName + ".txt";
+			
+			fhandler = new FileHandler(logfileName);
+			SimpleFormatter formatterTxt = new SimpleFormatter();
+			fhandler.setFormatter(formatterTxt);
+
+			logger.addHandler(fhandler);
+
+			logger.info("Task: MinActions, Starttime, Duration, UserActions, Errors, Actions"
+					+ "\n");
+			fhandler.flush();
+
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	static void close() {
+		fhandler.close();
+	}
+
+}

@@ -15,6 +15,11 @@ public class TouchMessage implements Parcelable, Serializable, HudMessage{
 	public final static int SHUFFLEBUTTON = 4;
 	public final static int LOOPINGBUTTON = 5;
 	public final static int STARTBUTTON = 6;
+	public final static int LIST1 = 7;
+	public final static int LIST2 = 8;
+	public final static int LIST3 = 9;
+	public final static int LIST4 = 10;
+	public final static int LIST5 = 11;
 	
 	
 	

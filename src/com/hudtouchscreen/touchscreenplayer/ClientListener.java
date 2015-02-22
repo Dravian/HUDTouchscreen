@@ -12,7 +12,7 @@ public class ClientListener extends Thread {
 	private int numberOfClients;
 
 	public ClientListener(ServerService serverService, int maxClients) {
-		final int PORT = 8000;
+		final int PORT = 7007;
 		
 		this.server = serverService;
 		this.maxClients = maxClients;
@@ -33,6 +33,10 @@ public class ClientListener extends Thread {
 		waiting = true;
 
 	}
+	
+	protected void clientLeft() {
+		numberOfClients--;
+	}
 
 	@Override
 	public void run() {
@@ -43,7 +47,7 @@ public class ClientListener extends Thread {
 				if (numberOfClients < maxClients) {
 					connection = serverSocket.accept();
 
-					Client client = new Client(connection);
+					Client client = new Client(connection, server);
 					server.addClient(client);
 					numberOfClients++;
 					

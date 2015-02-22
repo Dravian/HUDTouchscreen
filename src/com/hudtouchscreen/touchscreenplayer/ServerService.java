@@ -5,22 +5,23 @@ import java.util.Set;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.HudMessage;
+import com.hudtouchscreen.hudmessage.KeyBoardMessage;
+import com.hudtouchscreen.hudmessage.KeyTouchMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.TextMessage;
+import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 import com.hudtouchscreen.hudmessage.TouchMessage;
 
 import Service.AbstractService;
 import android.os.Bundle;
 import android.os.Message;
-import android.util.Log;
 
 public class ServerService extends AbstractService {
 
 	public static final int MSG_NEWCLIENT = 1;
-	public static final int MSG_TEXT = 2;
+	public static final int MSG_SONGTITLE = 2;
 	public static final int MSG_SHUFFLE = 3;
 	public static final int MSG_LOOPING = 4;
 	public static final int MSG_TIME = 5;
@@ -28,6 +29,8 @@ public class ServerService extends AbstractService {
 	public static final int MSG_LIST= 7;
 	public static final int MSG_KEYBOARD = 8;
 	public static final int MSG_TOUCH = 9;
+	public static final int MSG_KEYTOUCH = 10;
+	public static final int MSG_SEEKBAR= 11;
 	
 	private ClientListener clientListener;
 	private Set<Client> clients;
@@ -57,8 +60,8 @@ public class ServerService extends AbstractService {
 		bundle.setClassLoader(getClassLoader());
 		
 		switch (msg.what) {
-		case MSG_TEXT:
-			TextMessage text = (TextMessage)bundle.getParcelable("Text");
+		case MSG_SONGTITLE:
+			SongtitleMessage text = (SongtitleMessage)bundle.getParcelable("Songtitle");
 			broadcast(text);
 			break;
 		case MSG_SHUFFLE:
@@ -87,6 +90,15 @@ public class ServerService extends AbstractService {
 			TouchMessage touch = (TouchMessage)bundle.getParcelable("Touch");
 			broadcast(touch);
 			break;
+		case MSG_KEYTOUCH:
+			KeyTouchMessage keyTouch = (KeyTouchMessage)bundle.getParcelable("KeyTouch");
+			broadcast(keyTouch); 
+			break;
+		case MSG_KEYBOARD:
+			KeyBoardMessage key = (KeyBoardMessage) bundle.getParcelable("Keyboard");
+			broadcast(key);
+			break;
+			
 		default:
 		}
 		
@@ -107,4 +119,8 @@ public class ServerService extends AbstractService {
 		}
 	}
 
+	protected synchronized void removeClient(Client client) {
+			clients.remove(client);
+			clientListener.clientLeft();
+	}
 }

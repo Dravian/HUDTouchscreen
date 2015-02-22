@@ -9,15 +9,18 @@ import android.os.Parcelable;
 public class TimeMessage implements Parcelable, Serializable, HudMessage{
 	private double startTime;
 	private double endTime;
+	private int progress;
 	
-	public TimeMessage(double startTime, double endTime) {
+	public TimeMessage(double startTime, double endTime, int progress) {
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.progress = progress;
 	}
 	
 	public TimeMessage() {
 		startTime = 0;
 		endTime = 0;
+		progress = 0;
 	}
 	
 	public TimeMessage(Parcel in) {
@@ -27,15 +30,9 @@ public class TimeMessage implements Parcelable, Serializable, HudMessage{
 	private void readFromParcel(Parcel in) {
 		startTime  = in.readDouble();
 		endTime = in.readDouble();
+		progress = in.readInt();
 	}
 
-	public void setStartTime(double startTime) {
-		this.startTime = startTime;
-	}
-	
-	public void setEndTime(double endTime) {
-		this.endTime = endTime;
-	}
 	
 	public double getStartTime() {
 		return startTime;
@@ -43,6 +40,10 @@ public class TimeMessage implements Parcelable, Serializable, HudMessage{
 	
 	public double getEndTime() {
 		return endTime;
+	}
+	
+	public int getProgress() {
+		return progress;
 	}
 
 	@Override
@@ -54,6 +55,7 @@ public class TimeMessage implements Parcelable, Serializable, HudMessage{
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeDouble(startTime);
 		dest.writeDouble(endTime);
+		dest.writeInt(progress);
 	}
 	
 	@SuppressWarnings("rawtypes")

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboardview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    android:orientation="vertical"
+    android:screenOrientation= "landscape" >
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="Launcher"
+        android:textColor="@android:color/white"
+        android:textSize="60sp" >
+    </TextView>
+    
+	<TextView 
+	    android:id="@+id/empty1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+       	android:layout_below="@+id/title"
+        android:layout_centerHorizontal="true"
+        android:text="empty"
+        android:textColor="@android:color/white"
+        android:textSize="40sp" 
+	    android:visibility="invisible"/>
+	
+    <LinearLayout
+        android:id="@+id/touchscreenview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/empty1"
+        android:background="@android:color/black"
+        android:orientation="horizontal"
+        android:weightSum="10" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Task Order: "
+            android:textColor="@android:color/white"
+            android:textSize="40sp" />
+
+        <TextView
+            android:id="@+id/taskorder"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="7"
+            android:text=""
+            android:textColor="@android:color/white"
+            android:textSize="40sp" />
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/empty2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/touchscreenview"
+        android:orientation="horizontal"
+        android:weightSum="1" >
+        
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Task Order: "
+            android:textColor="@android:color/white"
+            android:visibility="invisible"
+            android:textSize="40sp" />
+        
+        </LinearLayout>
+
+    <Button
+        android:id="@+id/task3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/empty2"
+        android:text="Task 3"
+        android:onClick="click"
+        android:background="@color/grey"
+        android:textSize="60sp" />
+
+    <Button
+        android:id="@+id/task2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/empty2"
+        android:layout_centerHorizontal="true"
+        android:text="Task 2"
+        android:onClick="click"
+        android:background="@color/grey"
+        android:textSize="60sp" />
+
+    <Button
+        android:id="@+id/task1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/empty2"
+        android:text="Task 1"
+        android:onClick="click"
+        android:background="@color/grey"
+        android:layout_margin="2dp"
+        android:textSize="60sp" />
+
+    <Button
+        android:id="@+id/buttonEmpty1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/task1"
+        android:text="Button"
+        android:clickable="false"
+        android:textSize="60sp" 
+        android:visibility="invisible"/>
+    
+    <Button
+        android:id="@+id/task4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/buttonEmpty1"
+        android:text="Task 4"
+        android:onClick="click"
+        android:background="@color/grey"
+        android:textSize="60sp" />
+
+    <Button
+        android:id="@+id/buttonEmpty3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/task2"
+        android:text="Button"
+        android:clickable="false"
+        android:textSize="60sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/buttonEmpty2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/task2"
+        android:layout_below="@+id/task2"
+        android:text="Button"
+        android:clickable="false"
+        android:textSize="60sp"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/task5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/buttonEmpty2"
+        android:layout_below="@+id/buttonEmpty2"
+        android:text="Task 5"
+        android:onClick="click"
+        android:background="@color/grey"
+        android:textSize="60sp" />
+
+    <Button
+        android:id="@+id/buttonEnter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/task3"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/buttonEmpty3"
+        android:background="@color/grey"
+        android:text="Enter"
+        android:onClick="click"
+        android:textSize="60sp" />
+
+</RelativeLayout>
