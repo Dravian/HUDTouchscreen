@@ -24,6 +24,7 @@ public class ActivityMessage implements Parcelable, Serializable, HudMessage {
 				this.list.add(item);
 			}
 		}
+		
 
 	}
 

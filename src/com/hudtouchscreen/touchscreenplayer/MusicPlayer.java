@@ -105,7 +105,35 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
 				"Lexiconda");
 		setContentView(R.layout.touchscreen);
-		initialize();
+
+		gDetector = new GestureDetector(this, new GestureListener());
+
+		playImage = (ImageView) findViewById(R.id.play);
+		stopImage = (ImageView) findViewById(R.id.stop);
+		shuffleImage = (ImageView) findViewById(R.id.shuffle);
+		startImage = (ImageView) findViewById(R.id.start);
+		loopingImage = (ImageView) findViewById(R.id.looping);
+
+		touchListener = new TouchListener();
+
+		trackNames = new ArrayList<String>();
+		assets = getAssets();
+		currentTrack = 0;
+		shuffle = false;
+		looping = false;
+		isTuning = false;
+		random = new Random();
+		newTrack = false;
+		startingNewActivity = false;
+		trackingSeekBar = false;
+
+		startTimeField = (TextView) findViewById(R.id.startTime);
+		endTimeField = (TextView) findViewById(R.id.endTime);
+		seekbar = (SeekBar) findViewById(R.id.seekBar1);
+		seekbar.setOnSeekBarChangeListener(this);
+		addTracks(getTracks());
+
+		loadTrack();
 
 		this.service = new ServiceManager(this, ServerService.class,
 				new Handler() {
@@ -134,6 +162,12 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 	}
 
+	/**
+	 * Sends messages to ServerService
+	 * 
+	 * @param what
+	 *            The Message type
+	 */
 	private synchronized void sendToService(int what) {
 		if (!startingNewActivity) {
 			Message message;
@@ -180,43 +214,6 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		}
 	}
 
-	/**
-	 * Starts the MusicPlayer
-	 * 
-	 * @param type
-	 */
-	private void initialize() {
-		gDetector = new GestureDetector(this, new GestureListener());
-
-		playImage = (ImageView) findViewById(R.id.play);
-		stopImage = (ImageView) findViewById(R.id.stop);
-		shuffleImage = (ImageView) findViewById(R.id.shuffle);
-		startImage = (ImageView) findViewById(R.id.start);
-		loopingImage = (ImageView) findViewById(R.id.looping);
-
-		touchListener = new TouchListener();
-
-		trackNames = new ArrayList<String>();
-		assets = getAssets();
-		currentTrack = 0;
-		shuffle = false;
-		looping = false;
-		isTuning = false;
-		random = new Random();
-		newTrack = false;
-		startingNewActivity = false;
-		trackingSeekBar = false;
-
-		startTimeField = (TextView) findViewById(R.id.startTime);
-		endTimeField = (TextView) findViewById(R.id.endTime);
-		seekbar = (SeekBar) findViewById(R.id.seekBar1);
-		seekbar.setOnSeekBarChangeListener(this);
-		addTracks(getTracks());
-
-		loadTrack();
-
-	}
-
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -251,7 +248,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	/**
 	 * Generate a String Array that represents all of the files found
 	 * 
-	 * @return
+	 * @return All files found
 	 */
 	private String[] getTracks() {
 		if (type == 0) {
@@ -285,6 +282,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	 * Adds the playable files to the trackNames List
 	 * 
 	 * @param temp
+	 *            TrackNames
 	 */
 	private void addTracks(String[] temp) {
 		if (temp != null) {
@@ -339,7 +337,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	}
 
 	/**
-	 * loads a Music instance using either a built in asset or an external
+	 * Loads a Music instance using either a built in asset or an external
 	 * 
 	 * @return
 	 */
@@ -432,6 +430,9 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 	}
 
+	/**
+	 * Sets the time
+	 */
 	private void setTime() {
 		endTime = track.getFinalTime();
 		startTime = track.getStartTime();
@@ -472,6 +473,9 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		sendToService(ServerService.MSG_TIME);
 	}
 
+	/**
+	 * Updates the time
+	 */
 	private Runnable UpdateSongTime = new Runnable() {
 		public void run() {
 			startTime = track.getStartTime();
@@ -508,22 +512,37 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	 * @return
 	 */
 	protected String getTrackName() {
-		return trackNames.get(currentTrack).substring(0,
-				trackNames.get(currentTrack).length() - 4);
+		if (trackNames.isEmpty()) {
+			return "";
+		} else {
+			return trackNames.get(currentTrack).substring(0,
+					trackNames.get(currentTrack).length() - 4);
+		}
 	}
 
+	/**
+	 * Calls the next Track
+	 */
 	protected void nextTrack() {
 		setTrack(1);
 		loadTrack();
 		playTrack();
 	}
 
+	/**
+	 * Switches to the track at a certain position in the Array
+	 * 
+	 * @param position
+	 */
 	private void switchTrack(int position) {
 		currentTrack = position;
 		loadTrack();
 		playTrack();
 	}
 
+	/**
+	 * Switches to List Activity
+	 */
 	private void switchToList() {
 		Intent i = new Intent(getApplicationContext(), MusikList.class);
 
@@ -554,6 +573,9 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 	}
 
+	/**
+	 * Switches to Keyboard Activity
+	 */
 	private void switchToKeyBoard() {
 		Intent i = new Intent(getApplicationContext(), MusikKeyboard.class);
 
@@ -619,16 +641,15 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		sendToService(ServerService.MSG_TIME);
 	}
 
-
-	
 	@Override
-	  protected void onDestroy() {
-	    super.onDestroy();
-	    
-	    try { service.unbind(); }
-	    catch (Throwable t) { }
-	  
-	 
+	protected void onDestroy() {
+		super.onDestroy();
+
+		try {
+			service.unbind();
+		} catch (Throwable t) {
+		}
+
 	}
 
 	@Override
@@ -652,15 +673,14 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		trackingSeekBar = false;
 		int progress = seekbar.getProgress();
 		int max = seekbar.getMax();
-		int percent = (int)(((float)progress/max)*100);
-		
-		Log.i("Seekbar: ", Integer.toString(percent));
-		
+		int percent = (int) (((float) progress / max) * 100);
+
+
 		track.seek(progress);
 		setTime();
 
 		UserLogger.logAction(UserLogger.UserView.PLAYER,
-				UserLogger.Action.SEEKBAR, "", (int) startTime);
+				UserLogger.Action.SEEKBAR, "", percent);
 	}
 
 	@Override
@@ -668,6 +688,12 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		return touchListener.onTouch(event);
 	}
 
+	/**
+	 * Handles the Fling Touchmessages
+	 * 
+	 * @author daniel
+	 * 
+	 */
 	protected class GestureListener implements OnGestureListener {
 
 		@Override
@@ -739,6 +765,9 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 		}
 
+		/**
+		 * Swipe from left to right, loads previous track
+		 */
 		private void onSwipeRight() {
 			UserLogger.logAction(UserLogger.UserView.PLAYER,
 					UserLogger.Action.SWIPE_RIGHT, "", -1);
@@ -748,6 +777,9 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 		}
 
+		/**
+		 * Swipe from right to left, loads next track
+		 */
 		private void onSwipeLeft() {
 			UserLogger.logAction(UserLogger.UserView.PLAYER,
 					UserLogger.Action.SWIPE_LEFT, "", -1);
@@ -756,12 +788,18 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			playTrack();
 		}
 
+		/**
+		 * Swipe from down to up, switch to keyboard
+		 */
 		private void onSwipeUp() {
 			UserLogger.logAction(UserLogger.UserView.PLAYER,
 					UserLogger.Action.SWIPE_UP, "", -1);
 			switchToKeyBoard();
 		}
 
+		/**
+		 * Swipe from up to down, switch to list
+		 */
 		private void onSwipeDown() {
 			UserLogger.logAction(UserLogger.UserView.PLAYER,
 					UserLogger.Action.SWIPE_DOWN, "", -1);
@@ -770,6 +808,12 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 	}
 
+	/**
+	 * Handles all touch events in the activity
+	 * 
+	 * @author daniel
+	 * 
+	 */
 	public class TouchListener {
 		private final Handler handler = new Handler();
 		private float mDownX = 0;
@@ -805,14 +849,10 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 		private int buttonType = -1;
 
-		public boolean touchCancel() {
-			handler.removeCallbacks(mLongPressed);
-
-			buttonOnTouch(false);
-			buttonType = -1;
-			return false;
-		}
-
+		/**
+		 * Draws rectangles around each view, which handle the touch events
+		 * inside the views
+		 */
 		private void drawRect() {
 
 			int[] playCoordinates = new int[2];
@@ -866,6 +906,12 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			}
 		};
 
+		/**
+		 * Is called when Touchevents are made on the views
+		 * 
+		 * @param event
+		 * @return
+		 */
 		public boolean onTouch(MotionEvent event) {
 			if (gDetector.onTouchEvent(event)) {
 				handler.removeCallbacks(mLongPressed);
@@ -941,7 +987,11 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 					return false;
 
 				case MotionEvent.ACTION_CANCEL:
-					touchCancel();
+					handler.removeCallbacks(mLongPressed);
+
+					buttonOnTouch(false);
+					buttonType = -1;
+					return false;
 
 				case MotionEvent.ACTION_MOVE:
 					int SCROLL_THRESHOLD = 10;
@@ -1019,6 +1069,9 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			return false;
 		}
 
+		/**
+		 * Handles the clickevents for each view
+		 */
 		private void click() {
 			if (buttonType == TouchMessage.PLAYBUTTON) {
 				synchronized (this) {
@@ -1093,6 +1146,11 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			}
 		}
 
+		/**
+		 * Checks if a button is being touched
+		 * 
+		 * @param touching
+		 */
 		private void buttonOnTouch(boolean touching) {
 			View view;
 

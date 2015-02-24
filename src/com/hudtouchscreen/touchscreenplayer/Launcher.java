@@ -1,5 +1,8 @@
 package com.hudtouchscreen.touchscreenplayer;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,16 +12,20 @@ import Service.ServiceManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class Launcher extends Activity {
 	private List<UserLogger.State> tasks;
 	private ServiceManager service;
 	private TextView taskOrder;
-	private StringBuilder fileName;
+	private StringBuilder taskNames;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -26,7 +33,7 @@ public class Launcher extends Activity {
 		setContentView(R.layout.touchscreenlauncher);
 		taskOrder = (TextView) findViewById(R.id.taskorder);
 		tasks = new LinkedList<UserLogger.State>();
-		fileName = new StringBuilder();
+		taskNames = new StringBuilder();
 
 		this.service = new ServiceManager(this, ServerService.class,
 				new Handler() {
@@ -56,7 +63,7 @@ public class Launcher extends Activity {
 			view.setBackgroundResource(R.color.brown);
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task1  ");
-			fileName.append(1);
+			taskNames.append("1");
 
 			break;
 		case R.id.task2:
@@ -64,33 +71,40 @@ public class Launcher extends Activity {
 			view.setBackgroundResource(R.color.brown);
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task2  ");
-			fileName.append(2);
-
+			taskNames.append("2");
+			
 			break;
 		case R.id.task3:
 			tasks.add(UserLogger.State.SEEKBAR);
 			view.setBackgroundResource(R.color.brown);
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task3  ");
-			fileName.append(3);
+			taskNames.append("3");
 			break;
 		case R.id.task4:
 			tasks.add(UserLogger.State.PAUSE_BACK_PLAY);
 			view.setBackgroundResource(R.color.brown);
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task4  ");
-			fileName.append(4);
+			taskNames.append("4");
 			break;
 		case R.id.task5:
 			tasks.add(UserLogger.State.LOOPING_FORWARD_SHUFFLE);
 			view.setBackgroundResource(R.color.brown);
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task5  ");
-			fileName.append(5);
+			taskNames.append("5");
 			break;
 		case R.id.buttonEnter:
+			String idName = ((EditText) findViewById(R.id.idName)).getText().toString();
+			boolean hud = ((ToggleButton)findViewById(R.id.hud)).isSelected();
+			
 			if (!tasks.isEmpty()) {
-				UserLogger.init(fileName.toString(), tasks);
+				if(hud) {
+				UserLogger.init(idName + "hud" + taskNames.toString(), tasks);
+				} else {
+					UserLogger.init(idName + "touch" + taskNames.toString(), tasks);
+				}
 			}
 			Intent i = new Intent(getApplicationContext(), MusicPlayer.class);
 			startActivity(i);

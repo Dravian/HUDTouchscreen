@@ -62,10 +62,10 @@ public class PlayerListener extends Thread {
 	 *             Wird geworfen beim fehlerbehafteten Erstellen der
 	 *             ObjectStreams.
 	 */
-	public void startConnection() {
+	protected void startConnection() {
 		// final String SERVER_IP = "10.0.2.2";
 		final int PORT = 7007;
-
+		
 		try {
 			connection = new Socket(serverIp, PORT);
 			connection.setSoTimeout(0);
@@ -76,6 +76,7 @@ public class PlayerListener extends Thread {
 			run = true;
 			send(true);
 		} catch (UnknownHostException e) {	
+			Log.i("PlayerListener", "UnknownHostException");
 			send(false);
 			e.printStackTrace();		
 		} catch(ConnectException e) {

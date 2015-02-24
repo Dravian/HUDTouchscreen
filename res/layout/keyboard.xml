@@ -23,7 +23,7 @@
             android:layout_weight=".5"
             android:clickable="false"
             android:text=""
-            android:textSize="40sp"
+            android:textSize="75sp"
             android:visibility="invisible" />
 
         <Button
@@ -35,7 +35,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="A"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/s"
@@ -46,7 +46,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="S"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/d"
@@ -57,7 +57,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="D"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/f"
@@ -68,7 +68,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="F"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/g"
@@ -79,7 +79,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="G"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/h"
@@ -90,7 +90,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="H"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/j"
@@ -101,7 +101,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="J"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/k"
@@ -112,7 +112,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="K"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/l"
@@ -123,7 +123,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="L"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/empty2"
@@ -133,7 +133,7 @@
             android:layout_weight=".5"
             android:clickable="false"
             android:text=""
-            android:textSize="40sp"
+            android:textSize="75sp"
             android:visibility="invisible" />
     </LinearLayout>
 
@@ -153,7 +153,7 @@
             android:layout_weight="1"
             android:clickable="false"
             android:text=""
-            android:textSize="40sp"
+            android:textSize="75sp"
             android:visibility="invisible" />
 
         <Button
@@ -165,7 +165,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Y"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/x"
@@ -176,7 +176,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="X"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/c"
@@ -187,7 +187,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="C"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/v"
@@ -198,7 +198,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="V"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/b"
@@ -209,7 +209,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="B"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/n"
@@ -220,7 +220,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="N"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/m"
@@ -231,7 +231,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="M"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/empty4"
@@ -241,7 +241,7 @@
             android:layout_weight="1"
             android:clickable="false"
             android:text=""
-            android:textSize="40sp"
+            android:textSize="75sp"
             android:visibility="invisible" />
     </LinearLayout>
 
@@ -263,7 +263,7 @@
             android:ems="10"
             android:focusable="false"
             android:textColor="@android:color/white"
-            android:textSize="110sp" />
+            android:textSize="150sp" />
         
         <ImageView
             android:id="@+id/rightText"
@@ -292,7 +292,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Q"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/w"
@@ -303,7 +303,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="W"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/e"
@@ -314,7 +314,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="E"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/r"
@@ -325,7 +325,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="R"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/t"
@@ -336,7 +336,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="T"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/z"
@@ -347,7 +347,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Z"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/u"
@@ -358,7 +358,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="U"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/i"
@@ -369,7 +369,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="I"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/o"
@@ -380,7 +380,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="O"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/p"
@@ -391,7 +391,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="P"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -411,7 +411,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Delete"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
 
         <Button
             android:id="@+id/enter"
@@ -422,7 +422,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Enter"
-            android:textSize="60sp" />
+            android:textSize="90sp" />
     </LinearLayout>
 
 </RelativeLayout>

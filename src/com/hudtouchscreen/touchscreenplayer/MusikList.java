@@ -113,7 +113,7 @@ public class MusikList extends Activity {
 	public void finishClick(int position) {
 		if (listValues.size() > 0) {
 			
-			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.CLICK_ITEM, listValues.get(position), -1);
+			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.CLICK_ITEM, listValues.get(position), position);
 			
 			Intent i = new Intent();
 
@@ -603,7 +603,6 @@ public class MusikList extends Activity {
 		}
 
 		private void onSwipeDown() {
-			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_DOWN, "", position);
 			
 			if (position >= 5) {
 				position = position - 5;
@@ -611,6 +610,7 @@ public class MusikList extends Activity {
 				fillList();
 				
 			}
+			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_DOWN, "", position);
 		}
 
 		private void onSwipeUp() {
@@ -621,6 +621,7 @@ public class MusikList extends Activity {
 
 				fillList();
 			}
+			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_UP, "", position);
 		}
 
 	}

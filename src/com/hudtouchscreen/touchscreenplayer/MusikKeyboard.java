@@ -37,6 +37,7 @@ public class MusikKeyboard extends Activity {
 	private List<String> listValues;
 	private boolean rightWord;
 	private ImageView rightText;
+	protected final static int MAX_TEXT_LENGTH = 10;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -221,6 +222,8 @@ public class MusikKeyboard extends Activity {
 				}
 
 			});
+			
+			
 		}
 
 		private void drawRect() {
@@ -571,7 +574,7 @@ public class MusikKeyboard extends Activity {
 
 					containsRect(event);
 
-					handler.postDelayed(mLongPressed, 200);
+					handler.postDelayed(mLongPressed, 100);
 					return true;
 
 				case MotionEvent.ACTION_UP:
@@ -614,7 +617,7 @@ public class MusikKeyboard extends Activity {
 							view = newView;
 
 							if (!keyType.equals("-1")) {
-								handler.postDelayed(mLongPressed, 200);
+								handler.postDelayed(mLongPressed, 100);
 							}
 						}
 
@@ -629,6 +632,10 @@ public class MusikKeyboard extends Activity {
 		private void click() {
 			UserLogger.logAction(UserLogger.UserView.KEYBOARD,
 					UserLogger.Action.CLICK_KEY, keyType, keyBoardText.getText().length());
+			
+			if(keyBoardText.getText().length() >= 10 && keyType != KeyTouchMessage.KEY_DELETE) {
+				return;
+			}
 
 			if (keyType.equals("q")) {
 				if (keyBoardText.getText().length() == 0) {

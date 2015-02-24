@@ -23,7 +23,7 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/textView1"
         android:textColor="@color/grey"
-        android:text="192.168.2.108"
+        android:text="192.168.62.204"
         android:textSize="60sp" >
 
         <requestFocus />
