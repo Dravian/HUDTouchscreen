@@ -22,7 +22,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.hudtouchscreen.touchscreenplayer.Launcher"
-            android:label="@string/launcher" >
+            android:label="@string/launcher" 
+            android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -30,7 +31,7 @@
         </activity>
         <activity
             android:name="com.hudtouchscreen.headup.IpLauncher"
-            android:label="@string/launcher" >
+            android:label="@string/iplauncher" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

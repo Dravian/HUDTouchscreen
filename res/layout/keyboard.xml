@@ -35,7 +35,8 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="A"
-            android:textSize="90sp" />
+            android:textSize="90sp"
+            android:focusable="true" />
 
         <Button
             android:id="@+id/s"
@@ -46,6 +47,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="S"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -68,6 +70,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="F"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -79,6 +82,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="G"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -90,6 +94,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="H"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -101,6 +106,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="J"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -112,6 +118,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="K"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -123,6 +130,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="L"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -165,6 +173,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Y"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -176,6 +185,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="X"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -187,6 +197,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="C"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -198,6 +209,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="V"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -209,6 +221,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="B"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -220,6 +233,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="N"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -231,6 +245,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="M"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -263,7 +278,7 @@
             android:ems="10"
             android:focusable="false"
             android:textColor="@android:color/white"
-            android:textSize="150sp" />
+            android:textSize="145sp" />
         
         <ImageView
             android:id="@+id/rightText"
@@ -292,6 +307,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Q"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -303,6 +319,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="W"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -314,6 +331,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="E"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -325,6 +343,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="R"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -336,6 +355,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="T"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -347,6 +367,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Z"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -358,6 +379,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="U"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -369,6 +391,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="I"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -380,6 +403,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="O"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -391,6 +415,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="P"
+            android:focusable="true"
             android:textSize="90sp" />
     </LinearLayout>
 
@@ -411,6 +436,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Delete"
+            android:focusable="true"
             android:textSize="90sp" />
 
         <Button
@@ -422,6 +448,7 @@
             android:background="@color/grey"
             android:clickable="false"
             android:text="Enter"
+            android:focusable="true"
             android:textSize="90sp" />
     </LinearLayout>
 

@@ -603,6 +603,7 @@ public class MusikList extends Activity {
 		}
 
 		private void onSwipeDown() {
+			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_DOWN, "", position);
 			
 			if (position >= 5) {
 				position = position - 5;
@@ -610,7 +611,7 @@ public class MusikList extends Activity {
 				fillList();
 				
 			}
-			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_DOWN, "", position);
+			
 		}
 
 		private void onSwipeUp() {
@@ -621,7 +622,6 @@ public class MusikList extends Activity {
 
 				fillList();
 			}
-			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_UP, "", position);
 		}
 
 	}

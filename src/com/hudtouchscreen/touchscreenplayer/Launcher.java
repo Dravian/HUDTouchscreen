@@ -1,8 +1,5 @@
 package com.hudtouchscreen.touchscreenplayer;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,9 +14,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 public class Launcher extends Activity {
 	private List<UserLogger.State> tasks;
@@ -72,7 +70,7 @@ public class Launcher extends Activity {
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task2  ");
 			taskNames.append("2");
-			
+
 			break;
 		case R.id.task3:
 			tasks.add(UserLogger.State.SEEKBAR);
@@ -95,15 +93,77 @@ public class Launcher extends Activity {
 			taskOrder.setText(taskOrder.getText().toString() + "Task5  ");
 			taskNames.append("5");
 			break;
-		case R.id.buttonEnter:
-			String idName = ((EditText) findViewById(R.id.idName)).getText().toString();
-			boolean hud = ((ToggleButton)findViewById(R.id.hud)).isSelected();
+		case R.id.back:
 			
 			if (!tasks.isEmpty()) {
-				if(hud) {
-				UserLogger.init(idName + "hud" + taskNames.toString(), tasks);
+				UserLogger.State task = tasks.remove(tasks.size() - 1);
+				
+				Button button;
+				if (task == UserLogger.State.LIST_SEARCH) {
+					button = (Button) findViewById(R.id.task1);
+					button.setBackgroundResource(R.color.grey);
+					button.setClickable(true);
+					String str = taskOrder.getText().toString();
+					str = str.replace("Task1 ","");
+					taskOrder.setText(str);
+					taskNames.deleteCharAt(taskNames.length()-1);
+					
+					
+				} else if (task == UserLogger.State.KEYBOARD) {
+					button = (Button) findViewById(R.id.task2);
+					button.setBackgroundResource(R.color.grey);
+					button.setClickable(true);
+					
+					String str = taskOrder.getText().toString();
+					str = str.replace("Task2 ","");
+					taskOrder.setText(str);
+					taskNames.deleteCharAt(taskNames.length()-1);
+					
+				} else if (task == UserLogger.State.SEEKBAR) {
+					button = (Button) findViewById(R.id.task3);
+					button.setBackgroundResource(R.color.grey);
+					button.setClickable(true);
+					
+					String str = taskOrder.getText().toString();
+					str = str.replace("Task3 ","");
+					taskOrder.setText(str);
+					taskNames.deleteCharAt(taskNames.length()-1);
+					
+					
+				} else if (task == UserLogger.State.PAUSE_BACK_PLAY) {
+					button = (Button) findViewById(R.id.task4);
+					button.setBackgroundResource(R.color.grey);
+					button.setClickable(true);
+					
+					String str = taskOrder.getText().toString();
+					str = str.replace("Task4 ","");
+					taskOrder.setText(str);
+					taskNames.deleteCharAt(taskNames.length()-1);
+					
+				} else if (task == UserLogger.State.LOOPING_FORWARD_SHUFFLE) {
+					button = (Button) findViewById(R.id.task5);
+					button.setBackgroundResource(R.color.grey);
+					button.setClickable(true);
+					
+					String str = taskOrder.getText().toString();
+					str = str.replace("Task5 ","");
+					taskOrder.setText(str);
+					taskNames.deleteCharAt(taskNames.length()-1);
+				}
+			}
+			break;
+		case R.id.buttonEnter:
+			String idName = ((EditText) findViewById(R.id.idName)).getText()
+					.toString();
+			RadioGroup radioHud = (RadioGroup) findViewById(R.id.radiohud);
+
+			if (!tasks.isEmpty()) {
+				if (radioHud.getCheckedRadioButtonId() == R.id.hudon) {
+					UserLogger.init(idName + "hud" + taskNames.toString(),
+							tasks);
 				} else {
-					UserLogger.init(idName + "touch" + taskNames.toString(), tasks);
+					UserLogger.init(idName + "touch" + taskNames.toString(),
+							tasks);
 				}
 			}
 			Intent i = new Intent(getApplicationContext(), MusicPlayer.class);
@@ -111,5 +171,9 @@ public class Launcher extends Activity {
 			break;
 		}
 
+	}
+	
+	private void setText(UserLogger.State state) {
+		
 	}
 }

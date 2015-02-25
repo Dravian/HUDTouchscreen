@@ -222,8 +222,6 @@ public class MusikKeyboard extends Activity {
 				}
 
 			});
-			
-			
 		}
 
 		private void drawRect() {
@@ -853,8 +851,8 @@ public class MusikKeyboard extends Activity {
 		public boolean onFling(MotionEvent start, MotionEvent finish,
 				float xVelocity, float yVelocity) {
 
-			final int SWIPE_THRESHOLD = 100;
-			final int SWIPE_VELOCITY_THRESHOLD = 120;
+			final int SWIPE_THRESHOLD = 200;
+			final int SWIPE_VELOCITY_THRESHOLD = 150;
 
 			try {
 				float diffY = finish.getY() - start.getY();
