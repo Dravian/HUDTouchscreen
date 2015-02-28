@@ -19,6 +19,7 @@ import com.hudtouchscreen.hudmessage.ConnectionMessage;
 import com.hudtouchscreen.hudmessage.KeyBoardMessage;
 import com.hudtouchscreen.hudmessage.KeyTouchMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
+import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongtitleMessage;
@@ -42,9 +43,8 @@ public class PlayerListener extends Thread {
 	private boolean run;
 
 	private ClientService clientService;
-	
+
 	private String serverIp;
-	
 
 	public PlayerListener(ClientService clientService, String serverIp) {
 		this.clientService = clientService;
@@ -65,7 +65,7 @@ public class PlayerListener extends Thread {
 	protected void startConnection() {
 		// final String SERVER_IP = "10.0.2.2";
 		final int PORT = 7007;
-		
+
 		try {
 			connection = new Socket(serverIp, PORT);
 			connection.setSoTimeout(0);
@@ -75,26 +75,24 @@ public class PlayerListener extends Thread {
 			out.flush();
 			run = true;
 			send(true);
-		} catch (UnknownHostException e) {	
+		} catch (UnknownHostException e) {
 			Log.i("PlayerListener", "UnknownHostException");
 			send(false);
-			e.printStackTrace();		
-		} catch(ConnectException e) {
+			e.printStackTrace();
+		} catch (ConnectException e) {
 			send(false);
 			e.printStackTrace();
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			send(false);
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void send(boolean success) {
 		Message message;
-		message = Message.obtain(null, ClientService.MSG_CONNECTION, 0,
-				0);
-		
-		if(success) {
+		message = Message.obtain(null, ClientService.MSG_CONNECTION, 0, 0);
+
+		if (success) {
 			Log.i("PlayerListener", "success");
 			ConnectionMessage connection = new ConnectionMessage(true);
 			message.getData().putParcelable("Connection", connection);
@@ -103,16 +101,16 @@ public class PlayerListener extends Thread {
 			ConnectionMessage connection = new ConnectionMessage(false);
 			message.getData().putParcelable("Connection", connection);
 		}
-		
+
 		clientService.send(message);
 	}
 
 	@Override
 	public void run() {
 		startConnection();
-		
+
 		try {
-			
+
 			while (run) {
 				Object hudMessage;
 
@@ -185,6 +183,11 @@ public class PlayerListener extends Thread {
 							(KeyBoardMessage) hudMessage);
 					trueMessage = true;
 
+				} else if (hudMessage instanceof LogMessage) {
+					message = Message.obtain(null, ClientService.MSG_LOG, 0, 0);
+					message.getData().putParcelable("Log",
+							(LogMessage) hudMessage);
+					trueMessage = true;
 				}
 
 				if (trueMessage) {

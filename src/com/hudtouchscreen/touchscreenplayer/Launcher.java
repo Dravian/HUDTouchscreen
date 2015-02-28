@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -73,107 +74,106 @@ public class Launcher extends Activity {
 
 			break;
 		case R.id.task3:
-			tasks.add(UserLogger.State.SEEKBAR);
+			tasks.add(UserLogger.State.BUTTONS);
 			view.setBackgroundResource(R.color.brown);
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task3  ");
 			taskNames.append("3");
 			break;
 		case R.id.task4:
-			tasks.add(UserLogger.State.PAUSE_BACK_PLAY);
+			tasks.add(UserLogger.State.SWIPE_SLIDE);
 			view.setBackgroundResource(R.color.brown);
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task4  ");
 			taskNames.append("4");
 			break;
-		case R.id.task5:
-			tasks.add(UserLogger.State.LOOPING_FORWARD_SHUFFLE);
-			view.setBackgroundResource(R.color.brown);
-			view.setClickable(false);
-			taskOrder.setText(taskOrder.getText().toString() + "Task5  ");
-			taskNames.append("5");
-			break;
+		/*
+		 * case R.id.task5: tasks.add(UserLogger.State.SWIPE_SLIDE);
+		 * view.setBackgroundResource(R.color.brown); view.setClickable(false);
+		 * taskOrder.setText(taskOrder.getText().toString() + "Task5  ");
+		 * taskNames.append("5"); break;
+		 */
 		case R.id.back:
-			
+
 			if (!tasks.isEmpty()) {
 				UserLogger.State task = tasks.remove(tasks.size() - 1);
-				
+
 				Button button;
 				if (task == UserLogger.State.LIST_SEARCH) {
 					button = (Button) findViewById(R.id.task1);
 					button.setBackgroundResource(R.color.grey);
 					button.setClickable(true);
 					String str = taskOrder.getText().toString();
-					str = str.replace("Task1 ","");
+					str = str.replace("Task1 ", "");
 					taskOrder.setText(str);
-					taskNames.deleteCharAt(taskNames.length()-1);
-					
-					
+					taskNames.deleteCharAt(taskNames.length() - 1);
+
 				} else if (task == UserLogger.State.KEYBOARD) {
 					button = (Button) findViewById(R.id.task2);
 					button.setBackgroundResource(R.color.grey);
 					button.setClickable(true);
-					
+
 					String str = taskOrder.getText().toString();
-					str = str.replace("Task2 ","");
+					str = str.replace("Task2 ", "");
 					taskOrder.setText(str);
-					taskNames.deleteCharAt(taskNames.length()-1);
-					
-				} else if (task == UserLogger.State.SEEKBAR) {
+					taskNames.deleteCharAt(taskNames.length() - 1);
+
+				} else if (task == UserLogger.State.BUTTONS) {
 					button = (Button) findViewById(R.id.task3);
 					button.setBackgroundResource(R.color.grey);
 					button.setClickable(true);
-					
+
 					String str = taskOrder.getText().toString();
-					str = str.replace("Task3 ","");
+					str = str.replace("Task3 ", "");
 					taskOrder.setText(str);
-					taskNames.deleteCharAt(taskNames.length()-1);
-					
-					
-				} else if (task == UserLogger.State.PAUSE_BACK_PLAY) {
+					taskNames.deleteCharAt(taskNames.length() - 1);
+
+				} else if (task == UserLogger.State.SWIPE_SLIDE) {
 					button = (Button) findViewById(R.id.task4);
 					button.setBackgroundResource(R.color.grey);
 					button.setClickable(true);
-					
+
 					String str = taskOrder.getText().toString();
-					str = str.replace("Task4 ","");
+					str = str.replace("Task4 ", "");
 					taskOrder.setText(str);
-					taskNames.deleteCharAt(taskNames.length()-1);
-					
-				} else if (task == UserLogger.State.LOOPING_FORWARD_SHUFFLE) {
-					button = (Button) findViewById(R.id.task5);
-					button.setBackgroundResource(R.color.grey);
-					button.setClickable(true);
-					
-					String str = taskOrder.getText().toString();
-					str = str.replace("Task5 ","");
-					taskOrder.setText(str);
-					taskNames.deleteCharAt(taskNames.length()-1);
-				}
+					taskNames.deleteCharAt(taskNames.length() - 1);
+
+				}/*
+				 * else if (task == UserLogger.State.SWIPE_SLIDE) { button =
+				 * (Button) findViewById(R.id.task5);
+				 * button.setBackgroundResource(R.color.grey);
+				 * button.setClickable(true);
+				 * 
+				 * String str = taskOrder.getText().toString(); str =
+				 * str.replace("Task5 ",""); taskOrder.setText(str);
+				 * taskNames.deleteCharAt(taskNames.length()-1); }
+				 */
 			}
 			break;
 		case R.id.buttonEnter:
 			String idName = ((EditText) findViewById(R.id.idName)).getText()
 					.toString();
-			RadioGroup radioHud = (RadioGroup) findViewById(R.id.radiohud);
 
-			if (!tasks.isEmpty()) {
-				if (radioHud.getCheckedRadioButtonId() == R.id.hudon) {
-					UserLogger.init(idName + "hud" + taskNames.toString(),
-							tasks);
-				} else {
-					UserLogger.init(idName + "touch" + taskNames.toString(),
-							tasks);
+			if (idName.length() > 0) {
+				RadioGroup radioHud = (RadioGroup) findViewById(R.id.radiohud);
+
+				if (!tasks.isEmpty()) {
+					if (radioHud.getCheckedRadioButtonId() == R.id.hudon) {
+						UserLogger.init(idName + "hud" + taskNames.toString(),
+								tasks);
+					} else {
+						UserLogger.init(
+								idName + "touch" + taskNames.toString(), tasks);
+					}
 				}
+				Intent i = new Intent(getApplicationContext(),
+						MusicPlayer.class);
+
+				startActivity(i);
 			}
-			Intent i = new Intent(getApplicationContext(), MusicPlayer.class);
-			startActivity(i);
 			break;
+		default:
 		}
 
-	}
-	
-	private void setText(UserLogger.State state) {
-		
 	}
 }

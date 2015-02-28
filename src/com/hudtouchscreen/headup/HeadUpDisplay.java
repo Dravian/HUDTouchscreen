@@ -1,6 +1,7 @@
 package com.hudtouchscreen.headup;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
+import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongtitleMessage;
@@ -36,7 +37,6 @@ public class HeadUpDisplay extends Activity {
 	private SeekBar seekbar;
 	
 	private ServiceManager service;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -154,7 +154,7 @@ public class HeadUpDisplay extends Activity {
 											imgTouch.setImageResource(R.drawable.looping);
 											break;
 										case TouchMessage.STARTBUTTON:
-											imgTouch.setImageResource(R.drawable.start);
+											imgTouch.setImageResource(R.drawable.startoff);
 											break;
 										default:
 											return;
@@ -180,6 +180,17 @@ public class HeadUpDisplay extends Activity {
 								switchToKeyboard();
 								
 							}
+							break;
+						case ClientService.MSG_LOG:
+							LogMessage logMessage = (LogMessage)bundle.getParcelable("Log");
+							ImageView startImage = (ImageView)findViewById(R.id.start);
+							
+							if(logMessage.getLogStatus()) {
+								startImage.setImageResource(R.drawable.starttask);
+							} else {
+								startImage.setImageResource(R.drawable.startoff);
+							}
+							
 							break;
 						default:
 							super.handleMessage(msg);

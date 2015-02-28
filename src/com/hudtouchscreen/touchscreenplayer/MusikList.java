@@ -36,7 +36,8 @@ public class MusikList extends Activity {
 	private TextView title5;
 	private GestureDetector gDetector;
 	private TouchListener touchListener;
-
+	private final Handler CHECK_STATE = new Handler();
+	private boolean logging;
 	private ServiceManager service;
 
 	@Override
@@ -82,6 +83,16 @@ public class MusikList extends Activity {
 		title5 = (TextView) findViewById(R.id.title5);
 		
 		fillList();
+		
+		if(UserLogger.getState() == UserLogger.State.OFF) {
+			logging = false;
+		} else if(UserLogger.getState() == UserLogger.State.IDLE) {
+			logging = false;
+			CHECK_STATE.postDelayed(stateStatus,100);
+		} else {
+			logging = true;
+			CHECK_STATE.postDelayed(stateStatus,100);
+		}
 	}
 
 	private void fillList() {
@@ -109,6 +120,32 @@ public class MusikList extends Activity {
 		
 		sendToService(ServerService.MSG_LIST);
 	}
+	
+	private Runnable stateStatus = new Runnable() {
+		public void run() {
+			UserLogger.State taskState = UserLogger.getState();
+			
+			switch (taskState) {
+			case OFF:
+				if(logging) {
+					onSwipeRight();
+					logging = false;
+				}
+				return;
+			case IDLE:
+				if(logging) {
+					onSwipeRight();
+					logging = false;
+				};
+				return;
+			default:
+				logging = true;
+				break;
+			}
+			CHECK_STATE.postDelayed(this, 100);
+		}
+
+	};
 
 	public void finishClick(int position) {
 		if (listValues.size() > 0) {
@@ -195,6 +232,44 @@ public class MusikList extends Activity {
 
 	}
 	
+	private void onSwipeLeft() {
+		UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_LEFT, "", -1);
+	
+	}
+
+	private void onSwipeRight() {
+		UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_RIGHT, "", -1);
+		
+		sendToService(ServerService.MSG_ACTIVITY);
+		service.unbind();
+		Intent i = new Intent();
+		setResult(1, i);
+		finish();
+	
+	}
+
+	private void onSwipeDown() {
+		UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_DOWN, "", position);
+		
+		if (position >= 5) {
+			position = position - 5;
+	
+			fillList();
+			
+		}
+		
+	}
+
+	private void onSwipeUp() {
+		UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_UP, "", position);
+		
+		if (position < 5 && position >= 0 && listValues.size() > 5) {
+			position = position + 5;
+	
+			fillList();
+		}
+	}
+
 	protected class TouchListener {
 		private final Handler handler = new Handler();
 		private float mDownX = 0;
@@ -321,7 +396,7 @@ public class MusikList extends Activity {
 					} else {
 						buttonType = -1;
 					}
-					handler.postDelayed(mLongPressed, 200);
+					handler.postDelayed(mLongPressed, 100);
 					return true;
 
 				case MotionEvent.ACTION_UP:
@@ -376,7 +451,7 @@ public class MusikList extends Activity {
 							if (buttonType != TouchMessage.LIST1) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 200);
+								handler.postDelayed(mLongPressed, 100);
 							}
 							buttonType = TouchMessage.LIST1;
 
@@ -386,7 +461,7 @@ public class MusikList extends Activity {
 							if (buttonType != TouchMessage.LIST2) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 200);
+								handler.postDelayed(mLongPressed, 100);
 							}
 
 							buttonType = TouchMessage.LIST2;
@@ -397,7 +472,7 @@ public class MusikList extends Activity {
 							if (buttonType != TouchMessage.LIST3) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 200);
+								handler.postDelayed(mLongPressed, 100);
 							}
 
 							buttonType = TouchMessage.LIST3;
@@ -408,7 +483,7 @@ public class MusikList extends Activity {
 							if (buttonType != TouchMessage.LIST4) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 200);
+								handler.postDelayed(mLongPressed, 100);
 							}
 
 							buttonType = TouchMessage.LIST4;
@@ -419,7 +494,7 @@ public class MusikList extends Activity {
 							if (buttonType != TouchMessage.LIST5) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 200);
+								handler.postDelayed(mLongPressed, 100);
 							}
 
 							buttonType = TouchMessage.LIST5;
@@ -584,44 +659,6 @@ public class MusikList extends Activity {
 
 			return false;
 
-		}
-
-		private void onSwipeLeft() {
-			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_LEFT, "", -1);
-
-		}
-
-		private void onSwipeRight() {
-			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_RIGHT, "", -1);
-			
-			sendToService(ServerService.MSG_ACTIVITY);
-			service.unbind();
-			Intent i = new Intent();
-			setResult(1, i);
-			finish();
-
-		}
-
-		private void onSwipeDown() {
-			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_DOWN, "", position);
-			
-			if (position >= 5) {
-				position = position - 5;
-
-				fillList();
-				
-			}
-			
-		}
-
-		private void onSwipeUp() {
-			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_UP, "", position);
-			
-			if (position < 5 && position >= 0 && listValues.size() > 5) {
-				position = position + 5;
-
-				fillList();
-			}
 		}
 
 	}

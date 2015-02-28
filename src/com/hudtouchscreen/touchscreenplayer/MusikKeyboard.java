@@ -38,6 +38,8 @@ public class MusikKeyboard extends Activity {
 	private boolean rightWord;
 	private ImageView rightText;
 	protected final static int MAX_TEXT_LENGTH = 10;
+	private boolean logging;
+	private final Handler CHECK_STATE = new Handler();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,16 @@ public class MusikKeyboard extends Activity {
 					}
 				});
 		service.start();
+		
+		if(UserLogger.getState() == UserLogger.State.OFF) {
+			logging = false;
+		} else if(UserLogger.getState() == UserLogger.State.IDLE) {
+			logging = false;
+			CHECK_STATE.postDelayed(stateStatus,100);
+		} else {
+			logging = true;
+			CHECK_STATE.postDelayed(stateStatus,100);
+		}
 	}
 	
 
@@ -124,6 +136,31 @@ public class MusikKeyboard extends Activity {
 		return touchListener.onTouch(me);
 	}
 
+	private Runnable stateStatus = new Runnable() {
+		public void run() {
+			UserLogger.State taskState = UserLogger.getState();
+			
+			switch (taskState) {
+			case OFF:
+				if(logging) {
+					onSwipeRight();
+					logging = false;
+				}
+				return;
+			case IDLE:
+				if(logging) {
+					onSwipeRight();
+					logging = false;
+				};
+				return;
+			default:
+				logging = true;
+				break;
+			}
+			CHECK_STATE.postDelayed(this, 100);
+		}
+
+	};
 	
 	@Override
 	  protected void onDestroy() {
@@ -134,6 +171,31 @@ public class MusikKeyboard extends Activity {
 
 	}
 	
+	private void onSwipeLeft() {
+		// TODO Auto-generated method stub
+	
+	}
+
+
+	private void onSwipeRight() {
+		UserLogger.logAction(UserLogger.UserView.KEYBOARD,
+				UserLogger.Action.SWIPE_RIGHT, "", -1);
+	
+		sendToService(ServerService.MSG_ACTIVITY);
+		service.unbind();
+		Intent i = new Intent();
+		setResult(1, i);
+		finish();
+	}
+
+
+	private void onSwipeDown() {
+	}
+
+
+	private void onSwipeUp() {
+	}
+
 	protected class TouchListener {
 		private final Handler handler = new Handler();
 		private float mDownX = 0;
@@ -907,28 +969,6 @@ public class MusikKeyboard extends Activity {
 
 			return false;
 
-		}
-
-		private void onSwipeLeft() {
-			// TODO Auto-generated method stub
-
-		}
-
-		private void onSwipeRight() {
-			UserLogger.logAction(UserLogger.UserView.KEYBOARD,
-					UserLogger.Action.SWIPE_RIGHT, "", -1);
-
-			sendToService(ServerService.MSG_ACTIVITY);
-			service.unbind();
-			Intent i = new Intent();
-			setResult(1, i);
-			finish();
-		}
-
-		private void onSwipeDown() {
-		}
-
-		private void onSwipeUp() {
 		}
 
 	}

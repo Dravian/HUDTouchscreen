@@ -56,21 +56,11 @@
             android:background="@android:color/white"
             android:clickable="false"
             android:ems="10"
-            android:text="15"
             android:textColor="@color/grey"
             android:textSize="60sp" >
 
             <requestFocus />
         </EditText>
-
-        <Button
-            android:id="@+id/ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/grey"
-            android:focusable="true"
-            android:text="OK"
-            android:textSize="60sp" />
 
     </LinearLayout>
 

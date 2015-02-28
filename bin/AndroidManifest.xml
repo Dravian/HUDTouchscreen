@@ -22,7 +22,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.hudtouchscreen.touchscreenplayer.Launcher"
-            android:label="@string/launcher" 
+            android:label="@string/player" 
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,7 +31,7 @@
         </activity>
         <activity
             android:name="com.hudtouchscreen.headup.IpLauncher"
-            android:label="@string/iplauncher" >
+            android:label="@string/hud" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -40,20 +40,11 @@
         <activity
             android:name="com.hudtouchscreen.touchscreenplayer.MusicPlayer"
             android:label="@string/player" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="com.hudtouchscreen.headup.HeadUpDisplay"
             android:label="@string/hud"
             android:screenOrientation="landscape" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name="com.hudtouchscreen.touchscreenplayer.MusikList"

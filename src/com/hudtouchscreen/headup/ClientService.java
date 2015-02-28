@@ -22,6 +22,7 @@ public class ClientService extends AbstractService {
 	public static final int MSG_KEYTOUCH = 10;
 	public static final int MSG_IP = 11;
 	public static final int MSG_CONNECTION = 12;
+	public static final int MSG_LOG = 13;
 
 	private PlayerListener playerListener;
 

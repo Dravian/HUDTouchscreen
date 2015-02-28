@@ -8,6 +8,7 @@ import com.hudtouchscreen.hudmessage.HudMessage;
 import com.hudtouchscreen.hudmessage.KeyBoardMessage;
 import com.hudtouchscreen.hudmessage.KeyTouchMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
+import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongtitleMessage;
@@ -31,6 +32,7 @@ public class ServerService extends AbstractService {
 	public static final int MSG_TOUCH = 9;
 	public static final int MSG_KEYTOUCH = 10;
 	public static final int MSG_SEEKBAR= 11;
+	public static final int MSG_LOG = 12;
 	
 	private ClientListener clientListener;
 	private Set<Client> clients;
@@ -98,7 +100,10 @@ public class ServerService extends AbstractService {
 			KeyBoardMessage key = (KeyBoardMessage) bundle.getParcelable("Keyboard");
 			broadcast(key);
 			break;
-			
+		case MSG_LOG:
+			LogMessage log = (LogMessage) bundle.getParcelable("Log");
+			broadcast(log);
+			break;
 		default:
 		}
 		

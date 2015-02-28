@@ -9,11 +9,13 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
+import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
 import com.hudtouchscreen.hudmessage.TouchMessage;
+import com.hudtouchscreen.touchscreenplayer.UserLogger.State;
 import com.touchscreen.touchscreenplayer.R;
 
 import Service.ServiceManager;
@@ -84,7 +86,8 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	public TextView startTimeField, endTimeField;
 	private double startTime = 0;
 	private double endTime = 0;
-	private Handler updateTime = new Handler();;
+	private final Handler UPDATE_TIME = new Handler();
+	private final Handler CHECK_STATE = new Handler();
 	private SeekBar seekbar;
 	private boolean newTrack; // For checking if its time to update endtime
 	private static boolean startingNewActivity;
@@ -92,6 +95,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 	private ServiceManager service;
 	private boolean trackingSeekBar;
+	private boolean logging; //
 
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -111,8 +115,17 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		playImage = (ImageView) findViewById(R.id.play);
 		stopImage = (ImageView) findViewById(R.id.stop);
 		shuffleImage = (ImageView) findViewById(R.id.shuffle);
-		startImage = (ImageView) findViewById(R.id.start);
 		loopingImage = (ImageView) findViewById(R.id.looping);
+
+		startImage = (ImageView) findViewById(R.id.start);
+
+		if (UserLogger.getState() == UserLogger.State.OFF || UserLogger.getState() == UserLogger.State.IDLE) {
+			logging = false;
+			startImage.setImageResource(R.drawable.startoff);
+		} else {
+			logging = true;
+			startImage.setImageResource(R.drawable.starttask);
+		}
 
 		touchListener = new TouchListener();
 
@@ -150,6 +163,8 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 							sendToService(ServerService.MSG_LOOPING);
 
 							sendToService(ServerService.MSG_TIME);
+
+							sendToService(ServerService.MSG_LOG);
 							break;
 
 						default:
@@ -160,6 +175,17 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 		service.start();
 
+		if (UserLogger.getState() == UserLogger.State.OFF ) {
+			logging = false;
+		} else if(UserLogger.getState() == UserLogger.State.IDLE) { 
+			logging = false;
+			CHECK_STATE.postDelayed(stateStatus, 100);
+		}	else {
+			logging = true;
+			startImage.setImageResource(R.drawable.starttask);
+			CHECK_STATE.postDelayed(stateStatus, 100);
+		}
+		
 	}
 
 	/**
@@ -201,6 +227,11 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 				TimeMessage timeMessage = new TimeMessage(startTime, endTime,
 						seekbar.getProgress());
 				message.getData().putParcelable("Time", timeMessage);
+				break;
+			case ServerService.MSG_LOG:
+				message = Message.obtain(null, ServerService.MSG_LOG, 0, 0);
+				LogMessage logMessage = new LogMessage(logging);
+				message.getData().putParcelable("Log", logMessage);
 				break;
 			default:
 				return;
@@ -425,7 +456,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			track.play();
 
 			setTime();
-			updateTime.postDelayed(UpdateSongTime, 100);
+			UPDATE_TIME.postDelayed(UpdateSongTime, 100);
 		}
 
 	}
@@ -501,7 +532,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			sendToService(ServerService.MSG_TIME);
 			sendToService(ServerService.MSG_SONGTITLE);
 
-			updateTime.postDelayed(this, 100);
+			UPDATE_TIME.postDelayed(this, 100);
 
 		}
 	};
@@ -639,6 +670,21 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		sendToService(ServerService.MSG_SHUFFLE);
 		sendToService(ServerService.MSG_LOOPING);
 		sendToService(ServerService.MSG_TIME);
+		
+		
+		if (UserLogger.getState() == UserLogger.State.OFF ) {
+			if(logging) {
+				logging = false;
+				sendToService(ServerService.MSG_LOG);
+			}
+			
+		} else if(UserLogger.getState() == UserLogger.State.IDLE) { 
+			CHECK_STATE.postDelayed(stateStatus, 100);
+		}	else {
+			logging = true;
+			startImage.setImageResource(R.drawable.starttask);
+			CHECK_STATE.postDelayed(stateStatus, 100);
+		}
 	}
 
 	@Override
@@ -654,39 +700,87 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 	@Override
 	public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+		if (startLogSeekbarTracking) {
+			int progress = seekbar.getProgress();
+			int max = seekbar.getMax();
+			int percent = (int) (((float) progress / max) * 100);
 
+			UserLogger.logAction(UserLogger.UserView.PLAYER,
+					UserLogger.Action.START_SEEKBAR, "", percent);
+
+			startLogSeekbarTracking = false;
+		}
 	}
+
+	private boolean startLogSeekbarTracking = false;
 
 	@Override
 	public void onStartTrackingTouch(SeekBar arg0) {
 		if (!isTuning) {
-			updateTime.postDelayed(UpdateSongTime, 100);
+			UPDATE_TIME.postDelayed(UpdateSongTime, 100);
 		}
 		trackingSeekBar = true;
+		startLogSeekbarTracking = true;
+
 	}
 
 	@Override
 	public void onStopTrackingTouch(SeekBar arg0) {
 		if (!isTuning) {
-			updateTime.removeCallbacks(UpdateSongTime);
+			UPDATE_TIME.removeCallbacks(UpdateSongTime);
 		}
 		trackingSeekBar = false;
 		int progress = seekbar.getProgress();
 		int max = seekbar.getMax();
 		int percent = (int) (((float) progress / max) * 100);
 
-
 		track.seek(progress);
 		setTime();
 
 		UserLogger.logAction(UserLogger.UserView.PLAYER,
-				UserLogger.Action.SEEKBAR, "", percent);
+				UserLogger.Action.STOP_SEEKBAR, "", percent);
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		return touchListener.onTouch(event);
 	}
+
+	private Runnable stateStatus = new Runnable() {
+		public void run() {
+			UserLogger.State taskState = UserLogger.getState();
+			boolean logStatusChanged = false;
+			switch (taskState) {
+			case OFF:
+				startImage.setImageResource(R.drawable.startoff);
+				logging = false;
+				sendToService(ServerService.MSG_LOG);
+
+				return;
+			case IDLE:
+				startImage.setImageResource(R.drawable.startoff);
+				if (logging != false) {
+					startImage.setImageResource(R.drawable.startoff);
+					logStatusChanged = true;
+					logging = false;
+				}
+				break;
+			default:
+				if (logging != true) {
+					startImage.setImageResource(R.drawable.starttask);
+					logStatusChanged = true;
+					logging = true;
+				}
+				break;
+			}
+
+			if (logStatusChanged) {
+				sendToService(ServerService.MSG_LOG);
+			}
+			CHECK_STATE.postDelayed(this, 100);
+		}
+
+	};
 
 	/**
 	 * Handles the Fling Touchmessages
@@ -771,6 +865,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		private void onSwipeRight() {
 			UserLogger.logAction(UserLogger.UserView.PLAYER,
 					UserLogger.Action.SWIPE_RIGHT, "", -1);
+
 			setTrack(0);
 			loadTrack();
 			playTrack();
@@ -783,6 +878,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		private void onSwipeLeft() {
 			UserLogger.logAction(UserLogger.UserView.PLAYER,
 					UserLogger.Action.SWIPE_LEFT, "", -1);
+
 			setTrack(1);
 			loadTrack();
 			playTrack();
@@ -794,6 +890,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		private void onSwipeUp() {
 			UserLogger.logAction(UserLogger.UserView.PLAYER,
 					UserLogger.Action.SWIPE_UP, "", -1);
+
 			switchToKeyBoard();
 		}
 
@@ -803,6 +900,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		private void onSwipeDown() {
 			UserLogger.logAction(UserLogger.UserView.PLAYER,
 					UserLogger.Action.SWIPE_DOWN, "", -1);
+
 			switchToList();
 		}
 
@@ -950,7 +1048,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 						buttonType = -1;
 					}
 
-					handler.postDelayed(mLongPressed, 300);
+					handler.postDelayed(mLongPressed, 100);
 					return true;
 
 				case MotionEvent.ACTION_UP:
@@ -1005,7 +1103,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 							if (buttonType != TouchMessage.PLAYBUTTON) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 300);
+								handler.postDelayed(mLongPressed, 100);
 							}
 							buttonType = TouchMessage.PLAYBUTTON;
 
@@ -1015,7 +1113,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 							if (buttonType != TouchMessage.STOPBUTTON) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 300);
+								handler.postDelayed(mLongPressed, 100);
 							}
 
 							buttonType = TouchMessage.STOPBUTTON;
@@ -1026,7 +1124,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 							if (buttonType != TouchMessage.SHUFFLEBUTTON) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 300);
+								handler.postDelayed(mLongPressed, 100);
 							}
 
 							buttonType = TouchMessage.SHUFFLEBUTTON;
@@ -1037,7 +1135,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 							if (buttonType != TouchMessage.STARTBUTTON) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 300);
+								handler.postDelayed(mLongPressed, 100);
 							}
 
 							buttonType = TouchMessage.STARTBUTTON;
@@ -1048,7 +1146,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 							if (buttonType != TouchMessage.LOOPINGBUTTON) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 300);
+								handler.postDelayed(mLongPressed, 100);
 							}
 
 							buttonType = TouchMessage.LOOPINGBUTTON;
@@ -1079,7 +1177,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 						isTuning = false;
 						playImage.setImageResource(R.drawable.play);
 						track.pause();
-						updateTime.removeCallbacks(UpdateSongTime);
+						UPDATE_TIME.removeCallbacks(UpdateSongTime);
 
 						UserLogger.logAction(UserLogger.UserView.PLAYER,
 								UserLogger.Action.CLICK_PAUSE, "", -1);
@@ -1100,7 +1198,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 					isTuning = false;
 					playImage.setImageResource(R.drawable.play);
 					track.stop();
-					updateTime.removeCallbacks(UpdateSongTime);
+					UPDATE_TIME.removeCallbacks(UpdateSongTime);
 					setTime();
 
 					UserLogger.logAction(UserLogger.UserView.PLAYER,

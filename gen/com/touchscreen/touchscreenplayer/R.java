@@ -1290,8 +1290,9 @@ containing a value of this type.
         public static final int redx=0x7f020060;
         public static final int shuffle=0x7f020061;
         public static final int shuffleon=0x7f020062;
-        public static final int start=0x7f020063;
-        public static final int stop=0x7f020064;
+        public static final int startoff=0x7f020063;
+        public static final int starttask=0x7f020064;
+        public static final int stop=0x7f020065;
     }
     public static final class id {
         public static final int a=0x7f05005b;
@@ -1311,10 +1312,10 @@ containing a value of this type.
         public static final int alignMargins=0x7f05001d;
         public static final int always=0x7f05000b;
         public static final int b=0x7f05006b;
-        public static final int back=0x7f050093;
+        public static final int back=0x7f050092;
         public static final int beginning=0x7f050011;
         public static final int bottom=0x7f05001f;
-        public static final int buttonEnter=0x7f050097;
+        public static final int buttonEnter=0x7f050096;
         public static final int c=0x7f050069;
         public static final int center=0x7f050026;
         public static final int center_horizontal=0x7f050024;
@@ -1352,8 +1353,8 @@ containing a value of this type.
         public static final int homeAsUp=0x7f050005;
         public static final int horizontal=0x7f05001a;
         public static final int hud_title=0x7f05004f;
-        public static final int hudoff=0x7f050095;
-        public static final int hudon=0x7f050096;
+        public static final int hudoff=0x7f050094;
+        public static final int hudon=0x7f050095;
         public static final int i=0x7f050079;
         public static final int icon=0x7f05003b;
         public static final int idName=0x7f05008b;
@@ -1382,7 +1383,6 @@ containing a value of this type.
         public static final int none=0x7f050010;
         public static final int normal=0x7f050000;
         public static final int o=0x7f05007a;
-        public static final int ok=0x7f05008c;
         public static final int p=0x7f05007b;
         public static final int play=0x7f050084;
         public static final int progress_circular=0x7f050018;
@@ -1390,7 +1390,7 @@ containing a value of this type.
         public static final int q=0x7f050072;
         public static final int r=0x7f050075;
         public static final int radio=0x7f050040;
-        public static final int radiohud=0x7f050094;
+        public static final int radiohud=0x7f050093;
         public static final int right=0x7f050021;
         public static final int rightText=0x7f050071;
         public static final int s=0x7f05005c;
@@ -1419,12 +1419,12 @@ containing a value of this type.
         public static final int submit_area=0x7f05004a;
         public static final int t=0x7f050076;
         public static final int tabMode=0x7f050002;
-        public static final int task1=0x7f05008e;
-        public static final int task2=0x7f05008f;
-        public static final int task3=0x7f050090;
-        public static final int task4=0x7f050092;
-        public static final int task5=0x7f050091;
-        public static final int taskorder=0x7f05008d;
+        public static final int task1=0x7f05008d;
+        public static final int task2=0x7f05008e;
+        public static final int task3=0x7f05008f;
+        public static final int task4=0x7f050091;
+        public static final int task5=0x7f050090;
+        public static final int taskorder=0x7f05008c;
         public static final int textView1=0x7f050054;
         public static final int title=0x7f05003c;
         public static final int title1=0x7f05007e;

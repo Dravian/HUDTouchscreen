@@ -16,8 +16,14 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import com.hudtouchscreen.hudmessage.KeyTouchMessage;
+import com.hudtouchscreen.hudmessage.TimeMessage;
 
+import Service.ServiceManager;
+import android.content.Context;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 
 /**
@@ -29,8 +35,6 @@ import android.util.Log;
  */
 public final class UserLogger {
 
-	private static Logger logger;
-	private static FileHandler fhandler;
 	private static Timestamp userStart;
 
 	private static List<String> actions;
@@ -40,8 +44,20 @@ public final class UserLogger {
 	private static int counter;
 	private static FileWriter writer;
 	private static String fileID;
+	private final static Handler TIME_LIMIT = new Handler();
+
+	// List
 	private static final int LIST_POSITION = 5;
+
+	// Keyboard
 	private static final String KEYBOARD_GOAL = "Spidey";
+
+	// Swipe Slide
+	private static final int SLIDE_START_MAX = 15;
+	private static final int SLIDE_END_MIN = 40;
+	private static final int SLIDE_END_MAX = 60;
+	private static final int FORWARD_SWIPES = 3;
+	private static final int PREVIOUS_SWIPES = 2;
 
 	/**
 	 * Beschreibt in welchen Zustand der Logger ist
@@ -50,20 +66,22 @@ public final class UserLogger {
 	 * 
 	 */
 	public enum State {
-		OFF(0,""), IDLE(0,""), LIST_SEARCH(3,"List Search"), KEYBOARD(8, "KEYBOARD SEARCH"), SEEKBAR(0,""), PAUSE_BACK_PLAY(0,""), LOOPING_FORWARD_SHUFFLE(0,"");
-		
+		OFF(0, ""), IDLE(0, ""), LIST_SEARCH(3, "LIST SEARCH"), KEYBOARD(8,
+				"KEYBOARD SEARCH"), SWIPE_SLIDE(7, "SWIPE SLIDE"), BUTTONS(4,
+				"BUTTONS");
+
 		private int minTaskActions;
 		private String task;
-		
+
 		private State(int minTaskActions, String task) {
 			this.minTaskActions = minTaskActions;
 			this.task = task;
 		}
-		
+
 		public int getMinTaskActions() {
 			return minTaskActions;
 		}
-		
+
 		public String getTask() {
 			return task;
 		}
@@ -105,10 +123,11 @@ public final class UserLogger {
 		CLICK_ITEM("CLICK_ITEM"), CLICK_KEY("CLICK_KEY"), MOVE_SEEKBAR(
 				"MOVE_SEEKBAR"),
 
-		SWIPE_LEFT("SWIPE_LEFT"), SWIPE_RIGHT("SCROLL_RIGHT"), SWIPE_UP(
+		SWIPE_LEFT("SWIPE_LEFT"), SWIPE_RIGHT("SWIPE_RIGHT"), SWIPE_UP(
 				"SWIPE_UP"),
 
-		SWIPE_DOWN("SWIPE_DOWN"), SEEKBAR("SEEK_BAR");
+		SWIPE_DOWN("SWIPE_DOWN"), START_SEEKBAR("START_SEEKBAR"), STOP_SEEKBAR(
+				"STOP_SEEKBAR");
 
 		private String text;
 
@@ -151,7 +170,14 @@ public final class UserLogger {
 
 		switch (view) {
 		case PLAYER:
-			sb.append("(" + view.toString() + ": " + action.toString() + ")");
+			if (action == Action.START_SEEKBAR || action == Action.STOP_SEEKBAR) {
+				sb.append("(" + view.toString() + ": " + action.toString()
+						+ " " + Integer.toString(position) + "%" + ")");
+
+			} else {
+				sb.append("(" + view.toString() + ": " + action.toString()
+						+ ")");
+			}
 			break;
 		case KEYBOARD:
 			if (action == Action.CLICK_KEY) {
@@ -166,6 +192,9 @@ public final class UserLogger {
 			if (action == Action.CLICK_ITEM) {
 				sb.append("(" + view.toString() + ": " + action.toString()
 						+ " + " + item + ")");
+			} else if(action == Action.SWIPE_UP || action == Action.SWIPE_DOWN) {
+				sb.append("(" + view.toString() + ": " + action.toString()
+						+ " " + position + ")");
 			} else {
 				sb.append("(" + view.toString() + ": " + action.toString()
 						+ ")");
@@ -192,31 +221,39 @@ public final class UserLogger {
 	 */
 	static void logAction(UserView view, Action action, String item,
 			int position) {
+		boolean taskFinished = false;
 
 		switch (currentState) {
 		case OFF:
 			return;
 		case IDLE:
 			return;
-		}
-		boolean taskFinished = false;		
-		addAction(view, action, item, position);
-	
-		switch (currentState) {
 		case LIST_SEARCH:
+			addAction(view, action, item, position);
 			taskFinished = logListTask(view, action, position);
 			break;
 		case KEYBOARD:
+			addAction(view, action, item, position);
 			taskFinished = logKeyBoardTask(view, action, item, position);
+			break;
+		case BUTTONS:
+			addAction(view, action, item, position);
+			taskFinished = logButtons(view, action, item, position);
+			break;
+		case SWIPE_SLIDE:
+			addAction(view, action, item, position);
+			taskFinished = logSwipeSlide(view, action, item, position);
 			break;
 		default:
 			return;
 		}
-		
+
 		StringBuilder log = new StringBuilder();
-		log.append(currentState.getTask());
-		
-		String startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS").format(userStart);
+		log.append(fileID);
+		log.append(", " + currentState.getTask());
+
+		String startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS")
+				.format(userStart);
 
 		java.util.Date date = new java.util.Date();
 		Timestamp currentTime = new Timestamp(date.getTime());
@@ -231,35 +268,36 @@ public final class UserLogger {
 		log.append(", " + Integer.toString(currentState.getMinTaskActions()));
 		log.append(", " + Integer.toString(usedActions));
 		log.append(", " + error);
-		log.append(", " + actions.get(actions.size()-1));
+		log.append(", " + actions.get(actions.size() - 1));
 
 		log.append("\n");
 
-		
 		try {
 			Log.i("Userlogger", log.toString());
 			writer.append(log.toString());
-			
-			if(taskFinished) {
+
+			if (taskFinished) {
+				TIME_LIMIT.removeCallbacks(timeOver);
+
 				actions = new ArrayList<String>();
 				currentState = State.IDLE;
 				error = 0;
 				counter = 0;
 				writer.append("\n");
 			}
-			
+
 			if (taskFinished && tasks.size() == 0) {
+				currentState = State.OFF;
 
 				writer.flush();
 				writer.close();
-				currentState = State.OFF;
 			}
 
 		} catch (IOException e) {
 			Log.w("UserLogger", "Error writing/flushing/closing file");
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	/**
@@ -276,7 +314,8 @@ public final class UserLogger {
 	 *            Liste ein Element ausgewählt wird, die Position des Elements
 	 *            in der Liste
 	 */
-	private static boolean logListTask(UserView view, Action action, int position) {
+	private static boolean logListTask(UserView view, Action action,
+			int position) {
 
 		if (view == UserView.PLAYER && action != Action.SWIPE_DOWN) {
 			error++;
@@ -293,12 +332,12 @@ public final class UserLogger {
 
 			} else if (action == Action.SWIPE_UP) {
 
-				if (LIST_POSITION % 5 <= position % 5) {
+				if (LIST_POSITION  <= position ) {
 					error++;
 				}
 			} else if (action == Action.SWIPE_DOWN) {
 
-				if (LIST_POSITION % 5 >= position % 5) {
+				if (LIST_POSITION  >= position) {
 					error++;
 				}
 
@@ -322,10 +361,18 @@ public final class UserLogger {
 	private static boolean logKeyBoardTask(UserView view, Action action,
 			String item, int size) {
 
-		if (view == UserView.PLAYER && action != Action.SWIPE_UP) {
-			error++;
+		if (view == UserView.PLAYER) {
+			counter = 0;
+			
+			if(action != Action.SWIPE_UP) {
+				error++;
+			}
 		} else if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
-			error++;
+			counter = 0;
+			
+			if(action != Action.SWIPE_RIGHT) {
+				error++;
+			}
 		} else if (view == UserView.KEYBOARD) {
 			if (action == Action.CLICK_KEY) {
 				char key = item.charAt(0);
@@ -390,64 +437,108 @@ public final class UserLogger {
 		return false;
 	}
 
-	private static void logSeekbarTask(UserView view, Action action,
-			String item, int percent) {
-		int minPercent;
-		int maxPercent;
+	private static boolean logButtons(UserView view, Action action,
+			String item, int position) {
 
 		if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
 			error++;
 		} else if (view == UserView.KEYBOARD && action != Action.SWIPE_RIGHT) {
 			error++;
+
 		} else if (view == UserView.PLAYER) {
 
-			if (counter == 0 && action == Action.CLICK_STOP) {
-				counter++;
+			if (counter == 0) {
+				if (action == Action.CLICK_SHUFFLE) {
+					counter++;
+				} else {
+					error++;
+				}
+
 			} else if (counter == 1) {
+				if (action == Action.CLICK_LOOPING) {
+					counter++;
+				} else {
+					error++;
+				}
 
+			} else if (counter == 2) {
+				if (action == Action.CLICK_STOP) {
+					counter++;
+				} else {
+					error++;
+				}
+
+			} else if (counter == 3) {
+				if (action == Action.CLICK_PLAY) {
+					return true;
+				} else {
+					error++;
+				}
 			}
 		}
+		return false;
 	}
 
-	static void logPauseBackPlayTask(UserView view, Action action, String item,
-			int position) {
+	private static boolean logSwipeSlide(UserView view, Action action,
+			String item, int percent) {
+
 		if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
 			error++;
 		} else if (view == UserView.KEYBOARD && action != Action.SWIPE_RIGHT) {
 			error++;
-
 		} else if (view == UserView.PLAYER) {
 
-			if (counter == 0 && action == Action.CLICK_PAUSE) {
-				counter++;
-			} else if (counter == 1 && action == Action.SWIPE_RIGHT) {
-				counter++;
+			if (counter < FORWARD_SWIPES) {
+				if (action == Action.SWIPE_LEFT) {
+					counter++;
+				} else {
+					error++;
+				}
+			} else if (counter == FORWARD_SWIPES) {
+				if (action == Action.START_SEEKBAR) {
+					if (percent >= SLIDE_END_MIN && percent <= SLIDE_END_MAX) {
+						counter++;
+					}
+				} else {
+					error++;
+				}
+			} else if (counter == FORWARD_SWIPES + 1) {
+				if (action == Action.STOP_SEEKBAR && percent >= SLIDE_END_MIN
+						&& percent <= SLIDE_END_MAX) {
+					counter++;
+				} else {
+					counter--;
+					error++;
+				}
 
-			} else if (counter == 2 && action == Action.SWIPE_RIGHT) {
-				counter++;
+			} else if (counter == FORWARD_SWIPES + 2 + PREVIOUS_SWIPES) {
 
-			} else if (counter == 3 && action == Action.CLICK_PLAY) {
+				if (action == Action.START_SEEKBAR) {
+					if (percent <= SLIDE_START_MAX) {
+						counter++;
+					}
+				} else {
+					error++;
+				}
 
+			} else if (counter == FORWARD_SWIPES + 3 + PREVIOUS_SWIPES) {
+				if (action == Action.STOP_SEEKBAR && percent >= SLIDE_END_MIN
+						&& percent <= SLIDE_END_MAX) {
+					return true;
+				} else {
+					counter--;
+					error++;
+				}
+
+			} else if (counter > FORWARD_SWIPES + 1) {
+				if (action == Action.SWIPE_RIGHT) {
+					counter++;
+				} else {
+					error++;
+				}
 			}
 		}
-	}
-
-	/**
-	 * Beendet eine Aufgabe
-	 * 
-	 * @param log
-	 *            Der String in einer Datei geloggt wird
-	 */
-	private static void endTask() {
-		//logger.info(log.toString());
-		// fhandler.flush();
-
-		actions = new ArrayList<String>();
-		currentState = State.IDLE;
-		error = 0;
-		counter = 0;
-
-
+		return false;
 	}
 
 	/**
@@ -458,8 +549,63 @@ public final class UserLogger {
 			currentState = tasks.remove(0);
 			userStart();
 
+			TIME_LIMIT.postDelayed(timeOver, 60000);
 		}
 	}
+
+	private static Runnable timeOver = new Runnable() {
+		public void run() {
+			String timeOut = "TIME OUT";
+			
+			StringBuilder log = new StringBuilder();
+			log.append(fileID);
+			log.append(", " + currentState.getTask());
+
+			String startTime = new SimpleDateFormat(
+					"yyyy-MM-dd HH:mm:ss.SSSSSS").format(userStart);
+
+			java.util.Date date = new java.util.Date();
+			Timestamp currentTime = new Timestamp(date.getTime());
+
+			long seconds = currentTime.getTime() - userStart.getTime();
+
+			String duration = Long.toString(seconds);
+
+			int usedActions = actions.size();
+			log.append(", " + startTime);
+			log.append(", " + duration + "ms");
+			log.append(", "
+					+ Integer.toString(currentState.getMinTaskActions()));
+			log.append(", " + Integer.toString(usedActions));
+			log.append(", " + error);
+			
+			log.append(", " + timeOut);
+
+			log.append("\n");
+
+			try {
+				Log.i("Userlogger", log.toString());
+				writer.append(log.toString());
+
+				actions = new ArrayList<String>();
+				currentState = State.IDLE;
+				error = 0;
+				counter = 0;
+				writer.append("\n");
+
+				if (tasks.size() == 0) {
+					currentState = State.OFF;
+
+					writer.flush();
+					writer.close();
+				}
+
+			} catch (IOException e) {
+				Log.w("UserLogger", "Error writing/flushing/closing file");
+				e.printStackTrace();
+			}
+		}
+	};
 
 	/**
 	 * Intitialisert UseLogger
@@ -474,44 +620,31 @@ public final class UserLogger {
 		currentState = State.IDLE;
 		error = 0;
 		counter = 0;
+		fileID = fileName;
 
 		if (Environment.getExternalStorageState().equals(
 				Environment.MEDIA_MOUNTED)
 				|| Environment.getExternalStorageState().equals(
 						Environment.MEDIA_MOUNTED_READ_ONLY)) {
 
-			 String logFileName =
-					  Environment.getExternalStoragePublicDirectory(
-					  Environment.DIRECTORY_MUSIC).getAbsolutePath() + "/zLog/" + fileName + ".cvs";
+			String logFileName = Environment.getExternalStoragePublicDirectory(
+					Environment.DIRECTORY_MUSIC).getAbsolutePath()
+					+ "/zLog/" + fileName + ".cvs";
 			try {
 
 				writer = new FileWriter(logFileName);
+				writer.append("ID, Task, StartTime, Duration, Min. Actions, Used Actions, Errors, CurrentAction" + "\n");
 
 			} catch (IOException e) {
 				Log.w("UserLogger", "Error creating file");
 				e.printStackTrace();
 			}
 		}
-		logger = Logger.getLogger(UserLogger.class.getName()); //
-		/*
-		 * logger.setUseParentHandlers(false);
-		 * 
-		 * try { String logfileName =
-		 * Environment.getExternalStoragePublicDirectory(
-		 * Environment.DIRECTORY_MUSIC).getAbsolutePath() + "/" + fileName +
-		 * ".txt";
-		 * 
-		 * fhandler = new FileHandler(logfileName); SimpleFormatter formatterTxt
-		 * = new SimpleFormatter(); fhandler.setFormatter(formatterTxt);
-		 * 
-		 * logger.addHandler(fhandler);
-		 * 
-		 * logger.info(
-		 * "Task: MinActions, Starttime, Duration, UserActions, Errors, Actions"
-		 * + "\n"); fhandler.flush();
-		 * 
-		 * } catch (SecurityException e) { e.printStackTrace(); } catch
-		 * (IOException e) { e.printStackTrace(); }
-		 */
+
 	}
+
+	public static State getState() {
+		return currentState;
+	}
+
 }

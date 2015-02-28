@@ -44,16 +44,14 @@ public class ClientListener extends Thread {
 			Socket connection;
 			try {
 
-				if (numberOfClients < maxClients) {
+				//if (numberOfClients < maxClients) {
 					connection = serverSocket.accept();
 
 					Client client = new Client(connection, server);
 					server.addClient(client);
 					numberOfClients++;
 					
-				} else {
-					break;
-				}
+				//} else {	break; }
 
 			} catch (IOException e) {
 				System.err.println("Couldn't connect with Socket");
