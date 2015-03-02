@@ -692,6 +692,8 @@ public class MusikKeyboard extends Activity {
 		private void click() {
 			UserLogger.logAction(UserLogger.UserView.KEYBOARD,
 					UserLogger.Action.CLICK_KEY, keyType, keyBoardText.getText().length());
+		
+			view.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 			
 			if(keyBoardText.getText().length() >= 10 && keyType != KeyTouchMessage.KEY_DELETE) {
 				return;

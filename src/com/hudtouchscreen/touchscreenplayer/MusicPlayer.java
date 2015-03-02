@@ -1173,6 +1173,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		private void click() {
 			if (buttonType == TouchMessage.PLAYBUTTON) {
 				synchronized (this) {
+					playImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 					if (isTuning) {
 						isTuning = false;
 						playImage.setImageResource(R.drawable.play);
@@ -1195,6 +1196,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 			} else if (buttonType == TouchMessage.STOPBUTTON) {
 				synchronized (this) {
+					stopImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 					isTuning = false;
 					playImage.setImageResource(R.drawable.play);
 					track.stop();
@@ -1207,6 +1209,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 			} else if (buttonType == TouchMessage.SHUFFLEBUTTON) {
 				synchronized (this) {
+					shuffleImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 					if (shuffle) {
 						shuffle = false;
 						shuffleImage.setImageResource(R.drawable.shuffle);
@@ -1222,7 +1225,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 			} else if (buttonType == TouchMessage.LOOPINGBUTTON) {
 				synchronized (this) {
-
+					loopingImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 					if (looping) {
 						looping = false;
 						loopingImage.setImageResource(R.drawable.looping);
@@ -1238,6 +1241,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 				}
 			} else if (buttonType == TouchMessage.STARTBUTTON) {
+				startImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 				UserLogger.logAction(UserLogger.UserView.PLAYER,
 						UserLogger.Action.CLICK_LOOPING, "", -1);
 				UserLogger.start();

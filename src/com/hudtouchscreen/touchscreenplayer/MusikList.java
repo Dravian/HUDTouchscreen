@@ -516,27 +516,33 @@ public class MusikList extends Activity {
 		}
 
 		private void click() {
+			
 			if (buttonType == TouchMessage.LIST1) {
 				if (list[0] != "") {
+					title1.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 					finishClick(position);
 				}
 
 				
 			} else if (buttonType == TouchMessage.LIST2) {
+				title2.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 					if (list[1] != "") {
 						finishClick(position + 1);
 					}
 			} else if (buttonType == TouchMessage.LIST3) {
+				title3.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 				if (list[2] != "") {
 					finishClick(position + 2);
 				}
 		
 			} else if (buttonType == TouchMessage.LIST4) {
+				title4.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 				if (list[3] != "") {
 					finishClick(position + 3);
 				}
 		
 			} else if (buttonType == TouchMessage.LIST5) {
+				title5.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 				if (list[4] != "") {
 					finishClick(position + 4);
 				}
