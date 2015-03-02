@@ -2,22 +2,20 @@ package com.hudtouchscreen.touchscreenplayer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import com.hudtouchscreen.hudmessage.HudMessage;
-import com.hudtouchscreen.hudmessage.LoopingMessage;
-import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.TextMessage;
 
 public class Client {
 	Socket connection;
 	ObjectOutputStream comOut;
 	InputStream comIn;
+	ServerService server;
 
-	public Client(Socket connection) {
+	public Client(Socket connection, ServerService server) {
 		this.connection = connection;
+		this.server = server;
 
 		try {
 			connection.setSoTimeout(0);
@@ -53,6 +51,7 @@ public class Client {
 			comOut.writeObject(message);
 			comOut.flush();
 		} catch (IOException e) {
+			closeConnection();
 			e.printStackTrace();
 		}
 	}
@@ -62,6 +61,7 @@ public class Client {
 			comOut.close();
 			comIn.close();
 			connection.close();
+			server.removeClient(this);
 		} catch (IOException e) {
 			System.out.println("Fehler beim schließen des Netzwerkes");
 			e.printStackTrace();

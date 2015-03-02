@@ -4,20 +4,27 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
+import com.hudtouchscreen.hudmessage.ConnectionMessage;
+import com.hudtouchscreen.hudmessage.KeyBoardMessage;
+import com.hudtouchscreen.hudmessage.KeyTouchMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
+import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.TextMessage;
+import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.hudmessage.TouchMessage;
 import com.hudtouchscreen.touchscreenplayer.ServerService;
 
 public class PlayerListener extends Thread {
@@ -33,17 +40,16 @@ public class PlayerListener extends Thread {
 
 	private OutputStream out;
 
-	/**
-	 * Signalisiert ob ein TCP Socket aktiv ist.
-	 */
-	private boolean socketSet;
-	
+	private boolean run;
+
 	private ClientService clientService;
 
-	public PlayerListener(ClientService clientService,ObjectInputStream in, OutputStream out) {
-		this.in = in;
-		this.out = out;
+	private String serverIp;
+
+	public PlayerListener(ClientService clientService, String serverIp) {
 		this.clientService = clientService;
+		this.serverIp = serverIp;
+		run = false;
 	}
 
 	/**
@@ -56,72 +62,135 @@ public class PlayerListener extends Thread {
 	 *             Wird geworfen beim fehlerbehafteten Erstellen der
 	 *             ObjectStreams.
 	 */
-	public void startConnection() {
-		final String SERVER_IP = "10.0.2.2";
-		final int PORT = 7000;
-		
+	protected void startConnection() {
+		// final String SERVER_IP = "10.0.2.2";
+		final int PORT = 7007;
+
 		try {
-			InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
-			connection = new Socket(SERVER_IP, PORT);
+			connection = new Socket(serverIp, PORT);
 			connection.setSoTimeout(0);
 
 			in = new ObjectInputStream(connection.getInputStream());
 			out = connection.getOutputStream();
 			out.flush();
-			socketSet = true;
-
+			run = true;
+			send(true);
+		} catch (UnknownHostException e) {
+			Log.i("PlayerListener", "UnknownHostException");
+			send(false);
+			e.printStackTrace();
+		} catch (ConnectException e) {
+			send(false);
+			e.printStackTrace();
 		} catch (IOException e) {
+			send(false);
 			e.printStackTrace();
 		}
 	}
 
+	private void send(boolean success) {
+		Message message;
+		message = Message.obtain(null, ClientService.MSG_CONNECTION, 0, 0);
+
+		if (success) {
+			Log.i("PlayerListener", "success");
+			ConnectionMessage connection = new ConnectionMessage(true);
+			message.getData().putParcelable("Connection", connection);
+		} else {
+			Log.i("PlayerListener", "nosuccess");
+			ConnectionMessage connection = new ConnectionMessage(false);
+			message.getData().putParcelable("Connection", connection);
+		}
+
+		clientService.send(message);
+	}
+
 	@Override
 	public void run() {
-		boolean waiting = true;
+		startConnection();
 
 		try {
 
-			while (waiting) {
+			while (run) {
 				Object hudMessage;
 
 				hudMessage = in.readObject();
 				Message message = null;
-				
+
 				boolean trueMessage = false;
 
-				if (hudMessage instanceof TextMessage) {
-					
-					message = Message.obtain(null, ClientService.MSG_TEXT, 0, 0);				
-					message.getData().putParcelable("Text", (TextMessage)hudMessage);
+				if (hudMessage instanceof SongtitleMessage) {
+
+					message = Message.obtain(null, ClientService.MSG_SONGTITLE,
+							0, 0);
+					message.getData().putParcelable("Songtitle",
+							(SongtitleMessage) hudMessage);
 					trueMessage = true;
 
-				} else if (hudMessage instanceof ShuffleMessage) {			
-					message = Message.obtain(null, ClientService.MSG_SHUFFLE, 0, 0);
-					message.getData().putParcelable("Shuffle", (ShuffleMessage)hudMessage);
+				} else if (hudMessage instanceof ShuffleMessage) {
+					message = Message.obtain(null, ClientService.MSG_SHUFFLE,
+							0, 0);
+					message.getData().putParcelable("Shuffle",
+							(ShuffleMessage) hudMessage);
 					trueMessage = true;
 
 				} else if (hudMessage instanceof LoopingMessage) {
-					message = Message.obtain(null, ClientService.MSG_LOOPING, 0, 0);
-					message.getData().putParcelable("Looping", (LoopingMessage)hudMessage);
+					message = Message.obtain(null, ClientService.MSG_LOOPING,
+							0, 0);
+					message.getData().putParcelable("Looping",
+							(LoopingMessage) hudMessage);
 					trueMessage = true;
 
 				} else if (hudMessage instanceof TimeMessage) {
-					message = Message.obtain(null, ClientService.MSG_TIME, 0, 0);
-					message.getData().putParcelable("Time", (TimeMessage)hudMessage);
+					message = Message
+							.obtain(null, ClientService.MSG_TIME, 0, 0);
+					message.getData().putParcelable("Time",
+							(TimeMessage) hudMessage);
 					trueMessage = true;
 
 				} else if (hudMessage instanceof ActivityMessage) {
-					message = Message.obtain(null, ClientService.MSG_ACTIVITY, 0, 0);
-					message.getData().putParcelable("Activity", (ActivityMessage)hudMessage);
+					message = Message.obtain(null, ClientService.MSG_ACTIVITY,
+							0, 0);
+					message.getData().putParcelable("Activity",
+							(ActivityMessage) hudMessage);
 					trueMessage = true;
-				
+
 				} else if (hudMessage instanceof ListMessage) {
-					message = Message.obtain(null, ClientService.MSG_LIST, 0, 0);
-					message.getData().putParcelable("List", (ListMessage)hudMessage);
+					message = Message
+							.obtain(null, ClientService.MSG_LIST, 0, 0);
+					message.getData().putParcelable("List",
+							(ListMessage) hudMessage);
+					trueMessage = true;
+
+				} else if (hudMessage instanceof TouchMessage) {
+					message = Message.obtain(null, ClientService.MSG_TOUCH, 0,
+							0);
+					message.getData().putParcelable("Touch",
+							(TouchMessage) hudMessage);
+					trueMessage = true;
+
+				} else if (hudMessage instanceof KeyTouchMessage) {
+					message = Message.obtain(null, ClientService.MSG_KEYTOUCH,
+							0, 0);
+					message.getData().putParcelable("KeyTouch",
+							(KeyTouchMessage) hudMessage);
+					trueMessage = true;
+
+				} else if (hudMessage instanceof KeyBoardMessage) {
+					message = Message.obtain(null, ClientService.MSG_KEYBOARD,
+							0, 0);
+					message.getData().putParcelable("Keyboard",
+							(KeyBoardMessage) hudMessage);
+					trueMessage = true;
+
+				} else if (hudMessage instanceof LogMessage) {
+					message = Message.obtain(null, ClientService.MSG_LOG, 0, 0);
+					message.getData().putParcelable("Log",
+							(LogMessage) hudMessage);
 					trueMessage = true;
 				}
-				
-				if(trueMessage) {
+
+				if (trueMessage) {
 					clientService.send(message);
 				}
 			}
@@ -152,8 +221,9 @@ public class PlayerListener extends Thread {
 	 * freigibt.
 	 */
 	private void closeConnection() {
-		if (socketSet) {
-			socketSet = false;
+		if (run) {
+			run = false;
+
 			try {
 				out.close();
 				in.close();
@@ -163,7 +233,7 @@ public class PlayerListener extends Thread {
 				e.printStackTrace();
 			}
 		}
+
 	}
-	
 
 }

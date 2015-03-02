@@ -5,27 +5,34 @@ import java.util.Set;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.HudMessage;
+import com.hudtouchscreen.hudmessage.KeyBoardMessage;
+import com.hudtouchscreen.hudmessage.KeyTouchMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
+import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.TextMessage;
+import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
+import com.hudtouchscreen.hudmessage.TouchMessage;
 
 import Service.AbstractService;
 import android.os.Bundle;
 import android.os.Message;
-import android.util.Log;
 
 public class ServerService extends AbstractService {
 
 	public static final int MSG_NEWCLIENT = 1;
-	public static final int MSG_TEXT = 2;
+	public static final int MSG_SONGTITLE = 2;
 	public static final int MSG_SHUFFLE = 3;
 	public static final int MSG_LOOPING = 4;
 	public static final int MSG_TIME = 5;
 	public static final int MSG_ACTIVITY = 6;
 	public static final int MSG_LIST= 7;
 	public static final int MSG_KEYBOARD = 8;
+	public static final int MSG_TOUCH = 9;
+	public static final int MSG_KEYTOUCH = 10;
+	public static final int MSG_SEEKBAR= 11;
+	public static final int MSG_LOG = 12;
 	
 	private ClientListener clientListener;
 	private Set<Client> clients;
@@ -47,8 +54,6 @@ public class ServerService extends AbstractService {
 
 	@Override
 	public void onStopService() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -57,9 +62,9 @@ public class ServerService extends AbstractService {
 		bundle.setClassLoader(getClassLoader());
 		
 		switch (msg.what) {
-		case MSG_TEXT:
-			TextMessage songTitle = (TextMessage)bundle.getParcelable("Text");
-			broadcast(songTitle);
+		case MSG_SONGTITLE:
+			SongtitleMessage text = (SongtitleMessage)bundle.getParcelable("Songtitle");
+			broadcast(text);
 			break;
 		case MSG_SHUFFLE:
 			ShuffleMessage shuffle = (ShuffleMessage)bundle.getParcelable("Shuffle");
@@ -83,6 +88,22 @@ public class ServerService extends AbstractService {
 			ListMessage list = (ListMessage)bundle.getParcelable("List");
 			broadcast(list);
 			break;
+		case MSG_TOUCH:
+			TouchMessage touch = (TouchMessage)bundle.getParcelable("Touch");
+			broadcast(touch);
+			break;
+		case MSG_KEYTOUCH:
+			KeyTouchMessage keyTouch = (KeyTouchMessage)bundle.getParcelable("KeyTouch");
+			broadcast(keyTouch); 
+			break;
+		case MSG_KEYBOARD:
+			KeyBoardMessage key = (KeyBoardMessage) bundle.getParcelable("Keyboard");
+			broadcast(key);
+			break;
+		case MSG_LOG:
+			LogMessage log = (LogMessage) bundle.getParcelable("Log");
+			broadcast(log);
+			break;
 		default:
 		}
 		
@@ -103,4 +124,8 @@ public class ServerService extends AbstractService {
 		}
 	}
 
+	protected synchronized void removeClient(Client client) {
+			clients.remove(client);
+			clientListener.clientLeft();
+	}
 }

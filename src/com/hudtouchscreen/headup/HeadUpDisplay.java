@@ -1,28 +1,24 @@
 package com.hudtouchscreen.headup;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
+import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
-import com.hudtouchscreen.hudmessage.TextMessage;
+import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
-import com.hudtouchscreen.touchscreenplayer.MusikList;
-import com.hudtouchscreen.touchscreenplayer.ServerService;
+import com.hudtouchscreen.hudmessage.TouchMessage;
 import com.touchscreen.touchscreenplayer.R;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import Service.ServiceManager;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -30,43 +26,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.RemoteException;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 public class HeadUpDisplay extends Activity {
 
-	/**
-	 * Der TCP Socket.
-	 */
-	private Socket connection;
-
-	/**
-	 * Referenz auf den Ausgabestrom.
-	 */
-	private ObjectInputStream in;
-
-	private OutputStream out;
-
-	/**
-	 * Signalisiert ob ein TCP Socket aktiv ist.
-	 */
-	private boolean socketSet;
-
-	private final String SERVER_IP = "10.0.2.2";
-
-	private final int PORT = 7000;
-
 	public TextView startTimeField, endTimeField;
 	private double startTime = 0;
-	private double finalTime = 0;
-	private Handler myHandler = new Handler();;
+	private double endTime = 0;
 	private SeekBar seekbar;
 	
 	private ServiceManager service;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -87,8 +57,8 @@ public class HeadUpDisplay extends Activity {
 						bundle.setClassLoader(getClassLoader());
 						
 						switch (msg.what) {
-						case ClientService.MSG_TEXT:
-							TextMessage songTitleMessage = (TextMessage)bundle.getParcelable("Text");
+						case ClientService.MSG_SONGTITLE:
+							SongtitleMessage songTitleMessage = (SongtitleMessage)bundle.getParcelable("Songtitle");
 							final TextView songTitle = (TextView) findViewById(R.id.hud_title);
 							final String songTitleText = (songTitleMessage)
 									.getText();
@@ -143,25 +113,85 @@ public class HeadUpDisplay extends Activity {
 							TimeMessage timeMessage = (TimeMessage)bundle.getParcelable("Time");
 							final double start = timeMessage.getStartTime();
 							final double end = timeMessage.getEndTime();
+							final int progress = timeMessage.getProgress();
 							
 							runOnUiThread(new Runnable() {
 
 								@Override
 								public void run() {
-									updateTime(start, end);
+									updateTime(start, end, progress);
 								}
 							});
 							break;
+						case ClientService.MSG_TOUCH:
+							TouchMessage touchMessage = (TouchMessage)bundle.getParcelable("Touch");
+							final int buttonType = touchMessage.getButtonType();
+							final boolean touching = touchMessage.isTouching();
+							final ImageView imgTouch = (ImageView) findViewById(R.id.showTouch);
+							
+							runOnUiThread(new Runnable() {
+
+								@Override
+								public void run() {
+									
+									if(!touching) {
+										imgTouch.setVisibility(View.INVISIBLE);
+									} else {
+										switch(buttonType){
+										case TouchMessage.PLAYBUTTON:
+											imgTouch.setImageResource(R.drawable.play);
+											break;
+										case TouchMessage.PAUSEBUTTON:
+											imgTouch.setImageResource(R.drawable.pause);
+											break;	
+										case TouchMessage.STOPBUTTON:
+											imgTouch.setImageResource(R.drawable.stop);
+											break;	
+										case TouchMessage.SHUFFLEBUTTON:
+											imgTouch.setImageResource(R.drawable.shuffle);
+											break;
+										case TouchMessage.LOOPINGBUTTON:
+											imgTouch.setImageResource(R.drawable.looping);
+											break;
+										case TouchMessage.STARTBUTTON:
+											imgTouch.setImageResource(R.drawable.startoff);
+											break;
+										default:
+											return;
+										}
+										
+										imgTouch.setVisibility(View.VISIBLE);
+									}
+									
+								}
+							});
+							break;					
 						case ClientService.MSG_ACTIVITY:
 							ActivityMessage activityMessage = (ActivityMessage)bundle.getParcelable("Activity");
 							
 							if(activityMessage.getActivity() == ActivityMessage.SWITCH_TO_LIST) {
-								switchToList();
+								
+								ArrayList<String> titleList = new ArrayList<String>();
+								activityMessage.fillEmptyList(titleList);
+								
+								switchToList(titleList);
 							
 							} else if(activityMessage.getActivity() == ActivityMessage.SWITCH_TO_KEYBOARD) {
 								switchToKeyboard();
 								
 							}
+							break;
+						case ClientService.MSG_LOG:
+							LogMessage logMessage = (LogMessage)bundle.getParcelable("Log");
+							ImageView startImage = (ImageView)findViewById(R.id.start);
+							
+							if(logMessage.getLogStatus()) {
+								startImage.setImageResource(R.drawable.starttask);
+							} else {
+								startImage.setImageResource(R.drawable.startoff);
+							}
+							
+							break;
 						default:
 							super.handleMessage(msg);
 						}
@@ -174,30 +204,47 @@ public class HeadUpDisplay extends Activity {
 	}
 
 	@SuppressLint("NewApi")
-	private void updateTime(double startT, double finalT) {
-		finalTime = finalT;
+	private void updateTime(double startT, double endT, int progress) {
+		endTime = endT;
 		startTime = startT;
 
-		seekbar.setMax((int) finalTime);
+		seekbar.setMax((int) endTime);
 
-		endTimeField.setText(String.format(
-				"%dmin %dsec",
-				TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-				TimeUnit.MILLISECONDS.toSeconds((long) finalTime)
-						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-								.toMinutes((long) finalTime))));
-		startTimeField.setText(String.format(
-				"%dmin %dsec",
-				TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-				TimeUnit.MILLISECONDS.toSeconds((long) startTime)
-						- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-								.toMinutes((long) startTime))));
-		seekbar.setProgress((int) startTime);
+		long endMinutes = TimeUnit.MILLISECONDS.toMinutes((long) endTime);
+		long endSeconds = TimeUnit.MILLISECONDS.toSeconds((long) endTime)
+				- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
+						.toMinutes((long) endTime));
+		
+		if(endSeconds < 10) {
+			endTimeField.setText(String.format(
+					" %d:0%d",
+					endMinutes,endSeconds));
+		} else{
+			endTimeField.setText(String.format(
+					" %d:%d",
+					endMinutes,endSeconds));
+		}
+		
+		long startMinutes = TimeUnit.MILLISECONDS.toMinutes((long) startTime);
+		long startSeconds = TimeUnit.MILLISECONDS.toSeconds((long) startTime)
+				- TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
+						.toMinutes((long) startTime));
+		
+		if(startSeconds < 10) {
+			startTimeField.setText(String.format(
+					"%d:0%d",startMinutes,startSeconds));
+		} else {
+			startTimeField.setText(String.format(
+					"%d:%d",startMinutes,startSeconds));
+		}
+		
+		seekbar.setProgress(progress);
 	}
 
-	private void switchToList() {
+	private void switchToList(ArrayList<String> titleList) {
 		Intent i = new Intent(getApplicationContext(), HeadUpList.class);
-		startActivityForResult(i, 100);	
+		i.putStringArrayListExtra("Track Names", titleList);
+		startActivityForResult(i,100);	
 	}
 	
 	private void switchToKeyboard() {
@@ -209,29 +256,21 @@ public class HeadUpDisplay extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 	}
+	 
 	
-	/**
-	 * Hilfsmethode die eine bestehende Verbindung abbaut und deren Ressourcen
-	 * freigibt.
-	 */
-	public void closeConnection() {
-		if (socketSet) {
-			socketSet = false;
-			try {
-				out.close();
-				in.close();
-				connection.close();
-			} catch (IOException e) {
-				System.out.println("Fehler beim schließen des Netzwerkes");
-				e.printStackTrace();
-			}
-		}
-	}
 
 	@Override
 	public void onStop() {
-		closeConnection();
 		super.onStop();
+	}
+	
+	@Override
+	  protected void onDestroy() {
+	    super.onDestroy();
+	    
+	    try { service.unbind(); }
+	    catch (Throwable t) { }
+
 	}
 
 }
