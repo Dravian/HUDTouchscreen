@@ -16,14 +16,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
+import android.util.Log;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 
 public class MusikList extends Activity {
 	private List<String> listValues;
@@ -46,12 +47,13 @@ public class MusikList extends Activity {
 		setContentView(R.layout.list_search);
 		position = 0;
 		list = new String[5];
-		
+
 		Intent intent = getIntent();
 		listValues = intent.getStringArrayListExtra("Track Names");
 
 		gDetector = new GestureDetector(this, new GestureListener());
 		touchListener = new TouchListener();
+		
 
 		this.service = new ServiceManager(this, ServerService.class,
 				new Handler() {
@@ -63,7 +65,7 @@ public class MusikList extends Activity {
 
 						switch (msg.what) {
 						case ServerService.MSG_NEWCLIENT:
-							
+
 							sendToService(ServerService.MSG_NEWCLIENT);
 							sendToService(ServerService.MSG_LIST);
 						default:
@@ -71,9 +73,8 @@ public class MusikList extends Activity {
 
 						}
 					}
-				});	
-	
-		
+				});
+
 		service.start();
 
 		title1 = (TextView) findViewById(R.id.title1);
@@ -81,17 +82,17 @@ public class MusikList extends Activity {
 		title3 = (TextView) findViewById(R.id.title3);
 		title4 = (TextView) findViewById(R.id.title4);
 		title5 = (TextView) findViewById(R.id.title5);
-		
+
 		fillList();
-		
-		if(UserLogger.getState() == UserLogger.State.OFF) {
+
+		if (UserLogger.getState() == UserLogger.State.OFF) {
 			logging = false;
-		} else if(UserLogger.getState() == UserLogger.State.IDLE) {
+		} else if (UserLogger.getState() == UserLogger.State.IDLE) {
 			logging = false;
-			CHECK_STATE.postDelayed(stateStatus,100);
+			CHECK_STATE.postDelayed(stateStatus, 100);
 		} else {
 			logging = true;
-			CHECK_STATE.postDelayed(stateStatus,100);
+			CHECK_STATE.postDelayed(stateStatus, 100);
 		}
 	}
 
@@ -117,26 +118,27 @@ public class MusikList extends Activity {
 			}
 
 		}
-		
+
 		sendToService(ServerService.MSG_LIST);
 	}
-	
+
 	private Runnable stateStatus = new Runnable() {
 		public void run() {
 			UserLogger.State taskState = UserLogger.getState();
-			
+
 			switch (taskState) {
 			case OFF:
-				if(logging) {
+				if (logging) {
 					onSwipeRight();
 					logging = false;
 				}
 				return;
 			case IDLE:
-				if(logging) {
+				if (logging) {
 					onSwipeRight();
 					logging = false;
-				};
+				}
+				;
 				return;
 			default:
 				logging = true;
@@ -149,9 +151,11 @@ public class MusikList extends Activity {
 
 	public void finishClick(int position) {
 		if (listValues.size() > 0) {
-			
-			UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.CLICK_ITEM, listValues.get(position), position);
-			
+
+			UserLogger.logAction(UserLogger.UserView.LIST,
+					UserLogger.Action.CLICK_ITEM, listValues.get(position),
+					position);
+
 			Intent i = new Intent();
 
 			i.putExtra("Song", position);
@@ -172,16 +176,16 @@ public class MusikList extends Activity {
 			message = Message.obtain(null, ServerService.MSG_LIST, 0, 0);
 
 			ArrayList<String> titleList = new ArrayList<String>();
-			
+
 			titleList.add(list[0]);
 			titleList.add(list[1]);
 			titleList.add(list[2]);
 			titleList.add(list[3]);
 			titleList.add(list[4]);
-			
+
 			ListMessage listMessage = new ListMessage(titleList);
 			message.getData().putParcelable("List", listMessage);
-			
+
 			break;
 		case ServerService.MSG_ACTIVITY:
 			message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);
@@ -192,14 +196,14 @@ public class MusikList extends Activity {
 			break;
 		case ServerService.MSG_NEWCLIENT:
 			message = Message.obtain(null, ServerService.MSG_ACTIVITY, 0, 0);
-			
+
 			ArrayList<String> titles = new ArrayList<String>();
 			titles.add(list[0]);
 			titles.add(list[1]);
 			titles.add(list[2]);
 			titles.add(list[3]);
 			titles.add(list[4]);
-			
+
 			ActivityMessage newClientMessage = new ActivityMessage(
 					ActivityMessage.SWITCH_TO_LIST, titles);
 			message.getData().putParcelable("Activity", newClientMessage);
@@ -217,57 +221,92 @@ public class MusikList extends Activity {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent me) {
-		
+
 		return touchListener.onTouch(me);
 	}
-	
-	
-	
+
 	@Override
-	  protected void onDestroy() {
-	    super.onDestroy();
-	    
-	    try { service.unbind(); }
-	    catch (Throwable t) { }
+	protected void onStop() {
+		sendToService(ServerService.MSG_ACTIVITY);
+		super.onStop();
+	}
+
+	@Override
+	protected void onDestroy() {
+		sendToService(ServerService.MSG_ACTIVITY);
+		super.onDestroy();
+
+		try {
+			service.unbind();
+		} catch (Throwable t) {
+		}
 
 	}
-	
+
 	private void onSwipeLeft() {
-		UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_LEFT, "", -1);
-	
+		UserLogger.logAction(UserLogger.UserView.LIST,
+				UserLogger.Action.SWIPE_LEFT, "", -1);
+
 	}
 
 	private void onSwipeRight() {
-		UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_RIGHT, "", -1);
-		
+		UserLogger.logAction(UserLogger.UserView.LIST,
+				UserLogger.Action.SWIPE_RIGHT, "", -1);
+
 		sendToService(ServerService.MSG_ACTIVITY);
 		service.unbind();
 		Intent i = new Intent();
 		setResult(1, i);
 		finish();
-	
+
 	}
 
 	private void onSwipeDown() {
-		UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_DOWN, "", position);
-		
+		UserLogger.logAction(UserLogger.UserView.LIST,
+				UserLogger.Action.SWIPE_DOWN, "", position);
+
 		if (position >= 5) {
 			position = position - 5;
-	
+
 			fillList();
-			
+
 		}
-		
+
 	}
 
 	private void onSwipeUp() {
-		UserLogger.logAction(UserLogger.UserView.LIST, UserLogger.Action.SWIPE_UP, "", position);
-		
-		if (position < 5 && position >= 0 && listValues.size() > 5) {
+		UserLogger.logAction(UserLogger.UserView.LIST,
+				UserLogger.Action.SWIPE_UP, "", position);
+
+		if (listValues.size() >= 5 + position) {
 			position = position + 5;
-	
+
 			fillList();
 		}
+	}
+	
+	boolean longPress = false;
+
+	@Override
+	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+		longPress = true;
+		return super.onKeyLongPress(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+
+		if (longPress) {
+			longPress = false;
+			return super.onKeyUp(keyCode, event);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		event.startTracking();
+		return true;
 	}
 
 	protected class TouchListener {
@@ -279,9 +318,9 @@ public class MusikList extends Activity {
 		private Rect rect3;
 		private Rect rect4;
 		private Rect rect5;
-		
+		private boolean ignoreFling = false;
 		private int buttonType = -1;
-		
+
 		LinearLayout layout = (LinearLayout) findViewById(R.id.listview);
 		ViewTreeObserver vto = layout.getViewTreeObserver();
 
@@ -307,60 +346,59 @@ public class MusikList extends Activity {
 		}
 
 		private void drawRect() {
-			
+
 			int[] coord1 = new int[2];
 			title1.getLocationOnScreen(coord1);
 			int coord1X = coord1[0];
 			int coord1Y = coord1[1];
-			
-			int[]coord2 = new int[2];
+
+			int[] coord2 = new int[2];
 			title2.getLocationOnScreen(coord2);
 			int coord2X = coord2[0];
 			int coord2Y = coord2[1];
-			
+
 			int[] coord3 = new int[2];
 			title3.getLocationOnScreen(coord3);
 			int coord3X = coord3[0];
 			int coord3Y = coord3[1];
-			
+
 			int[] coord4 = new int[2];
 			title4.getLocationOnScreen(coord4);
 			int coord4X = coord4[0];
 			int coord4Y = coord4[1];
-			
+
 			int[] coord5 = new int[2];
 			title5.getLocationOnScreen(coord5);
 			int coord5X = coord5[0];
 			int coord5Y = coord5[1];
-			
-			
-			rect1 = new Rect(coord1X, coord1Y,
-					coord1X + title1.getWidth(), coord1Y + title1.getHeight());
 
-			rect2 = new Rect(coord2X, coord2Y,
-					coord2X + title1.getWidth(), coord2Y + title2.getHeight());
+			rect1 = new Rect(coord1X, coord1Y, coord1X + title1.getWidth(),
+					coord1Y + title1.getHeight());
 
-			rect3 = new Rect(coord3X, coord3Y , 
-					coord3X + title3.getWidth(), coord3Y + title4.getHeight());
-					
-			rect4 = new Rect(coord4X, coord4Y,
-					coord4X + title4.getWidth(), coord4Y + title4.getHeight());
+			rect2 = new Rect(coord2X, coord2Y, coord2X + title1.getWidth(),
+					coord2Y + title2.getHeight());
 
-			rect5 = new Rect(coord5X, coord5Y, 
-					coord5X + title5.getWidth(), coord5Y + title5.getHeight());
+			rect3 = new Rect(coord3X, coord3Y, coord3X + title3.getWidth(),
+					coord3Y + title4.getHeight());
 
-			
+			rect4 = new Rect(coord4X, coord4Y, coord4X + title4.getWidth(),
+					coord4Y + title4.getHeight());
+
+			rect5 = new Rect(coord5X, coord5Y, coord5X + title5.getWidth(),
+					coord5Y + title5.getHeight());
+
 		}
 
 		Runnable mLongPressed = new Runnable() {
 			public void run() {
+				ignoreFling = true;
 				buttonOnTouch(true);
 			}
 		};
 
-		public synchronized boolean onTouch(MotionEvent event) {
-			
-			if (gDetector.onTouchEvent(event)) {
+		public boolean onTouch(MotionEvent event) {
+
+			if (!ignoreFling && gDetector.onTouchEvent(event)) {
 				handler.removeCallbacks(mLongPressed);
 				buttonOnTouch(false);
 				return false;
@@ -369,12 +407,11 @@ public class MusikList extends Activity {
 
 				switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
-					
+
 					mDownX = event.getX();
 					mDownY = event.getY();
 
-					if (rect1.contains((int) event.getX(),
-							(int) event.getY())) {
+					if (rect1.contains((int) event.getX(), (int) event.getY())) {
 						buttonType = TouchMessage.LIST1;
 
 					} else if (rect2.contains((int) event.getX(),
@@ -396,15 +433,14 @@ public class MusikList extends Activity {
 					} else {
 						buttonType = -1;
 					}
-					handler.postDelayed(mLongPressed, 100);
+					handler.postDelayed(mLongPressed, 150);
 					return true;
 
 				case MotionEvent.ACTION_UP:
 					handler.removeCallbacks(mLongPressed);
 					buttonOnTouch(false);
 
-					if (rect1.contains((int) event.getX(),
-							(int) event.getY())) {
+					if (rect1.contains((int) event.getX(), (int) event.getY())) {
 						buttonType = TouchMessage.LIST1;
 						click();
 
@@ -428,7 +464,8 @@ public class MusikList extends Activity {
 						buttonType = TouchMessage.LIST5;
 						click();
 					}
-
+					
+					ignoreFling = false;
 					buttonType = -1;
 					return false;
 
@@ -437,6 +474,7 @@ public class MusikList extends Activity {
 
 					buttonOnTouch(false);
 					buttonType = -1;
+					ignoreFling = false;
 					return false;
 
 				case MotionEvent.ACTION_MOVE:
@@ -445,13 +483,13 @@ public class MusikList extends Activity {
 					if ((Math.abs(mDownX - event.getX()) > SCROLL_THRESHOLD || Math
 							.abs(mDownY - event.getY()) > SCROLL_THRESHOLD)) {
 
-						 if (rect1.contains((int) event.getX(),
+						if (rect1.contains((int) event.getX(),
 								(int) event.getY())) {
 
 							if (buttonType != TouchMessage.LIST1) {
 								handler.removeCallbacks(mLongPressed);
 								buttonOnTouch(false);
-								handler.postDelayed(mLongPressed, 100);
+								handler.postDelayed(mLongPressed, 150);
 							}
 							buttonType = TouchMessage.LIST1;
 
@@ -516,31 +554,30 @@ public class MusikList extends Activity {
 		}
 
 		private void click() {
-			
+
 			if (buttonType == TouchMessage.LIST1) {
 				if (list[0] != "") {
 					title1.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 					finishClick(position);
 				}
 
-				
 			} else if (buttonType == TouchMessage.LIST2) {
 				title2.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-					if (list[1] != "") {
-						finishClick(position + 1);
-					}
+				if (list[1] != "") {
+					finishClick(position + 1);
+				}
 			} else if (buttonType == TouchMessage.LIST3) {
 				title3.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 				if (list[2] != "") {
 					finishClick(position + 2);
 				}
-		
+
 			} else if (buttonType == TouchMessage.LIST4) {
 				title4.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 				if (list[3] != "") {
 					finishClick(position + 3);
 				}
-		
+
 			} else if (buttonType == TouchMessage.LIST5) {
 				title5.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 				if (list[4] != "") {
@@ -583,7 +620,7 @@ public class MusikList extends Activity {
 					0);
 
 			TouchMessage touchMessage = new TouchMessage(buttonType, touching);
-			
+
 			message.getData().putParcelable("Touch", touchMessage);
 
 			try {
@@ -595,7 +632,6 @@ public class MusikList extends Activity {
 
 	}
 
-	
 	public class GestureListener implements OnGestureListener {
 
 		@Override

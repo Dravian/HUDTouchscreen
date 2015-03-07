@@ -16,11 +16,12 @@ import android.util.Log;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.ConnectionMessage;
-import com.hudtouchscreen.hudmessage.KeyBoardMessage;
+import com.hudtouchscreen.hudmessage.KeyboardMessage;
 import com.hudtouchscreen.hudmessage.KeyTouchMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
 import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
+import com.hudtouchscreen.hudmessage.SeekbarLogMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
@@ -176,11 +177,11 @@ public class PlayerListener extends Thread {
 							(KeyTouchMessage) hudMessage);
 					trueMessage = true;
 
-				} else if (hudMessage instanceof KeyBoardMessage) {
+				} else if (hudMessage instanceof KeyboardMessage) {
 					message = Message.obtain(null, ClientService.MSG_KEYBOARD,
 							0, 0);
 					message.getData().putParcelable("Keyboard",
-							(KeyBoardMessage) hudMessage);
+							(KeyboardMessage) hudMessage);
 					trueMessage = true;
 
 				} else if (hudMessage instanceof LogMessage) {
@@ -188,7 +189,12 @@ public class PlayerListener extends Thread {
 					message.getData().putParcelable("Log",
 							(LogMessage) hudMessage);
 					trueMessage = true;
-				}
+				} else if (hudMessage instanceof SeekbarLogMessage) {
+					message = Message.obtain(null, ClientService.MSG_SEEKBARLOG, 0, 0);
+					message.getData().putParcelable("Seekbar Log",
+							(SeekbarLogMessage) hudMessage);
+					trueMessage = true;
+				} 
 
 				if (trueMessage) {
 					clientService.send(message);

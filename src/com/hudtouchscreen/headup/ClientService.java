@@ -23,6 +23,7 @@ public class ClientService extends AbstractService {
 	public static final int MSG_IP = 11;
 	public static final int MSG_CONNECTION = 12;
 	public static final int MSG_LOG = 13;
+	public static final int MSG_SEEKBARLOG = 14;
 
 	private PlayerListener playerListener;
 
@@ -35,14 +36,12 @@ public class ClientService extends AbstractService {
 	public void init(String serverIp) {
 
 		playerListener = new PlayerListener(this, serverIp);
-		//playerListener.startConnection(serverIp);
 		Thread playerListenerThread = new Thread(playerListener);
 		playerListenerThread.start();
 	}
 
 	@Override
 	public void onStopService() {
-		// TODO Auto-generated method stub
 
 	}
 

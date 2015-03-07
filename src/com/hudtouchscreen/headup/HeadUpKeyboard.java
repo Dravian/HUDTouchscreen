@@ -1,7 +1,7 @@
 package com.hudtouchscreen.headup;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
-import com.hudtouchscreen.hudmessage.KeyBoardMessage;
+import com.hudtouchscreen.hudmessage.KeyboardMessage;
 import com.hudtouchscreen.hudmessage.KeyTouchMessage;
 import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TouchMessage;
@@ -66,7 +66,7 @@ public class HeadUpKeyboard extends Activity {
 
 						switch (msg.what) {
 						case ClientService.MSG_KEYBOARD:
-							KeyBoardMessage letterMessage = (KeyBoardMessage) bundle
+							KeyboardMessage letterMessage = (KeyboardMessage) bundle
 									.getParcelable("Keyboard");
 
 							if (letterMessage.getText() != null) {

@@ -35,8 +35,8 @@ import android.util.Log;
  */
 public final class UserLogger {
 
-	private static Timestamp userStart;
-
+	private static long startDate;
+	private static SimpleDateFormat dateFormat;
 	private static List<String> actions;
 	private static List<UserLogger.State> tasks;
 	private static State currentState = State.OFF;
@@ -46,18 +46,17 @@ public final class UserLogger {
 	private static String fileID;
 	private final static Handler TIME_LIMIT = new Handler();
 
-	// List
-	private static final int LIST_POSITION = 5;
+	private static final int LIST_POSITION = 39;
 
-	// Keyboard
-	private static final String KEYBOARD_GOAL = "Spidey";
+	private static final String KEYBOARD_GOAL = "Vampir";
 
-	// Swipe Slide
 	private static final int SLIDE_START_MAX = 15;
 	private static final int SLIDE_END_MIN = 40;
 	private static final int SLIDE_END_MAX = 60;
 	private static final int FORWARD_SWIPES = 3;
 	private static final int PREVIOUS_SWIPES = 2;
+	private static boolean checkSlideLog = false;
+	private static int delay;
 
 	/**
 	 * Beschreibt in welchen Zustand der Logger ist
@@ -67,8 +66,7 @@ public final class UserLogger {
 	 */
 	public enum State {
 		OFF(0, ""), IDLE(0, ""), LIST_SEARCH(3, "LIST SEARCH"), KEYBOARD(8,
-				"KEYBOARD SEARCH"), SWIPE_SLIDE(7, "SWIPE SLIDE"), BUTTONS(4,
-				"BUTTONS");
+				"KEYBOARD SEARCH"), SWIPE(7, "SWIPE"), CLICK(6, "CLICK");
 
 		private int minTaskActions;
 		private String task;
@@ -145,14 +143,6 @@ public final class UserLogger {
 	}
 
 	/**
-	 * Setzt die Startzeit
-	 */
-	private static void userStart() {
-		java.util.Date date = new java.util.Date();
-		userStart = new Timestamp(date.getTime());
-	}
-
-	/**
 	 * Speichert eine neue Action in die Liste
 	 * 
 	 * @param view
@@ -181,6 +171,12 @@ public final class UserLogger {
 			break;
 		case KEYBOARD:
 			if (action == Action.CLICK_KEY) {
+				
+				if(item.equals("/"))  {
+					item = "DELETE";
+				} else if(item.equals("_")) {
+					item = "ENTER";
+				}
 				sb.append("(" + view.toString() + ": " + action.toString()
 						+ " + " + item + ")");
 			} else {
@@ -192,9 +188,9 @@ public final class UserLogger {
 			if (action == Action.CLICK_ITEM) {
 				sb.append("(" + view.toString() + ": " + action.toString()
 						+ " + " + item + ")");
-			} else if(action == Action.SWIPE_UP || action == Action.SWIPE_DOWN) {
+			} else if (action == Action.SWIPE_UP || action == Action.SWIPE_DOWN) {
 				sb.append("(" + view.toString() + ": " + action.toString()
-						+ " " + position + ")");
+						+ " from Position " + position + ")");
 			} else {
 				sb.append("(" + view.toString() + ": " + action.toString()
 						+ ")");
@@ -236,13 +232,13 @@ public final class UserLogger {
 			addAction(view, action, item, position);
 			taskFinished = logKeyBoardTask(view, action, item, position);
 			break;
-		case BUTTONS:
+		case CLICK:
 			addAction(view, action, item, position);
-			taskFinished = logButtons(view, action, item, position);
+			taskFinished = logClick(view, action, item, position);
 			break;
-		case SWIPE_SLIDE:
+		case SWIPE:
 			addAction(view, action, item, position);
-			taskFinished = logSwipeSlide(view, action, item, position);
+			taskFinished = logSwipe(view, action, item, position);
 			break;
 		default:
 			return;
@@ -252,18 +248,16 @@ public final class UserLogger {
 		log.append(fileID);
 		log.append(", " + currentState.getTask());
 
-		String startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS")
-				.format(userStart);
+		long currentTime = getCurrentTime();
 
-		java.util.Date date = new java.util.Date();
-		Timestamp currentTime = new Timestamp(date.getTime());
+		String current = dateFormat.format(currentTime);
 
-		long seconds = currentTime.getTime() - userStart.getTime();
+		long seconds = currentTime - startDate;
 
 		String duration = Long.toString(seconds);
 
 		int usedActions = actions.size();
-		log.append(", " + startTime);
+		log.append(", " + current);
 		log.append(", " + duration + "ms");
 		log.append(", " + Integer.toString(currentState.getMinTaskActions()));
 		log.append(", " + Integer.toString(usedActions));
@@ -318,7 +312,11 @@ public final class UserLogger {
 			int position) {
 
 		if (view == UserView.PLAYER && action != Action.SWIPE_DOWN) {
-			error++;
+			if (action == Action.START_SEEKBAR) {
+
+			} else {
+				error++;
+			}
 		} else if (view == UserView.KEYBOARD && action != Action.SWIPE_RIGHT) {
 			error++;
 		} else if (view == UserView.LIST) {
@@ -332,12 +330,12 @@ public final class UserLogger {
 
 			} else if (action == Action.SWIPE_UP) {
 
-				if (LIST_POSITION  <= position ) {
+				if (LIST_POSITION <= position) {
 					error++;
 				}
 			} else if (action == Action.SWIPE_DOWN) {
 
-				if (LIST_POSITION  >= position) {
+				if (LIST_POSITION >= position) {
 					error++;
 				}
 
@@ -363,14 +361,16 @@ public final class UserLogger {
 
 		if (view == UserView.PLAYER) {
 			counter = 0;
-			
-			if(action != Action.SWIPE_UP) {
+
+			if (action == Action.START_SEEKBAR) {
+
+			} else if (action != Action.SWIPE_UP) {
 				error++;
 			}
 		} else if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
 			counter = 0;
-			
-			if(action != Action.SWIPE_RIGHT) {
+
+			if (action != Action.SWIPE_RIGHT) {
 				error++;
 			}
 		} else if (view == UserView.KEYBOARD) {
@@ -437,8 +437,8 @@ public final class UserLogger {
 		return false;
 	}
 
-	private static boolean logButtons(UserView view, Action action,
-			String item, int position) {
+	private static boolean logClick(UserView view, Action action, String item,
+			int percent) {
 
 		if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
 			error++;
@@ -446,8 +446,9 @@ public final class UserLogger {
 			error++;
 
 		} else if (view == UserView.PLAYER) {
+			if (action == Action.START_SEEKBAR && counter != 3) {
 
-			if (counter == 0) {
+			} else if (counter == 0) {
 				if (action == Action.CLICK_SHUFFLE) {
 					counter++;
 				} else {
@@ -464,12 +465,33 @@ public final class UserLogger {
 			} else if (counter == 2) {
 				if (action == Action.CLICK_STOP) {
 					counter++;
+					checkSlideLog = true;
 				} else {
 					error++;
 				}
 
 			} else if (counter == 3) {
-				if (action == Action.CLICK_PLAY) {
+				if (action == Action.START_SEEKBAR) {
+					if (percent >= SLIDE_END_MIN && percent <= SLIDE_END_MAX) {
+						counter++;
+					}
+				} else {
+					error++;
+				}
+
+			} else if (counter == 4) {
+				if (action == Action.STOP_SEEKBAR && percent >= SLIDE_END_MIN
+						&& percent <= SLIDE_END_MAX) {
+					counter++;
+					checkSlideLog = false;
+				} else {
+					counter--;
+					error++;
+				}
+			}
+
+			else if (counter == 5) {
+				if (action == Action.CLICK_PLAY || action == Action.CLICK_PAUSE) {
 					return true;
 				} else {
 					error++;
@@ -477,12 +499,16 @@ public final class UserLogger {
 			}
 		}
 		return false;
+
 	}
 
-	private static boolean logSwipeSlide(UserView view, Action action,
-			String item, int percent) {
+	private static boolean logSwipe(UserView view, Action action, String item,
+			int percent) {
 
-		if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
+		if (action == Action.START_SEEKBAR
+				&& counter != FORWARD_SWIPES + PREVIOUS_SWIPES) {
+
+		} else if (view == UserView.LIST && action != Action.SWIPE_RIGHT) {
 			error++;
 		} else if (view == UserView.KEYBOARD && action != Action.SWIPE_RIGHT) {
 			error++;
@@ -494,25 +520,18 @@ public final class UserLogger {
 				} else {
 					error++;
 				}
-			} else if (counter == FORWARD_SWIPES) {
-				if (action == Action.START_SEEKBAR) {
-					if (percent >= SLIDE_END_MIN && percent <= SLIDE_END_MAX) {
-						counter++;
+			} else if (counter < FORWARD_SWIPES + PREVIOUS_SWIPES) {
+				if (action == Action.SWIPE_RIGHT) {
+					counter++;
+
+					if (counter == FORWARD_SWIPES + PREVIOUS_SWIPES) {
+						checkSlideLog = true;
 					}
 				} else {
 					error++;
 				}
-			} else if (counter == FORWARD_SWIPES + 1) {
-				if (action == Action.STOP_SEEKBAR && percent >= SLIDE_END_MIN
-						&& percent <= SLIDE_END_MAX) {
-					counter++;
-				} else {
-					counter--;
-					error++;
-				}
 
-			} else if (counter == FORWARD_SWIPES + 2 + PREVIOUS_SWIPES) {
-
+			} else if (counter == FORWARD_SWIPES + PREVIOUS_SWIPES) {
 				if (action == Action.START_SEEKBAR) {
 					if (percent <= SLIDE_START_MAX) {
 						counter++;
@@ -521,24 +540,23 @@ public final class UserLogger {
 					error++;
 				}
 
-			} else if (counter == FORWARD_SWIPES + 3 + PREVIOUS_SWIPES) {
+			} else if (counter == FORWARD_SWIPES + PREVIOUS_SWIPES + 1) {
 				if (action == Action.STOP_SEEKBAR && percent >= SLIDE_END_MIN
 						&& percent <= SLIDE_END_MAX) {
+					checkSlideLog = false;
 					return true;
 				} else {
 					counter--;
 					error++;
 				}
 
-			} else if (counter > FORWARD_SWIPES + 1) {
-				if (action == Action.SWIPE_RIGHT) {
-					counter++;
-				} else {
-					error++;
-				}
 			}
 		}
 		return false;
+	}
+
+	private static long getCurrentTime() {
+		return System.currentTimeMillis() + delay;
 	}
 
 	/**
@@ -547,7 +565,34 @@ public final class UserLogger {
 	static void start() {
 		if (currentState == State.IDLE) {
 			currentState = tasks.remove(0);
-			userStart();
+
+			StringBuilder log = new StringBuilder();
+
+			log.append(fileID);
+			log.append(", " + currentState.getTask());
+
+			startDate = getCurrentTime();
+
+			String current = dateFormat.format(startDate);
+
+			int usedActions = actions.size();
+			log.append(", " + current);
+			log.append(",   0ms");
+			log.append(", "
+					+ Integer.toString(currentState.getMinTaskActions()));
+			log.append(", " + Integer.toString(usedActions));
+			log.append(", " + error);
+			log.append(", (Player: CLICK_START)");
+
+			log.append("\n");
+
+			try {
+				Log.i("Userlogger", log.toString());
+				writer.append(log.toString());
+			} catch (IOException e) {
+				Log.w("UserLogger", "Error writing/flushing/closing file");
+				e.printStackTrace();
+			}
 
 			TIME_LIMIT.postDelayed(timeOver, 60000);
 		}
@@ -556,29 +601,27 @@ public final class UserLogger {
 	private static Runnable timeOver = new Runnable() {
 		public void run() {
 			String timeOut = "TIME OUT";
-			
+
 			StringBuilder log = new StringBuilder();
 			log.append(fileID);
 			log.append(", " + currentState.getTask());
 
-			String startTime = new SimpleDateFormat(
-					"yyyy-MM-dd HH:mm:ss.SSSSSS").format(userStart);
+			long currentTime = getCurrentTime();
 
-			java.util.Date date = new java.util.Date();
-			Timestamp currentTime = new Timestamp(date.getTime());
+			String current = dateFormat.format(currentTime);
 
-			long seconds = currentTime.getTime() - userStart.getTime();
+			long milliSeconds = currentTime - startDate;
 
-			String duration = Long.toString(seconds);
+			String duration = Long.toString(milliSeconds);
 
 			int usedActions = actions.size();
-			log.append(", " + startTime);
+			log.append(", " + current);
 			log.append(", " + duration + "ms");
 			log.append(", "
 					+ Integer.toString(currentState.getMinTaskActions()));
 			log.append(", " + Integer.toString(usedActions));
 			log.append(", " + error);
-			
+
 			log.append(", " + timeOut);
 
 			log.append("\n");
@@ -612,7 +655,8 @@ public final class UserLogger {
 	 * 
 	 * @throws IOException
 	 */
-	static void init(String fileName, List<UserLogger.State> initTasks) {
+	static void init(String fileName, List<UserLogger.State> initTasks,
+			int timeDelay) {
 
 		actions = new ArrayList<String>();
 		tasks = new LinkedList<UserLogger.State>();
@@ -621,6 +665,8 @@ public final class UserLogger {
 		error = 0;
 		counter = 0;
 		fileID = fileName;
+		dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SS");
+		delay = timeDelay;
 
 		if (Environment.getExternalStorageState().equals(
 				Environment.MEDIA_MOUNTED)
@@ -633,7 +679,8 @@ public final class UserLogger {
 			try {
 
 				writer = new FileWriter(logFileName);
-				writer.append("ID, Task, StartTime, Duration, Min. Actions, Used Actions, Errors, CurrentAction" + "\n");
+				writer.append("ID, Task, CurrentTime, Duration, Min. Actions, Used Actions, Errors, CurrentAction"
+						+ "\n");
 
 			} catch (IOException e) {
 				Log.w("UserLogger", "Error creating file");
@@ -647,4 +694,10 @@ public final class UserLogger {
 		return currentState;
 	}
 
+	public static boolean checkSeekbarLog() {
+		if (currentState == State.CLICK || currentState == State.SWIPE) {
+			return checkSlideLog;
+		}
+		return false;
+	}
 }

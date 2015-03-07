@@ -3,6 +3,7 @@ package com.hudtouchscreen.headup;
 import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
+import com.hudtouchscreen.hudmessage.SeekbarLogMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -186,9 +188,19 @@ public class HeadUpDisplay extends Activity {
 							ImageView startImage = (ImageView)findViewById(R.id.start);
 							
 							if(logMessage.getLogStatus()) {
-								startImage.setImageResource(R.drawable.starttask);
+								startImage.setImageResource(R.drawable.starton);
 							} else {
 								startImage.setImageResource(R.drawable.startoff);
+							}
+							
+							break;
+						case ClientService.MSG_SEEKBARLOG:
+							SeekbarLogMessage seekbarLogMessage = (SeekbarLogMessage)bundle.getParcelable("Seekbar Log");
+							
+							if(seekbarLogMessage.checkSeekbarLog()) {
+								seekbar.setBackgroundResource(R.color.red);
+							} else {
+								seekbar.setBackgroundResource(Color.TRANSPARENT);
 							}
 							
 							break;
