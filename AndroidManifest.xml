@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.touchscreen.touchscreenplayer"
+    android:installLocation="preferExternal"
     android:versionCode="1"
-    android:versionName="1.0"
-    android:installLocation="preferExternal" >
+    android:versionName="1.0" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -22,10 +22,11 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.hudtouchscreen.touchscreenplayer.Launcher"
-            android:label="@string/player" 
+            android:label="@string/player"
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -34,12 +35,21 @@
             android:label="@string/hud" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name="com.hudtouchscreen.touchscreenplayer.MusicPlayer"
-            android:label="@string/player" >
+            android:label="@string/player" 
+            android:launchMode="singleTask"
+            android:stateNotNeeded="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.HOME" />
+            </intent-filter>
         </activity>
         <activity
             android:name="com.hudtouchscreen.headup.HeadUpDisplay"
@@ -50,24 +60,23 @@
             android:name="com.hudtouchscreen.touchscreenplayer.MusikList"
             android:label="@string/title_activity_list_view" >
         </activity>
-         <activity
+        <activity
             android:name="com.hudtouchscreen.touchscreenplayer.MusikKeyboard"
             android:label="@string/title_activity_list_view" >
         </activity>
-		  <activity
+        <activity
             android:name="com.hudtouchscreen.headup.HeadUpList"
             android:label="@string/title_activity_list_view" >
         </activity>
-         <activity
-            android:name="com.hudtouchscreen.headup.HeadUpKeyboard">
+        <activity android:name="com.hudtouchscreen.headup.HeadUpKeyboard" >
         </activity>
+
         <service
             android:name="com.hudtouchscreen.touchscreenplayer.ServerService"
             android:process=":remote" />
         <service
             android:name="com.hudtouchscreen.headup.ClientService"
             android:process=":remote" />
-        
     </application>
 
 </manifest>

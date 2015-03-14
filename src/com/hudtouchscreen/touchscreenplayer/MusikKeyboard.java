@@ -3,7 +3,7 @@ package com.hudtouchscreen.touchscreenplayer;
 import java.util.List;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
-import com.hudtouchscreen.hudmessage.KeyBoardMessage;
+import com.hudtouchscreen.hudmessage.KeyboardMessage;
 import com.hudtouchscreen.hudmessage.KeyTouchMessage;
 import com.touchscreen.touchscreenplayer.R;
 
@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -37,7 +38,7 @@ public class MusikKeyboard extends Activity {
 	private List<String> listValues;
 	private boolean rightWord;
 	private ImageView rightText;
-	protected final static int MAX_TEXT_LENGTH = 10;
+	protected final static int MAX_TEXT_LENGTH = 6;
 	private boolean logging;
 	private final Handler CHECK_STATE = new Handler();
 
@@ -45,17 +46,17 @@ public class MusikKeyboard extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.keyboard);
-		
+
 		Intent intent = getIntent();
 		listValues = intent.getStringArrayListExtra("Track Names");
 		rightWord = false;
-	
+
 		gDetector = new GestureDetector(this, new GestureListener());
 		touchListener = new TouchListener();
 
 		keyBoardText = (EditText) findViewById(R.id.editKeyBoard);
 		rightText = (ImageView) findViewById(R.id.rightText);
-		
+
 		this.service = new ServiceManager(this, ServerService.class,
 				new Handler() {
 
@@ -75,18 +76,17 @@ public class MusikKeyboard extends Activity {
 					}
 				});
 		service.start();
-		
-		if(UserLogger.getState() == UserLogger.State.OFF) {
+
+		if (UserLogger.getState() == UserLogger.State.OFF) {
 			logging = false;
-		} else if(UserLogger.getState() == UserLogger.State.IDLE) {
+		} else if (UserLogger.getState() == UserLogger.State.IDLE) {
 			logging = false;
-			CHECK_STATE.postDelayed(stateStatus,100);
+			CHECK_STATE.postDelayed(stateStatus, 100);
 		} else {
 			logging = true;
-			CHECK_STATE.postDelayed(stateStatus,100);
+			CHECK_STATE.postDelayed(stateStatus, 100);
 		}
 	}
-	
 
 	private void finishTyping() {
 		if (rightWord) {
@@ -94,8 +94,8 @@ public class MusikKeyboard extends Activity {
 			i.putExtra("Keyboard", keyBoardText.getText().toString());
 			setResult(200, i);
 			sendToService(ServerService.MSG_ACTIVITY);
-			finish();	
-		} 
+			finish();
+		}
 	}
 
 	private void sendToService(int type) {
@@ -104,8 +104,8 @@ public class MusikKeyboard extends Activity {
 		switch (type) {
 		case ServerService.MSG_KEYBOARD:
 			message = Message.obtain(null, ServerService.MSG_KEYBOARD, 0, 0);
-			KeyBoardMessage keyMessage = new KeyBoardMessage(keyBoardText.getText()
-					.toString(), rightWord);
+			KeyboardMessage keyMessage = new KeyboardMessage(keyBoardText
+					.getText().toString(), rightWord);
 			message.getData().putParcelable("Keyboard", keyMessage);
 			break;
 		case ServerService.MSG_ACTIVITY:
@@ -116,7 +116,7 @@ public class MusikKeyboard extends Activity {
 			break;
 		case ServerService.MSG_NEWCLIENT:
 			message = Message.obtain(null, ServerService.MSG_NEWCLIENT, 0, 0);
-			
+
 			ActivityMessage newClientMessage = new ActivityMessage(
 					ActivityMessage.SWITCH_TO_KEYBOARD, null);
 			message.getData().putParcelable("Activity", newClientMessage);
@@ -139,19 +139,20 @@ public class MusikKeyboard extends Activity {
 	private Runnable stateStatus = new Runnable() {
 		public void run() {
 			UserLogger.State taskState = UserLogger.getState();
-			
+
 			switch (taskState) {
 			case OFF:
-				if(logging) {
+				if (logging) {
 					onSwipeRight();
 					logging = false;
 				}
 				return;
 			case IDLE:
-				if(logging) {
+				if (logging) {
 					onSwipeRight();
 					logging = false;
-				};
+				}
+				;
 				return;
 			default:
 				logging = true;
@@ -161,26 +162,34 @@ public class MusikKeyboard extends Activity {
 		}
 
 	};
-	
+
 	@Override
-	  protected void onDestroy() {
-	    super.onDestroy();
-	    
-	    try { service.unbind(); }
-	    catch (Throwable t) { }
+	protected void onStop() {
+		sendToService(ServerService.MSG_ACTIVITY);
+		super.onStop();
+	}
+
+	@Override
+	protected void onDestroy() {
+		sendToService(ServerService.MSG_ACTIVITY);
+		super.onDestroy();
+
+		try {
+			service.unbind();
+		} catch (Throwable t) {
+		}
 
 	}
-	
+
 	private void onSwipeLeft() {
 		// TODO Auto-generated method stub
-	
-	}
 
+	}
 
 	private void onSwipeRight() {
 		UserLogger.logAction(UserLogger.UserView.KEYBOARD,
 				UserLogger.Action.SWIPE_RIGHT, "", -1);
-	
+
 		sendToService(ServerService.MSG_ACTIVITY);
 		service.unbind();
 		Intent i = new Intent();
@@ -188,12 +197,34 @@ public class MusikKeyboard extends Activity {
 		finish();
 	}
 
-
 	private void onSwipeDown() {
 	}
 
-
 	private void onSwipeUp() {
+	}
+	
+	boolean longPress = false;
+
+	@Override
+	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+		longPress = true;
+		return super.onKeyLongPress(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+
+		if (longPress) {
+			longPress = false;
+			return super.onKeyUp(keyCode, event);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		event.startTracking();
+		return true;
 	}
 
 	protected class TouchListener {
@@ -259,7 +290,7 @@ public class MusikKeyboard extends Activity {
 		private Rect rectZ;
 		private Rect rectDelete;
 		private Rect rectEnter;
-
+		private boolean ignoreFling = false;
 		private String keyType = "-1";
 
 		RelativeLayout layout = (RelativeLayout) findViewById(R.id.keyboardview);
@@ -490,11 +521,12 @@ public class MusikKeyboard extends Activity {
 
 		Runnable mLongPressed = new Runnable() {
 			public void run() {
+				ignoreFling = true;
 				buttonOnTouch(true);
 			}
 		};
 
-		private boolean containsRect(MotionEvent event) {
+		private synchronized boolean containsRect(MotionEvent event) {
 			if (rectA.contains((int) event.getX(), (int) event.getY())) {
 				keyType = "a";
 				view = a;
@@ -617,15 +649,14 @@ public class MusikKeyboard extends Activity {
 			return true;
 		}
 
-		public synchronized boolean onTouch(MotionEvent event) {
+		public boolean onTouch(MotionEvent event) {
 
-			if (gDetector.onTouchEvent(event)) {
+			if (!ignoreFling && gDetector.onTouchEvent(event) ) {
 				handler.removeCallbacks(mLongPressed);
 				buttonOnTouch(false);
 				return false;
 
 			} else {
-
 				switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
 
@@ -641,11 +672,12 @@ public class MusikKeyboard extends Activity {
 					handler.removeCallbacks(mLongPressed);
 					buttonOnTouch(false);
 
-					if (containsRect(event)) {
+					if(containsRect(event)) {
 						click();
 					}
 
 					keyType = "-1";
+					ignoreFling = false;
 					return false;
 
 				case MotionEvent.ACTION_CANCEL:
@@ -653,6 +685,7 @@ public class MusikKeyboard extends Activity {
 
 					buttonOnTouch(false);
 					keyType = "-1";
+					ignoreFling = false;
 					return false;
 
 				case MotionEvent.ACTION_MOVE:
@@ -684,18 +717,17 @@ public class MusikKeyboard extends Activity {
 						return true;
 					}
 				}
-
 			}
 			return false;
 		}
 
 		private void click() {
 			UserLogger.logAction(UserLogger.UserView.KEYBOARD,
-					UserLogger.Action.CLICK_KEY, keyType, keyBoardText.getText().length());
-		
-			view.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-			
-			if(keyBoardText.getText().length() >= 10 && keyType != KeyTouchMessage.KEY_DELETE) {
+					UserLogger.Action.CLICK_KEY, keyType, keyBoardText
+							.getText().length());
+
+			if (keyBoardText.getText().length() >= 10
+					&& keyType != KeyTouchMessage.KEY_DELETE) {
 				return;
 			}
 
@@ -862,17 +894,19 @@ public class MusikKeyboard extends Activity {
 							keyBoardText.getText().length());
 				}
 			} else if (keyType.equals(KeyTouchMessage.KEY_ENTER)) {
+				view.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 				finishTyping();
 				return;
 			} else {
 				return;
 			}
-			
-			if(listValues.contains(keyBoardText.getText().toString())) {
+			view.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+
+			if (listValues.contains(keyBoardText.getText().toString())) {
 				rightWord = true;
 				rightText.setImageResource(R.drawable.check);
 			} else {
-				rightText.setImageResource(R.drawable.redx);				
+				rightText.setImageResource(R.drawable.redx);
 				rightWord = false;
 			}
 			sendToService(ServerService.MSG_KEYBOARD);
@@ -915,8 +949,8 @@ public class MusikKeyboard extends Activity {
 		public boolean onFling(MotionEvent start, MotionEvent finish,
 				float xVelocity, float yVelocity) {
 
-			final int SWIPE_THRESHOLD = 200;
-			final int SWIPE_VELOCITY_THRESHOLD = 150;
+			final int SWIPE_THRESHOLD = 250;
+			final int SWIPE_VELOCITY_THRESHOLD = 200;
 
 			try {
 				float diffY = finish.getY() - start.getY();

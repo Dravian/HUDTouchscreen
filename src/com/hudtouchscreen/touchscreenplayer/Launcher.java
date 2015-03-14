@@ -74,25 +74,19 @@ public class Launcher extends Activity {
 
 			break;
 		case R.id.task3:
-			tasks.add(UserLogger.State.BUTTONS);
+			tasks.add(UserLogger.State.CLICK);
 			view.setBackgroundResource(R.color.brown);
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task3  ");
 			taskNames.append("3");
 			break;
 		case R.id.task4:
-			tasks.add(UserLogger.State.SWIPE_SLIDE);
+			tasks.add(UserLogger.State.SWIPE);
 			view.setBackgroundResource(R.color.brown);
 			view.setClickable(false);
 			taskOrder.setText(taskOrder.getText().toString() + "Task4  ");
 			taskNames.append("4");
 			break;
-		/*
-		 * case R.id.task5: tasks.add(UserLogger.State.SWIPE_SLIDE);
-		 * view.setBackgroundResource(R.color.brown); view.setClickable(false);
-		 * taskOrder.setText(taskOrder.getText().toString() + "Task5  ");
-		 * taskNames.append("5"); break;
-		 */
 		case R.id.back:
 
 			if (!tasks.isEmpty()) {
@@ -118,7 +112,7 @@ public class Launcher extends Activity {
 					taskOrder.setText(str);
 					taskNames.deleteCharAt(taskNames.length() - 1);
 
-				} else if (task == UserLogger.State.BUTTONS) {
+				} else if (task == UserLogger.State.CLICK) {
 					button = (Button) findViewById(R.id.task3);
 					button.setBackgroundResource(R.color.grey);
 					button.setClickable(true);
@@ -128,7 +122,7 @@ public class Launcher extends Activity {
 					taskOrder.setText(str);
 					taskNames.deleteCharAt(taskNames.length() - 1);
 
-				} else if (task == UserLogger.State.SWIPE_SLIDE) {
+				} else if (task == UserLogger.State.SWIPE) {
 					button = (Button) findViewById(R.id.task4);
 					button.setBackgroundResource(R.color.grey);
 					button.setClickable(true);
@@ -138,39 +132,44 @@ public class Launcher extends Activity {
 					taskOrder.setText(str);
 					taskNames.deleteCharAt(taskNames.length() - 1);
 
-				}/*
-				 * else if (task == UserLogger.State.SWIPE_SLIDE) { button =
-				 * (Button) findViewById(R.id.task5);
-				 * button.setBackgroundResource(R.color.grey);
-				 * button.setClickable(true);
-				 * 
-				 * String str = taskOrder.getText().toString(); str =
-				 * str.replace("Task5 ",""); taskOrder.setText(str);
-				 * taskNames.deleteCharAt(taskNames.length()-1); }
-				 */
+				}
 			}
 			break;
 		case R.id.buttonEnter:
 			String idName = ((EditText) findViewById(R.id.idName)).getText()
 					.toString();
-
-			if (idName.length() > 0) {
-				RadioGroup radioHud = (RadioGroup) findViewById(R.id.radiohud);
-
-				if (!tasks.isEmpty()) {
-					if (radioHud.getCheckedRadioButtonId() == R.id.hudon) {
-						UserLogger.init(idName + "hud" + taskNames.toString(),
-								tasks);
-					} else {
-						UserLogger.init(
-								idName + "touch" + taskNames.toString(), tasks);
-					}
+			int delay;
+			try {
+				String delayText = ((EditText) findViewById(R.id.delay))
+						.getText().toString();
+				
+				int userID = Integer.parseInt(idName);
+				
+				if (delayText.length() == 0 || idName.length() == 0) {
+					return;
 				}
-				Intent i = new Intent(getApplicationContext(),
-						MusicPlayer.class);
 
-				startActivity(i);
+				delay = Integer.parseInt(delayText);
+
+			} catch (NumberFormatException e) {
+				return;
 			}
+
+			RadioGroup radioHud = (RadioGroup) findViewById(R.id.radiohud);
+
+			if (!tasks.isEmpty()) {
+				if (radioHud.getCheckedRadioButtonId() == R.id.hudon) {
+					UserLogger.init(idName + "hud" + taskNames.toString(),
+							tasks, delay);
+				} else {
+					UserLogger.init(idName + "touch" + taskNames.toString(),
+							tasks, delay);
+				}
+			}
+			Intent i = new Intent(getApplicationContext(), MusicPlayer.class);
+
+			startActivity(i);
+
 			break;
 		default:
 		}

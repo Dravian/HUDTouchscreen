@@ -7,16 +7,16 @@ import android.os.Parcelable;
 
 
 @SuppressWarnings("serial")
-public class KeyBoardMessage implements Parcelable, Serializable, HudMessage{	
+public class KeyboardMessage implements Parcelable, Serializable, HudMessage{	
 	private String letter;
 	private int rightWord;
 	
-	public KeyBoardMessage(String letter, boolean rightWord) {
+	public KeyboardMessage(String letter, boolean rightWord) {
 		this.letter = letter;
 		this.rightWord = (rightWord ? 1 : 0);
 	}
 	
-	public KeyBoardMessage(Parcel in) {
+	public KeyboardMessage(Parcel in) {
 		readFromParcel(in);
 	} 
 	
@@ -50,13 +50,13 @@ public class KeyBoardMessage implements Parcelable, Serializable, HudMessage{
 	
 	@SuppressWarnings("rawtypes")
 	public static final Parcelable.Creator CREATOR =
-	    	new KeyBoardMessage.Creator() {
-	            public KeyBoardMessage createFromParcel(Parcel in) {
-	                return new KeyBoardMessage(in);
+	    	new KeyboardMessage.Creator() {
+	            public KeyboardMessage createFromParcel(Parcel in) {
+	                return new KeyboardMessage(in);
 	            }
 	 
-	            public KeyBoardMessage[] newArray(int size) {
-	                return new KeyBoardMessage[size];
+	            public KeyboardMessage[] newArray(int size) {
+	                return new KeyboardMessage[size];
 	            }
 
 	        };

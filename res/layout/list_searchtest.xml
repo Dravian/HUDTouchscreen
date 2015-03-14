@@ -14,11 +14,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center_vertical"
+        android:focusable="true"
         android:text=""
-        android:textSize="100sp"
+        android:textSize="75sp"
         android:textColor="@android:color/white"
-        android:onClick="onClick"
-        android:clickable="false"
         />
 
     <TextView
@@ -27,11 +26,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center_vertical"
+        android:focusable="true"
         android:text=""
-        android:textSize="100sp"
-        android:textColor="@android:color/white"
-        android:onClick="onClick"
-        android:clickable="false" />
+        android:textSize="75sp"
+        android:textColor="@android:color/white"/>
     
     <TextView
         android:id="@+id/title3"
@@ -39,11 +37,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center_vertical"
+        android:focusable="true"
         android:text=""
-        android:textSize="100sp" 
-        android:textColor="@android:color/white"
-        android:onClick="onClick"
-        android:clickable="false"/>
+        android:textSize="75sp" 
+        android:textColor="@android:color/white"/>
     
     <TextView
         android:id="@+id/title4"
@@ -51,11 +48,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center_vertical"
+        android:focusable="true"
         android:text=""
-        android:textSize="100sp"
-        android:textColor="@android:color/white"
-        android:onClick="onClick"
-        android:clickable="false"/>
+        android:textSize="75sp"
+        android:textColor="@android:color/white"/>
     
     <TextView
         android:id="@+id/title5"
@@ -63,11 +59,9 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="center_vertical"
+        android:focusable="true"
         android:text=""
-        android:textSize="100sp" 
-        android:textColor="@android:color/white"
-        android:onClick="onClick"
-        android:clickable="false"/>
-   
+        android:textSize="75sp" 
+        android:textColor="@android:color/white"/>
 
 </LinearLayout>

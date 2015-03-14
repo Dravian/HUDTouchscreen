@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
+import com.hudtouchscreen.hudmessage.SeekbarLogMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -36,6 +38,7 @@ import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -51,8 +54,8 @@ import android.widget.Toast;
 import android.view.GestureDetector.OnGestureListener;
 
 /**
- * MusicPlayer is responsible for controlling the Music played and also acts as
- * a Server for other Clients
+ * MusicPlayer is the Activity for the main menu and controls which Music is
+ * loaded and played.
  * 
  * @author daniel
  * 
@@ -87,15 +90,21 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	private double startTime = 0;
 	private double endTime = 0;
 	private final Handler UPDATE_TIME = new Handler();
-	private final Handler CHECK_STATE = new Handler();
+	private final Handler CHECK_STATE = new Handler(); // Checks the current
+														// Logging State
 	private SeekBar seekbar;
 	private boolean newTrack; // For checking if its time to update endtime
 	private static boolean startingNewActivity;
 	private TouchListener touchListener;
 
 	private ServiceManager service;
-	private boolean trackingSeekBar;
-	private boolean logging; //
+	private boolean trackingSeekBar; // Checks if the user is currently tracking
+										// seekbar
+	private boolean logging; // Checks if logging is on
+	private boolean seekbarLog; // If logging starts logging when user tracks
+								// seekbar
+	private boolean startLogSeekbarTracking = false; // true if a seekbar log
+														// task is active
 
 	@SuppressLint("HandlerLeak")
 	@Override
@@ -109,6 +118,8 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK,
 				"Lexiconda");
 		setContentView(R.layout.touchscreen);
+		
+	
 
 		gDetector = new GestureDetector(this, new GestureListener());
 
@@ -118,14 +129,6 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		loopingImage = (ImageView) findViewById(R.id.looping);
 
 		startImage = (ImageView) findViewById(R.id.start);
-
-		if (UserLogger.getState() == UserLogger.State.OFF || UserLogger.getState() == UserLogger.State.IDLE) {
-			logging = false;
-			startImage.setImageResource(R.drawable.startoff);
-		} else {
-			logging = true;
-			startImage.setImageResource(R.drawable.starttask);
-		}
 
 		touchListener = new TouchListener();
 
@@ -139,6 +142,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		newTrack = false;
 		startingNewActivity = false;
 		trackingSeekBar = false;
+		seekbarLog = false;
 
 		startTimeField = (TextView) findViewById(R.id.startTime);
 		endTimeField = (TextView) findViewById(R.id.endTime);
@@ -175,17 +179,18 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 
 		service.start();
 
-		if (UserLogger.getState() == UserLogger.State.OFF ) {
+		if (UserLogger.getState() == UserLogger.State.OFF) {
 			logging = false;
-		} else if(UserLogger.getState() == UserLogger.State.IDLE) { 
+			sendToService(ServerService.MSG_LOG);
+		} else if (UserLogger.getState() == UserLogger.State.IDLE) {
 			logging = false;
 			CHECK_STATE.postDelayed(stateStatus, 100);
-		}	else {
+		} else {
 			logging = true;
-			startImage.setImageResource(R.drawable.starttask);
+			startImage.setImageResource(R.drawable.starton);
 			CHECK_STATE.postDelayed(stateStatus, 100);
 		}
-		
+
 	}
 
 	/**
@@ -233,6 +238,14 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 				LogMessage logMessage = new LogMessage(logging);
 				message.getData().putParcelable("Log", logMessage);
 				break;
+			case ServerService.MSG_SEEKBARLOG:
+				message = Message.obtain(null, ServerService.MSG_SEEKBARLOG, 0,
+						0);
+				SeekbarLogMessage seekbarLogMessage = new SeekbarLogMessage(
+						seekbarLog);
+				message.getData().putParcelable("Seekbar Log",
+						seekbarLogMessage);
+				break;
 			default:
 				return;
 			}
@@ -252,19 +265,41 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	}
 
 	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+
+        if(!hasFocus) {
+
+            Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+            sendBroadcast(closeDialog);
+        }
+    }
+	
+	@Override
 	public void onPause() {
 
 		super.onPause();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		
 		if (!startingNewActivity) {
+			playImage.setImageResource(R.drawable.play);
+			playImage.setBackgroundResource(R.drawable.darkblue);
+			
 			wakeLock.release();
 			if (track != null) {
 				if (track.isPlaying()) {
 					track.pause();
+					UPDATE_TIME.removeCallbacks(UpdateSongTime);
 					isTuning = false;
 
-					playImage.setBackgroundResource(R.drawable.play);
 				}
 				if (isFinishing()) {
+					UPDATE_TIME.removeCallbacks(UpdateSongTime);
 					track.dispose();
 					finish();
 				}
@@ -274,6 +309,19 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 				}
 			}
 		}
+	}
+
+	@Override
+	public void onDestroy() {
+
+		UPDATE_TIME.removeCallbacks(UpdateSongTime);
+		try {
+			service.unbind();
+		} catch (Throwable t) {
+		}
+
+		super.onDestroy();
+
 	}
 
 	/**
@@ -412,6 +460,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	 * Sets the track that is played next
 	 * 
 	 * @param direction
+	 *            1 if next song is played, 0 if previous song is played
 	 */
 	private void setTrack(int direction) {
 
@@ -466,7 +515,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	 */
 	private void setTime() {
 		endTime = track.getFinalTime();
-		startTime = track.getStartTime();
+		startTime = track.getCurrentTime();
 
 		if (newTrack) {
 			seekbar.setMax((int) endTime);
@@ -509,7 +558,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	 */
 	private Runnable UpdateSongTime = new Runnable() {
 		public void run() {
-			startTime = track.getStartTime();
+			startTime = track.getCurrentTime();
 
 			long startMinutes = TimeUnit.MILLISECONDS
 					.toMinutes((long) startTime);
@@ -538,7 +587,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 	};
 
 	/**
-	 * Gets the name of the track
+	 * Gets the name of the current track
 	 * 
 	 * @return
 	 */
@@ -670,32 +719,22 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		sendToService(ServerService.MSG_SHUFFLE);
 		sendToService(ServerService.MSG_LOOPING);
 		sendToService(ServerService.MSG_TIME);
-		
-		
-		if (UserLogger.getState() == UserLogger.State.OFF ) {
-			if(logging) {
+
+		if (UserLogger.getState() == UserLogger.State.OFF) {
+			if (logging) {
 				logging = false;
 				sendToService(ServerService.MSG_LOG);
 			}
-			
-		} else if(UserLogger.getState() == UserLogger.State.IDLE) { 
+
+		} else if (UserLogger.getState() == UserLogger.State.IDLE) {
 			CHECK_STATE.postDelayed(stateStatus, 100);
-		}	else {
+			logging = false;
+			sendToService(ServerService.MSG_LOG);
+		} else {
 			logging = true;
-			startImage.setImageResource(R.drawable.starttask);
+			startImage.setImageResource(R.drawable.starton);
 			CHECK_STATE.postDelayed(stateStatus, 100);
 		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-
-		try {
-			service.unbind();
-		} catch (Throwable t) {
-		}
-
 	}
 
 	@Override
@@ -711,8 +750,6 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			startLogSeekbarTracking = false;
 		}
 	}
-
-	private boolean startLogSeekbarTracking = false;
 
 	@Override
 	public void onStartTrackingTouch(SeekBar arg0) {
@@ -735,6 +772,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		int percent = (int) (((float) progress / max) * 100);
 
 		track.seek(progress);
+
 		setTime();
 
 		UserLogger.logAction(UserLogger.UserView.PLAYER,
@@ -746,10 +784,51 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		return touchListener.onTouch(event);
 	}
 
+	private void checkSeekbarLog() {
+		if (seekbarLog == false && UserLogger.checkSeekbarLog() == true) {
+			seekbarLog = true;
+			seekbar.setBackgroundResource(R.color.red);
+
+			sendToService(ServerService.MSG_SEEKBARLOG);
+		} else if (seekbarLog == true && UserLogger.checkSeekbarLog() == false) {
+			seekbarLog = false;
+			seekbar.setBackgroundResource(Color.TRANSPARENT);
+
+			sendToService(ServerService.MSG_SEEKBARLOG);
+		}
+	}
+
+	boolean longPress = false;
+
+	@Override
+	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+		longPress = true;
+		return super.onKeyLongPress(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+
+		if (longPress) {
+			longPress = false;
+			return super.onKeyUp(keyCode, event);
+		}
+		return false;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		event.startTracking();
+		return true;
+	}
+
 	private Runnable stateStatus = new Runnable() {
 		public void run() {
 			UserLogger.State taskState = UserLogger.getState();
 			boolean logStatusChanged = false;
+
+			checkSeekbarLog();
+
 			switch (taskState) {
 			case OFF:
 				startImage.setImageResource(R.drawable.startoff);
@@ -767,7 +846,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 				break;
 			default:
 				if (logging != true) {
-					startImage.setImageResource(R.drawable.starttask);
+					startImage.setImageResource(R.drawable.starton);
 					logStatusChanged = true;
 					logging = true;
 				}
@@ -777,6 +856,7 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 			if (logStatusChanged) {
 				sendToService(ServerService.MSG_LOG);
 			}
+
 			CHECK_STATE.postDelayed(this, 100);
 		}
 
@@ -1168,88 +1248,95 @@ public class MusicPlayer extends Activity implements OnSeekBarChangeListener {
 		}
 
 		/**
-		 * Handles the clickevents for each view
+		 * Performs a click action for a view
 		 */
 		private void click() {
-			if (buttonType == TouchMessage.PLAYBUTTON) {
-				synchronized (this) {
-					playImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-					if (isTuning) {
+			if (track != null) {
+				if (buttonType == TouchMessage.PLAYBUTTON) {
+					synchronized (this) {
+						playImage
+								.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+						if (isTuning) {
+							isTuning = false;
+							playImage.setImageResource(R.drawable.play);
+							track.pause();
+							UPDATE_TIME.removeCallbacks(UpdateSongTime);
+
+							UserLogger.logAction(UserLogger.UserView.PLAYER,
+									UserLogger.Action.CLICK_PAUSE, "", -1);
+
+						} else {
+							isTuning = true;
+							playImage.setImageResource(R.drawable.pause);
+							playTrack();
+
+							UserLogger.logAction(UserLogger.UserView.PLAYER,
+									UserLogger.Action.CLICK_PLAY, "", -1);
+						}
+
+					}
+
+				} else if (buttonType == TouchMessage.STOPBUTTON) {
+					synchronized (this) {
+						stopImage
+								.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 						isTuning = false;
 						playImage.setImageResource(R.drawable.play);
-						track.pause();
+						track.stop();
 						UPDATE_TIME.removeCallbacks(UpdateSongTime);
+						setTime();
 
 						UserLogger.logAction(UserLogger.UserView.PLAYER,
-								UserLogger.Action.CLICK_PAUSE, "", -1);
+								UserLogger.Action.CLICK_STOP, "", -1);
+					}
 
-					} else {
-						isTuning = true;
-						playImage.setImageResource(R.drawable.pause);
-						playTrack();
+				} else if (buttonType == TouchMessage.SHUFFLEBUTTON) {
+					synchronized (this) {
+						shuffleImage
+								.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+						if (shuffle) {
+							shuffle = false;
+							shuffleImage.setImageResource(R.drawable.shuffle);
+						} else {
+							shuffle = true;
+							shuffleImage.setImageResource(R.drawable.shuffleon);
+						}
 
+						sendToService(ServerService.MSG_SHUFFLE);
 						UserLogger.logAction(UserLogger.UserView.PLAYER,
-								UserLogger.Action.CLICK_PLAY, "", -1);
+								UserLogger.Action.CLICK_SHUFFLE, "", -1);
 					}
 
-				}
+				} else if (buttonType == TouchMessage.LOOPINGBUTTON) {
+					synchronized (this) {
+						loopingImage
+								.playSoundEffect(android.view.SoundEffectConstants.CLICK);
+						if (looping) {
+							looping = false;
+							loopingImage.setImageResource(R.drawable.looping);
+						} else {
+							looping = true;
+							loopingImage.setImageResource(R.drawable.loopingon);
+						}
 
-			} else if (buttonType == TouchMessage.STOPBUTTON) {
-				synchronized (this) {
-					stopImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-					isTuning = false;
-					playImage.setImageResource(R.drawable.play);
-					track.stop();
-					UPDATE_TIME.removeCallbacks(UpdateSongTime);
-					setTime();
+						track.setLooping(looping);
+						sendToService(ServerService.MSG_LOOPING);
+						UserLogger.logAction(UserLogger.UserView.PLAYER,
+								UserLogger.Action.CLICK_LOOPING, "", -1);
 
-					UserLogger.logAction(UserLogger.UserView.PLAYER,
-							UserLogger.Action.CLICK_STOP, "", -1);
-				}
-
-			} else if (buttonType == TouchMessage.SHUFFLEBUTTON) {
-				synchronized (this) {
-					shuffleImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-					if (shuffle) {
-						shuffle = false;
-						shuffleImage.setImageResource(R.drawable.shuffle);
-					} else {
-						shuffle = true;
-						shuffleImage.setImageResource(R.drawable.shuffleon);
 					}
-
-					sendToService(ServerService.MSG_SHUFFLE);
-					UserLogger.logAction(UserLogger.UserView.PLAYER,
-							UserLogger.Action.CLICK_SHUFFLE, "", -1);
-				}
-
-			} else if (buttonType == TouchMessage.LOOPINGBUTTON) {
-				synchronized (this) {
-					loopingImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-					if (looping) {
-						looping = false;
-						loopingImage.setImageResource(R.drawable.looping);
-					} else {
-						looping = true;
-						loopingImage.setImageResource(R.drawable.loopingon);
-					}
-
-					track.setLooping(looping);
-					sendToService(ServerService.MSG_LOOPING);
+				} else if (buttonType == TouchMessage.STARTBUTTON) {
+					startImage
+							.playSoundEffect(android.view.SoundEffectConstants.CLICK);
 					UserLogger.logAction(UserLogger.UserView.PLAYER,
 							UserLogger.Action.CLICK_LOOPING, "", -1);
-
+					UserLogger.start();
 				}
-			} else if (buttonType == TouchMessage.STARTBUTTON) {
-				startImage.playSoundEffect(android.view.SoundEffectConstants.CLICK);
-				UserLogger.logAction(UserLogger.UserView.PLAYER,
-						UserLogger.Action.CLICK_LOOPING, "", -1);
-				UserLogger.start();
 			}
 		}
 
 		/**
-		 * Checks if a button is being touched
+		 * Checks if a button is being held
 		 * 
 		 * @param touching
 		 */

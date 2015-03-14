@@ -5,11 +5,12 @@ import java.util.Set;
 
 import com.hudtouchscreen.hudmessage.ActivityMessage;
 import com.hudtouchscreen.hudmessage.HudMessage;
-import com.hudtouchscreen.hudmessage.KeyBoardMessage;
+import com.hudtouchscreen.hudmessage.KeyboardMessage;
 import com.hudtouchscreen.hudmessage.KeyTouchMessage;
 import com.hudtouchscreen.hudmessage.ListMessage;
 import com.hudtouchscreen.hudmessage.LogMessage;
 import com.hudtouchscreen.hudmessage.LoopingMessage;
+import com.hudtouchscreen.hudmessage.SeekbarLogMessage;
 import com.hudtouchscreen.hudmessage.ShuffleMessage;
 import com.hudtouchscreen.hudmessage.SongtitleMessage;
 import com.hudtouchscreen.hudmessage.TimeMessage;
@@ -33,6 +34,7 @@ public class ServerService extends AbstractService {
 	public static final int MSG_KEYTOUCH = 10;
 	public static final int MSG_SEEKBAR= 11;
 	public static final int MSG_LOG = 12;
+	public static final int MSG_SEEKBARLOG = 13;
 	
 	private ClientListener clientListener;
 	private Set<Client> clients;
@@ -97,12 +99,16 @@ public class ServerService extends AbstractService {
 			broadcast(keyTouch); 
 			break;
 		case MSG_KEYBOARD:
-			KeyBoardMessage key = (KeyBoardMessage) bundle.getParcelable("Keyboard");
+			KeyboardMessage key = (KeyboardMessage) bundle.getParcelable("Keyboard");
 			broadcast(key);
 			break;
 		case MSG_LOG:
 			LogMessage log = (LogMessage) bundle.getParcelable("Log");
 			broadcast(log);
+			break;
+		case MSG_SEEKBARLOG:
+			SeekbarLogMessage seekbarLog = (SeekbarLogMessage) bundle.getParcelable("Seekbar Log");
+			broadcast(seekbarLog);
 			break;
 		default:
 		}

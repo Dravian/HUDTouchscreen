@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/keyboardview"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" 
     android:background="@android:color/black"
-    android:screenOrientation="landscape"
-    >
+    android:orientation="vertical" 
+    android:screenOrientation="landscape">
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -19,122 +19,130 @@
             android:id="@+id/empty1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight=".5"
-            android:text=""
-            android:textSize="20sp"
-            android:visibility="invisible"
             android:layout_margin="1dp"
-            android:clickable="false" />
+            android:layout_weight=".5"
+            android:clickable="false"
+            android:text=""
+            android:textSize="40sp"
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/a"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="A"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="A"
+            android:textSize="60sp"
+            android:focusable="true" />
 
         <Button
             android:id="@+id/s"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="S"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="S"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/d"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="1dp"
+            android:layout_margin="2dp"
             android:layout_weight="1"
             android:background="@color/grey"
             android:clickable="false"
             android:text="D"
-            android:textSize="30sp" />
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/f"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="F"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="F"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/g"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="G"
-            android:textSize="30sp" 
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="G"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/h"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="H"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="H"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/j"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="J"
-            android:textSize="30sp"
             android:background="@color/grey"
-           android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="J"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/k"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="K"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="K"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/l"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="L"
-            android:textSize="30sp"
             android:background="@color/grey"
-          android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="L"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/empty2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight=".5"
-            android:text="1"
-            android:textSize="20sp"
-            android:visibility="invisible" 
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text=""
+            android:textSize="40sp"
+            android:visibility="invisible" />
     </LinearLayout>
 
     <LinearLayout
@@ -149,101 +157,107 @@
             android:id="@+id/empty3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="1"
-            android:textSize="20sp"
-            android:visibility="invisible"
             android:layout_margin="1dp"
-            android:clickable="false" />
+            android:layout_weight="1"
+            android:clickable="false"
+            android:text=""
+            android:textSize="40sp"
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/y"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="Y"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="Y"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/x"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="X"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="X"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/c"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="C"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="C"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/v"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="V"
-            android:textSize="30sp" 
             android:background="@color/grey"
-           android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="V"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/b"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="B"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="B"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/n"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="N"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="N"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/m"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="M"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="M"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/empty4"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text=""
-            android:textSize="20sp"
-            android:visibility="invisible" 
             android:layout_margin="1dp"
-            android:clickable="false"/>
-
+            android:layout_weight="1"
+            android:clickable="false"
+            android:text=""
+            android:textSize="40sp"
+            android:visibility="invisible" />
     </LinearLayout>
 
     <LinearLayout
@@ -264,7 +278,7 @@
             android:ems="10"
             android:focusable="false"
             android:textColor="@android:color/white"
-            android:textSize="90sp" />
+            android:textSize="115sp" />
         
         <ImageView
             android:id="@+id/rightText"
@@ -275,6 +289,7 @@
             android:src="@drawable/redx" />
 
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="match_parent"
@@ -287,111 +302,121 @@
             android:id="@+id/q"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="Q"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="Q"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/w"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="W"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="W"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/e"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="E"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="E"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/r"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="R"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="R"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/t"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="T"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="T"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/z"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="Z"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="Z"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/u"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="U"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="U"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/i"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="I"
-            android:textSize="30sp" 
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="I"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/o"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="O"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="O"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/p"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="1"
-            android:text="P"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false" />
+            android:clickable="false"
+            android:text="P"
+            android:focusable="true"
+            android:textSize="60sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -402,29 +427,29 @@
         android:layout_below="@+id/linearLayout3"
         android:weightSum="10" >
 
-        
         <Button
             android:id="@+id/delete"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="5"
-            android:text="Delete"
-            android:textSize="30sp" 
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
+            android:clickable="false"
+            android:text="Delete"
+            android:focusable="true"
+            android:textSize="60sp" />
 
         <Button
             android:id="@+id/enter"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_weight="5"
-            android:text="Enter"
-            android:textSize="30sp"
             android:background="@color/grey"
-            android:layout_margin="1dp"
-            android:clickable="false"/>
-
+            android:clickable="false"
+            android:text="Enter"
+            android:focusable="true"
+            android:textSize="60sp" />
     </LinearLayout>
 
 </RelativeLayout>
